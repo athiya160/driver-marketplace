@@ -252,3 +252,158 @@ export async function fetchDriverReviews() {
   return res.json();
 }
 
+// -----------------------------------------------------------------------------
+// PHASE 6: ADMIN OPERATIONS CENTER CLIENT APIS
+// -----------------------------------------------------------------------------
+
+export async function adminLogin(credentials) {
+  const res = await fetch(`${BASE_URL}/admin/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(credentials)
+  });
+  return res.json();
+}
+
+export async function fetchAdminDrivers(params = {}) {
+  const query = new URLSearchParams(params).toString();
+  const res = await fetch(`${BASE_URL}/admin/drivers${query ? `?${query}` : ''}`);
+  return res.json();
+}
+
+export async function fetchAdminCustomers() {
+  const res = await fetch(`${BASE_URL}/admin/customers`);
+  return res.json();
+}
+
+export async function updateCustomerStatus(customerId, action, reason = '') {
+  const res = await fetch(`${BASE_URL}/admin/customers/${customerId}/status`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action, reason })
+  });
+  return res.json();
+}
+
+export async function fetchAdminBookings(params = {}) {
+  const query = new URLSearchParams(params).toString();
+  const res = await fetch(`${BASE_URL}/admin/bookings${query ? `?${query}` : ''}`);
+  return res.json();
+}
+
+export async function cancelAdminBooking(bookingId, reason = '') {
+  const res = await fetch(`${BASE_URL}/admin/bookings/${bookingId}/cancel`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ reason })
+  });
+  return res.json();
+}
+
+export async function issueAdminRefund(bookingId, refundData = {}) {
+  const res = await fetch(`${BASE_URL}/admin/bookings/${bookingId}/refund`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(refundData)
+  });
+  return res.json();
+}
+
+export async function fetchAdminTransactions() {
+  const res = await fetch(`${BASE_URL}/admin/transactions`);
+  return res.json();
+}
+
+export async function fetchAdminCities() {
+  const res = await fetch(`${BASE_URL}/admin/cities`);
+  return res.json();
+}
+
+export async function createAdminCity(cityData) {
+  const res = await fetch(`${BASE_URL}/admin/cities`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(cityData)
+  });
+  return res.json();
+}
+
+export async function updateAdminCity(cityId, cityData) {
+  const res = await fetch(`${BASE_URL}/admin/cities/${cityId}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(cityData)
+  });
+  return res.json();
+}
+
+export async function fetchAdminPricingRules() {
+  const res = await fetch(`${BASE_URL}/admin/pricing-rules`);
+  return res.json();
+}
+
+export async function updateAdminPricingRules(pricingData) {
+  const res = await fetch(`${BASE_URL}/admin/pricing-rules`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(pricingData)
+  });
+  return res.json();
+}
+
+export async function fetchAdminCoupons() {
+  const res = await fetch(`${BASE_URL}/admin/coupons`);
+  return res.json();
+}
+
+export async function createAdminCoupon(couponData) {
+  const res = await fetch(`${BASE_URL}/admin/coupons`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(couponData)
+  });
+  return res.json();
+}
+
+export async function updateAdminCoupon(couponId, couponData) {
+  const res = await fetch(`${BASE_URL}/admin/coupons/${couponId}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(couponData)
+  });
+  return res.json();
+}
+
+export async function fetchAdminSupportTickets() {
+  const res = await fetch(`${BASE_URL}/admin/support-tickets`);
+  return res.json();
+}
+
+export async function resolveAdminSupportTicket(ticketId, updateData) {
+  const res = await fetch(`${BASE_URL}/admin/support-tickets/${ticketId}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(updateData)
+  });
+  return res.json();
+}
+
+export async function fetchAdminReviews() {
+  const res = await fetch(`${BASE_URL}/admin/reviews`);
+  return res.json();
+}
+
+export async function moderateAdminReview(reviewId, action, note = '') {
+  const res = await fetch(`${BASE_URL}/admin/reviews/${reviewId}/moderate`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action, note })
+  });
+  return res.json();
+}
+
+export async function fetchAdminAuditLogs() {
+  const res = await fetch(`${BASE_URL}/admin/audit-logs`);
+  return res.json();
+}
+

@@ -83,7 +83,7 @@ export default function CustomerProfileScreen({
   };
 
   const customerName = currentUser?.fullName || BRAND.owner;
-  const customerEmail = currentUser?.email || 'salman@salmandriver.in';
+  const customerEmail = currentUser?.email || 'rohan.demo@example.com';
 
   return (
     <div className="flex flex-col min-h-full pb-20 bg-[#F8FAFC] text-[#172033]">

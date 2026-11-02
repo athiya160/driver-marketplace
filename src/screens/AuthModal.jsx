@@ -367,7 +367,7 @@ export default function AuthModal({
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="salman@salmandriver.in"
+                  placeholder="customer@example.com"
                   className="w-full py-2 px-3 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white focus:outline-none"
                 />
               </div>

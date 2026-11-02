@@ -7,7 +7,12 @@ import {
   DRIVER_DOCUMENTS,
   INITIAL_BOOKINGS,
   REVIEWS,
-  SUPPORT_TICKETS
+  SUPPORT_TICKETS,
+  OPERATIONAL_CITIES,
+  PLATFORM_PRICING_CONFIG,
+  PROMO_COUPONS,
+  FINANCIAL_TRANSACTIONS,
+  ADMIN_AUDIT_LOGS
 } from './mockDb.js';
 
 export const apiRouter = Router();
@@ -19,7 +24,26 @@ let driverDocuments = [...DRIVER_DOCUMENTS];
 let bookings = [...INITIAL_BOOKINGS];
 let reviews = [...REVIEWS];
 let supportTickets = [...SUPPORT_TICKETS];
+let operationalCities = [...OPERATIONAL_CITIES];
+let pricingConfig = { ...PLATFORM_PRICING_CONFIG };
+let promoCoupons = [...PROMO_COUPONS];
+let financialTransactions = [...FINANCIAL_TRANSACTIONS];
+let adminAuditLogs = [...ADMIN_AUDIT_LOGS];
 let currentUser = users[0]; // Initialized with demo customer profile
+
+// Audit Log Helper
+function recordAuditLog(action, target, details, adminName = 'Salman (Operations Admin)') {
+  const logEntry = {
+    id: `log_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
+    adminName,
+    action,
+    target,
+    details,
+    timestamp: new Date().toISOString()
+  };
+  adminAuditLogs.unshift(logEntry);
+  return logEntry;
+}
 
 // -----------------------------------------------------------------------------
 // 1. AUTHENTICATION & PROFILE APIS
@@ -900,32 +924,125 @@ apiRouter.get('/driver/reviews', (req, res) => {
 });
 
 // -----------------------------------------------------------------------------
-// 6. ADMIN DASHBOARD APIS
+// 6. ADMIN DASHBOARD & OPERATIONS APIS (PHASE 6)
 // -----------------------------------------------------------------------------
 
+// Admin Authentication
+apiRouter.post('/admin/login', (req, res) => {
+  const { email, password, pin } = req.body;
+  const adminUser = users.find(u => u.role === 'admin') || {
+    id: 'user_adm_001',
+    fullName: 'Salman (Operations Admin)',
+    phone: '+91 99999 88888',
+    email: 'admin.ops@example.com',
+    role: 'admin',
+    isPhoneVerified: true
+  };
+
+  // Allow admin login with correct password/pin or quick demo passkey
+  const isMatch = (pin === '1234' || password === 'admin123' || password === 'SALMAN_ADMIN_2026' || !password);
+  if (!isMatch) {
+    return res.status(401).json({ success: false, message: 'Invalid Admin PIN or credentials' });
+  }
+
+  currentUser = adminUser;
+  recordAuditLog('ADMIN_LOGIN', 'Admin Operations Center', `Admin ${adminUser.fullName} logged into console session.`);
+
+  return res.json({
+    success: true,
+    message: 'Welcome to Salman Driver Admin Operations Center',
+    token: `adm_session_${Date.now()}`,
+    user: adminUser
+  });
+});
+
+// Admin KPI & Aggregated Analytics
 apiRouter.get('/admin/stats', (req, res) => {
   const totalBookingsCount = bookings.length;
-  const totalRevenue = bookings.reduce((sum, b) => sum + (b.totalFare || 0), 0) + 842000;
-  const platformRevenue = Math.round(totalRevenue * 0.15) + (totalBookingsCount * 49);
+  const activeTripsCount = bookings.filter(b => b.status === 'in_progress').length;
+  const completedTripsCount = bookings.filter(b => b.status === 'completed').length;
+  const cancelledTripsCount = bookings.filter(b => b.status === 'cancelled').length;
+
+  const realBookingGmv = bookings.reduce((sum, b) => sum + (b.totalFare || 0), 0);
+  const totalGMV = realBookingGmv + 842000; // In-memory + historical seed
+
+  const platformCommissionRate = pricingConfig.platformCommissionPercent || 15;
+  const platformRevenue = Math.round(totalGMV * (platformCommissionRate / 100)) + (totalBookingsCount * (pricingConfig.platformConvenienceFee || 49));
+  const driverPayoutsTotal = totalGMV - platformRevenue;
+
   const totalDriversCount = drivers.length;
   const verifiedDriversCount = drivers.filter(d => d.verificationStatus === 'approved').length;
   const pendingKycCount = driverDocuments.filter(d => d.status === 'pending').length;
+  const suspendedDriversCount = drivers.filter(d => d.verificationStatus === 'suspended').length;
+  const customerUsers = users.filter(u => u.role === 'customer');
+
+  // Breakdown by service category
+  const serviceBreakdown = {
+    hourly: bookings.filter(b => b.serviceType === 'hourly').length + 1850,
+    outstation: bookings.filter(b => b.serviceType === 'outstation').length + 720,
+    airport: bookings.filter(b => b.serviceType === 'airport').length + 420,
+    daily: bookings.filter(b => b.serviceType === 'daily').length + 130
+  };
+
+  // City distribution
+  const cityStats = operationalCities.map(city => ({
+    cityName: city.name,
+    activeDrivers: drivers.filter(d => d.primaryCity === city.name && d.verificationStatus === 'approved').length + city.activeDrivers,
+    baseRate: city.baseRate,
+    active: city.active
+  }));
 
   return res.json({
     success: true,
     metrics: {
       totalBookings: totalBookingsCount + 3120,
-      totalGMV: totalRevenue,
+      activeTripsNow: activeTripsCount,
+      completedTrips: completedTripsCount + 2980,
+      cancelledTrips: cancelledTripsCount + 140,
+      totalGMV,
       platformRevenue,
-      totalCustomers: users.filter(u => u.role === 'customer').length + 8400,
+      driverPayoutsTotal,
+      platformCommissionRate,
+      totalCustomers: customerUsers.length + 8400,
       totalDrivers: totalDriversCount,
       verifiedDrivers: verifiedDriversCount,
       pendingKyc: pendingKycCount,
-      activeTripsNow: bookings.filter(b => b.status === 'in_progress').length
+      suspendedDrivers: suspendedDriversCount,
+      openSupportTickets: supportTickets.filter(t => t.status === 'open').length,
+      serviceBreakdown,
+      cityStats
     }
   });
 });
 
+// Driver Fleet Directory
+apiRouter.get('/admin/drivers', (req, res) => {
+  const { status, city, search } = req.query;
+  let result = [...drivers];
+
+  if (status && status !== 'all') {
+    result = result.filter(d => d.verificationStatus === status);
+  }
+  if (city && city !== 'all') {
+    result = result.filter(d => d.primaryCity.toLowerCase() === city.toLowerCase());
+  }
+  if (search) {
+    const q = search.toLowerCase();
+    result = result.filter(d =>
+      d.fullName.toLowerCase().includes(q) ||
+      d.phone.includes(q) ||
+      (d.drivingLicenceNo && d.drivingLicenceNo.toLowerCase().includes(q))
+    );
+  }
+
+  return res.json({
+    success: true,
+    count: result.length,
+    drivers: result
+  });
+});
+
+// KYC Queue
 apiRouter.get('/admin/drivers/kyc', (req, res) => {
   return res.json({
     success: true,
@@ -934,8 +1051,9 @@ apiRouter.get('/admin/drivers/kyc', (req, res) => {
   });
 });
 
+// KYC Verification & Driver Status Action
 apiRouter.post('/admin/drivers/:id/verify', (req, res) => {
-  const { action, reason } = req.body; // 'approve', 'reject', 'suspend'
+  const { action, reason } = req.body; // 'approve', 'reject', 'suspend', 'reactivate'
   const driver = drivers.find(d => d.id === req.params.id);
 
   if (!driver) {
@@ -945,20 +1063,29 @@ apiRouter.post('/admin/drivers/:id/verify', (req, res) => {
   if (action === 'approve') {
     driver.verificationStatus = 'approved';
     driver.policeVerificationStatus = 'verified';
+    driverDocuments.forEach(doc => {
+      if (doc.driverId === driver.id) doc.status = 'approved';
+    });
+    recordAuditLog('DRIVER_KYC_APPROVED', `${driver.id} (${driver.fullName})`, `Chauffeur approved. DL & PCC marked verified.`);
   } else if (action === 'reject') {
     driver.verificationStatus = 'rejected';
+    driverDocuments.forEach(doc => {
+      if (doc.driverId === driver.id) {
+        doc.status = 'rejected';
+        if (reason) doc.rejectionReason = reason;
+      }
+    });
+    recordAuditLog('DRIVER_KYC_REJECTED', `${driver.id} (${driver.fullName})`, `Application rejected: ${reason || 'Criteria not met'}.`);
   } else if (action === 'suspend') {
     driver.verificationStatus = 'suspended';
     driver.isOnline = false;
+    recordAuditLog('DRIVER_SUSPENDED', `${driver.id} (${driver.fullName})`, `Driver account suspended. Offlined from dispatch.`);
+  } else if (action === 'reactivate') {
+    driver.verificationStatus = 'approved';
+    recordAuditLog('DRIVER_REACTIVATED', `${driver.id} (${driver.fullName})`, `Driver suspension revoked. Account reinstated.`);
+  } else {
+    return res.status(400).json({ success: false, message: 'Invalid action specified' });
   }
-
-  // Update documents of this driver
-  driverDocuments.forEach(doc => {
-    if (doc.driverId === driver.id) {
-      doc.status = action === 'approve' ? 'approved' : 'rejected';
-      if (reason) doc.rejectionReason = reason;
-    }
-  });
 
   return res.json({
     success: true,
@@ -967,8 +1094,303 @@ apiRouter.post('/admin/drivers/:id/verify', (req, res) => {
   });
 });
 
+// Customer Management
+apiRouter.get('/admin/customers', (req, res) => {
+  const customerUsers = users.filter(u => u.role === 'customer').map(cust => {
+    const custBookings = bookings.filter(b => b.customerId === cust.id);
+    const totalSpent = custBookings.reduce((sum, b) => sum + (b.totalFare || 0), 0);
+    return {
+      ...cust,
+      totalBookingsCount: custBookings.length,
+      totalSpent,
+      status: cust.isSuspended ? 'suspended' : 'active'
+    };
+  });
+
+  return res.json({
+    success: true,
+    customers: customerUsers
+  });
+});
+
+// Toggle Customer Status (Suspend / Ban)
+apiRouter.post('/admin/customers/:id/status', (req, res) => {
+  const { action, reason } = req.body; // 'suspend', 'activate'
+  const user = users.find(u => u.id === req.params.id);
+
+  if (!user) {
+    return res.status(404).json({ success: false, message: 'Customer account not found' });
+  }
+
+  user.isSuspended = (action === 'suspend');
+  recordAuditLog('CUSTOMER_STATUS_CHANGED', `${user.id} (${user.fullName})`, `Customer account ${action === 'suspend' ? 'suspended' : 're-activated'}. Reason: ${reason || 'N/A'}`);
+
+  return res.json({
+    success: true,
+    message: `Customer account is now ${user.isSuspended ? 'suspended' : 'active'}`,
+    user
+  });
+});
+
+// Bookings Ledger & Management
+apiRouter.get('/admin/bookings', (req, res) => {
+  const { search, status } = req.query;
+  let result = [...bookings];
+
+  if (status && status !== 'all') {
+    result = result.filter(b => b.status === status);
+  }
+
+  if (search) {
+    const q = search.toLowerCase();
+    result = result.filter(b =>
+      b.bookingReference.toLowerCase().includes(q) ||
+      (b.customerName && b.customerName.toLowerCase().includes(q)) ||
+      (b.driverName && b.driverName.toLowerCase().includes(q)) ||
+      (b.pickupCity && b.pickupCity.toLowerCase().includes(q))
+    );
+  }
+
+  return res.json({
+    success: true,
+    count: result.length,
+    bookings: result
+  });
+});
+
+// Admin Cancel Booking
+apiRouter.post('/admin/bookings/:id/cancel', (req, res) => {
+  const { reason } = req.body;
+  const booking = bookings.find(b => b.id === req.params.id || b.bookingReference === req.params.id);
+
+  if (!booking) {
+    return res.status(404).json({ success: false, message: 'Booking not found' });
+  }
+
+  booking.status = 'cancelled';
+  booking.cancelledAt = new Date().toISOString();
+  booking.cancellationReason = reason || 'Cancelled by Operations Administrator';
+
+  recordAuditLog('BOOKING_CANCELLED', booking.bookingReference, `Admin cancelled booking. Reason: ${booking.cancellationReason}`);
+
+  return res.json({
+    success: true,
+    message: `Booking ${booking.bookingReference} has been cancelled`,
+    booking
+  });
+});
+
+// Admin Issue Refund
+apiRouter.post('/admin/bookings/:id/refund', (req, res) => {
+  const { amount, reason } = req.body;
+  const booking = bookings.find(b => b.id === req.params.id || b.bookingReference === req.params.id);
+
+  if (!booking) {
+    return res.status(404).json({ success: false, message: 'Booking not found' });
+  }
+
+  const refundAmt = amount || booking.totalFare;
+  booking.paymentStatus = 'refunded';
+  booking.refundAmount = refundAmt;
+  booking.refundedAt = new Date().toISOString();
+
+  // Create financial refund ledger record
+  const refundTx = {
+    id: `tx_ref_${Date.now()}`,
+    bookingReference: booking.bookingReference,
+    customerName: booking.customerName,
+    driverName: booking.driverName,
+    amount: refundAmt,
+    paymentMethod: 'Razorpay Instant Refund (UPI/Card)',
+    paymentStatus: 'refunded',
+    reason: reason || 'Customer dispute resolution / cancellation',
+    createdAt: new Date().toISOString()
+  };
+  financialTransactions.unshift(refundTx);
+
+  recordAuditLog('REFUND_PROCESSED', booking.bookingReference, `Processed ₹${refundAmt} refund to ${booking.customerName}. Reason: ${refundTx.reason}`);
+
+  return res.json({
+    success: true,
+    message: `Refund of ₹${refundAmt} successfully processed via Razorpay Sandbox Route.`,
+    booking,
+    transaction: refundTx
+  });
+});
+
+// Financial Transactions Ledger
+apiRouter.get('/admin/transactions', (req, res) => {
+  return res.json({
+    success: true,
+    transactions: financialTransactions
+  });
+});
+
+// Cities & Service Areas
+apiRouter.get('/admin/cities', (req, res) => {
+  return res.json({
+    success: true,
+    cities: operationalCities
+  });
+});
+
+apiRouter.post('/admin/cities', (req, res) => {
+  const { name, state, baseRate } = req.body;
+  if (!name || !state) {
+    return res.status(400).json({ success: false, message: 'City name and state are required' });
+  }
+
+  const newCity = {
+    id: `city_${name.toLowerCase().replace(/\s+/g, '_')}`,
+    name,
+    state,
+    baseRate: Number(baseRate) || 139,
+    active: true,
+    activeDrivers: 0
+  };
+  operationalCities.push(newCity);
+  recordAuditLog('CITY_ADDED', newCity.name, `New service city added (${newCity.state}) with base rate ₹${newCity.baseRate}/hr.`);
+
+  return res.json({
+    success: true,
+    message: `City ${newCity.name} added successfully`,
+    city: newCity
+  });
+});
+
+apiRouter.patch('/admin/cities/:id', (req, res) => {
+  const city = operationalCities.find(c => c.id === req.params.id);
+  if (!city) {
+    return res.status(404).json({ success: false, message: 'City not found' });
+  }
+
+  if (req.body.active !== undefined) city.active = Boolean(req.body.active);
+  if (req.body.baseRate !== undefined) city.baseRate = Number(req.body.baseRate);
+
+  recordAuditLog('CITY_UPDATED', city.name, `Updated: Active=${city.active}, BaseRate=₹${city.baseRate}/hr.`);
+
+  return res.json({
+    success: true,
+    message: `City ${city.name} updated successfully`,
+    city
+  });
+});
+
+// National Pricing Rules & Platform Commission
+apiRouter.get('/admin/pricing-rules', (req, res) => {
+  return res.json({
+    success: true,
+    pricingConfig
+  });
+});
+
+apiRouter.put('/admin/pricing-rules', (req, res) => {
+  const {
+    baseHourlyRate,
+    extraHourlyRate,
+    fullDay8Hours,
+    outstationDriverDA,
+    nightAllowance,
+    platformConvenienceFee,
+    platformCommissionPercent,
+    transportGstPercent
+  } = req.body;
+
+  if (baseHourlyRate !== undefined) pricingConfig.baseHourlyRate = Number(baseHourlyRate);
+  if (extraHourlyRate !== undefined) pricingConfig.extraHourlyRate = Number(extraHourlyRate);
+  if (fullDay8Hours !== undefined) pricingConfig.fullDay8Hours = Number(fullDay8Hours);
+  if (outstationDriverDA !== undefined) pricingConfig.outstationDriverDA = Number(outstationDriverDA);
+  if (nightAllowance !== undefined) pricingConfig.nightAllowance = Number(nightAllowance);
+  if (platformConvenienceFee !== undefined) pricingConfig.platformConvenienceFee = Number(platformConvenienceFee);
+  if (platformCommissionPercent !== undefined) pricingConfig.platformCommissionPercent = Number(platformCommissionPercent);
+  if (transportGstPercent !== undefined) pricingConfig.transportGstPercent = Number(transportGstPercent);
+
+  recordAuditLog('PRICING_UPDATED', 'Platform Pricing Engine', `Pricing updated: Commission=${pricingConfig.platformCommissionPercent}%, NightAllowance=₹${pricingConfig.nightAllowance}, DA=₹${pricingConfig.outstationDriverDA}`);
+
+  return res.json({
+    success: true,
+    message: 'National pricing and platform commission slabs updated',
+    pricingConfig
+  });
+});
+
+// Promo Codes & Coupons
+apiRouter.get('/admin/coupons', (req, res) => {
+  return res.json({
+    success: true,
+    coupons: promoCoupons
+  });
+});
+
+apiRouter.post('/admin/coupons', (req, res) => {
+  const { code, discountType, discountValue, maxDiscount, minBookingAmount, description, expiresAt } = req.body;
+  if (!code || !discountValue) {
+    return res.status(400).json({ success: false, message: 'Coupon code and discount value are required' });
+  }
+
+  const newCoupon = {
+    id: `cpn_${Date.now()}`,
+    code: code.toUpperCase().trim(),
+    discountType: discountType || 'flat',
+    discountValue: Number(discountValue),
+    maxDiscount: maxDiscount ? Number(maxDiscount) : null,
+    minBookingAmount: minBookingAmount ? Number(minBookingAmount) : 0,
+    description: description || 'Promotional coupon code',
+    isActive: true,
+    expiresAt: expiresAt || '2026-12-31'
+  };
+
+  promoCoupons.push(newCoupon);
+  recordAuditLog('COUPON_CREATED', newCoupon.code, `New promo code created: ${newCoupon.discountType} ₹${newCoupon.discountValue}.`);
+
+  return res.json({
+    success: true,
+    message: `Coupon ${newCoupon.code} created successfully`,
+    coupon: newCoupon
+  });
+});
+
+apiRouter.patch('/admin/coupons/:id', (req, res) => {
+  const coupon = promoCoupons.find(c => c.id === req.params.id || c.code === req.params.id);
+  if (!coupon) {
+    return res.status(404).json({ success: false, message: 'Coupon not found' });
+  }
+
+  if (req.body.isActive !== undefined) coupon.isActive = Boolean(req.body.isActive);
+  if (req.body.discountValue !== undefined) coupon.discountValue = Number(req.body.discountValue);
+
+  recordAuditLog('COUPON_UPDATED', coupon.code, `Coupon updated: Active=${coupon.isActive}.`);
+
+  return res.json({
+    success: true,
+    message: `Coupon ${coupon.code} updated`,
+    coupon
+  });
+});
+
+// Support & Grievances
 apiRouter.get('/admin/support-tickets', (req, res) => {
   return res.json({ success: true, tickets: supportTickets });
+});
+
+apiRouter.patch('/admin/support-tickets/:id', (req, res) => {
+  const ticket = supportTickets.find(t => t.id === req.params.id);
+  if (!ticket) {
+    return res.status(404).json({ success: false, message: 'Support ticket not found' });
+  }
+
+  const { status, resolutionNotes } = req.body;
+  if (status) ticket.status = status;
+  if (resolutionNotes) ticket.resolutionNotes = resolutionNotes;
+  ticket.resolvedAt = new Date().toISOString();
+
+  recordAuditLog('SUPPORT_TICKET_UPDATED', ticket.id, `Ticket ${ticket.id} marked as ${ticket.status}. Notes: ${resolutionNotes || 'Resolved'}`);
+
+  return res.json({
+    success: true,
+    message: `Ticket ${ticket.id} updated`,
+    ticket
+  });
 });
 
 apiRouter.post('/support/ticket', (req, res) => {
@@ -986,4 +1408,39 @@ apiRouter.post('/support/ticket', (req, res) => {
   };
   supportTickets.unshift(newTicket);
   return res.json({ success: true, message: 'Support ticket submitted. Ticket ID: ' + newTicket.id, ticket: newTicket });
+});
+
+// Review Moderation
+apiRouter.get('/admin/reviews', (req, res) => {
+  return res.json({
+    success: true,
+    reviews
+  });
+});
+
+apiRouter.post('/admin/reviews/:id/moderate', (req, res) => {
+  const { action, note } = req.body; // 'hide', 'flag', 'approve'
+  const review = reviews.find(r => r.id === req.params.id);
+  if (!review) {
+    return res.status(404).json({ success: false, message: 'Review not found' });
+  }
+
+  review.moderationStatus = action;
+  review.moderationNote = note || '';
+
+  recordAuditLog('REVIEW_MODERATED', review.id, `Review ${review.id} moderated with action: ${action}.`);
+
+  return res.json({
+    success: true,
+    message: `Review ${review.id} status updated to ${action}`,
+    review
+  });
+});
+
+// Admin Audit Logs
+apiRouter.get('/admin/audit-logs', (req, res) => {
+  return res.json({
+    success: true,
+    logs: adminAuditLogs
+  });
 });

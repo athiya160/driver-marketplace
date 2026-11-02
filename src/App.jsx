@@ -365,7 +365,7 @@ export default function App() {
 
         {/* 7. Admin Dashboard Screen */}
         {activeScreen === 'admin_dash' && (
-          <AdminDashboardScreen />
+          <AdminDashboardScreen onSwitchRole={handleSwitchRole} />
         )}
 
         {/* 8. App Scanner Screen */}

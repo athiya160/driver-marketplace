@@ -24,7 +24,7 @@ export const USERS = [
     id: 'user_drv_001',
     fullName: 'Rajesh Kumar Sharma',
     phone: '+91 98111 22334',
-    email: 'rajesh.driver@sarathi.in',
+    email: 'rajesh.driver@example.com',
     role: 'driver',
     avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=160&q=80',
     isPhoneVerified: true
@@ -33,7 +33,7 @@ export const USERS = [
     id: 'user_adm_001',
     fullName: 'Sarathi Operations Admin',
     phone: '+91 99999 88888',
-    email: 'admin@sarathi.in',
+    email: 'admin.ops@example.com',
     role: 'admin',
     avatarUrl: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=160&q=80',
     isPhoneVerified: true
@@ -479,5 +479,137 @@ export const SUPPORT_TICKETS = [
     message: 'Please send the GST tax invoice mentioning company GSTIN 07AAAAA0000A1Z5 for the airport drop ride.',
     status: 'resolved',
     createdAt: '2026-10-26T08:00:00Z'
+  },
+  {
+    id: 'tkt_2',
+    userId: 'user_cust_demo_01',
+    userName: 'Rohan Verma (Demo)',
+    bookingReference: 'SRT-2026-9044',
+    category: 'outstation',
+    subject: 'Inquiry regarding outstation driver night stay allowance',
+    message: 'Does the ₹350 DA cover driver food and hotel stay during our 2-day Agra trip?',
+    status: 'open',
+    createdAt: '2026-10-29T21:00:00Z'
+  }
+];
+
+export const OPERATIONAL_CITIES = [
+  { id: 'city_delhi', name: 'Delhi NCR', state: 'Delhi & NCR', active: true, baseRate: 149, activeDrivers: 420 },
+  { id: 'city_mumbai', name: 'Mumbai', state: 'Maharashtra', active: true, baseRate: 169, activeDrivers: 380 },
+  { id: 'city_blr', name: 'Bengaluru', state: 'Karnataka', active: true, baseRate: 159, activeDrivers: 310 },
+  { id: 'city_hyd', name: 'Hyderabad', state: 'Telangana', active: true, baseRate: 139, activeDrivers: 240 },
+  { id: 'city_chn', name: 'Chennai', state: 'Tamil Nadu', active: true, baseRate: 149, activeDrivers: 190 },
+  { id: 'city_pune', name: 'Pune', state: 'Maharashtra', active: true, baseRate: 139, activeDrivers: 175 },
+  { id: 'city_kol', name: 'Kolkata', state: 'West Bengal', active: true, baseRate: 129, activeDrivers: 160 },
+  { id: 'city_jpr', name: 'Jaipur', state: 'Rajasthan', active: true, baseRate: 129, activeDrivers: 120 },
+  { id: 'city_chd', name: 'Chandigarh', state: 'Punjab & Haryana', active: true, baseRate: 139, activeDrivers: 95 },
+  { id: 'city_lko', name: 'Lucknow', state: 'Uttar Pradesh', active: true, baseRate: 119, activeDrivers: 80 }
+];
+
+export const PLATFORM_PRICING_CONFIG = {
+  baseHourlyRate: 299, // First 2 hours minimum
+  extraHourlyRate: 120, // Per hour thereafter
+  fullDay8Hours: 1199,
+  outstationDriverDA: 350, // Per day food/stay allowance
+  nightAllowance: 250, // Trips active between 10 PM and 6 AM
+  platformConvenienceFee: 49,
+  platformCommissionPercent: 15, // 15% platform take, 85% driver take
+  transportGstPercent: 5.0 // Road transport aggregator GST
+};
+
+export const PROMO_COUPONS = [
+  {
+    id: 'cpn_1',
+    code: 'FIRST50',
+    discountType: 'flat',
+    discountValue: 50,
+    minBookingAmount: 299,
+    description: 'Flat ₹50 OFF on your first personal chauffeur booking',
+    isActive: true,
+    expiresAt: '2026-12-31'
+  },
+  {
+    id: 'cpn_2',
+    code: 'WEEKEND100',
+    discountType: 'flat',
+    discountValue: 100,
+    minBookingAmount: 999,
+    description: 'Flat ₹100 OFF on full-day and outstation weekend trips',
+    isActive: true,
+    expiresAt: '2026-12-31'
+  },
+  {
+    id: 'cpn_3',
+    code: 'SALMAN10',
+    discountType: 'percentage',
+    discountValue: 10,
+    maxDiscount: 150,
+    minBookingAmount: 499,
+    description: '10% OFF up to ₹150 for loyal customers',
+    isActive: true,
+    expiresAt: '2026-12-31'
+  }
+];
+
+export const FINANCIAL_TRANSACTIONS = [
+  {
+    id: 'tx_901',
+    bookingReference: 'SRT-2026-8821',
+    customerName: 'Demo Customer (Rohan Verma)',
+    driverName: 'Rajesh Kumar Sharma',
+    amount: 567,
+    paymentMethod: 'UPI (Google Pay)',
+    paymentStatus: 'captured',
+    gatewayPaymentId: 'pay_rzp_9841284',
+    createdAt: '2026-10-30T14:31:00Z'
+  },
+  {
+    id: 'tx_902',
+    bookingReference: 'SRT-2026-9044',
+    customerName: 'Demo Customer (Rohan Verma)',
+    driverName: 'Harpreet Singh',
+    amount: 2313,
+    paymentMethod: 'UPI (PhonePe)',
+    paymentStatus: 'authorized',
+    gatewayPaymentId: 'pay_rzp_9901421',
+    createdAt: '2026-10-29T20:16:00Z'
+  },
+  {
+    id: 'tx_903',
+    bookingReference: 'SRT-2026-7210',
+    customerName: 'Demo Customer (Rohan Verma)',
+    driverName: 'Rajesh Kumar Sharma',
+    amount: 1048,
+    paymentMethod: 'Credit Card (Visa)',
+    paymentStatus: 'captured',
+    gatewayPaymentId: 'pay_rzp_8712391',
+    createdAt: '2026-10-25T19:05:00Z'
+  }
+];
+
+export const ADMIN_AUDIT_LOGS = [
+  {
+    id: 'log_01',
+    adminName: 'Salman (Operations Admin)',
+    action: 'PLATFORM_SYSTEM_INIT',
+    target: 'Salman Driver Core Engine',
+    details: 'System initialized across 10 operational Indian metros with strict verification rules.',
+    timestamp: '2026-10-20T09:00:00Z'
+  },
+  {
+    id: 'log_02',
+    adminName: 'Salman (Operations Admin)',
+    action: 'DRIVER_KYC_APPROVED',
+    target: 'drv_delhi_1 (Rajesh Kumar Sharma)',
+    details: 'Commercial DL DL-0420150089211 and Police Clearance Certificate verified and approved.',
+    timestamp: '2026-10-22T11:30:00Z'
+  },
+  {
+    id: 'log_03',
+    adminName: 'Salman (Operations Admin)',
+    action: 'DRIVER_KYC_APPROVED',
+    target: 'drv_delhi_2 (Harpreet Singh)',
+    details: 'Commercial Driving License and outstation background check approved.',
+    timestamp: '2026-10-23T14:15:00Z'
   }
 ];
