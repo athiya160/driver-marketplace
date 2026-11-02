@@ -147,3 +147,108 @@ export async function submitSupportTicket(ticketData) {
   });
   return res.json();
 }
+
+// -----------------------------------------------------------------------------
+// PHASE 5: DRIVER MANAGEMENT CLIENT APIS
+// -----------------------------------------------------------------------------
+
+export async function registerDriver(driverData) {
+  const res = await fetch(`${BASE_URL}/driver/register`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(driverData)
+  });
+  return res.json();
+}
+
+export async function fetchDriverKycStatus() {
+  const res = await fetch(`${BASE_URL}/driver/kyc-status`);
+  return res.json();
+}
+
+export async function submitDriverKyc(kycData) {
+  const res = await fetch(`${BASE_URL}/driver/submit-kyc`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(kycData)
+  });
+  return res.json();
+}
+
+export async function fetchDriverProfile() {
+  const res = await fetch(`${BASE_URL}/driver/profile`);
+  return res.json();
+}
+
+export async function updateDriverProfile(profileData) {
+  const res = await fetch(`${BASE_URL}/driver/profile`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(profileData)
+  });
+  return res.json();
+}
+
+export async function fetchDriverPricing() {
+  const res = await fetch(`${BASE_URL}/driver/pricing`);
+  return res.json();
+}
+
+export async function updateDriverPricing(pricingData) {
+  const res = await fetch(`${BASE_URL}/driver/pricing`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(pricingData)
+  });
+  return res.json();
+}
+
+export async function fetchDriverAvailability() {
+  const res = await fetch(`${BASE_URL}/driver/availability`);
+  return res.json();
+}
+
+export async function updateDriverAvailability(schedule) {
+  const res = await fetch(`${BASE_URL}/driver/availability`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ schedule })
+  });
+  return res.json();
+}
+
+export async function acceptBookingRequest(bookingId) {
+  const res = await fetch(`${BASE_URL}/driver/requests/${bookingId}/accept`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' }
+  });
+  return res.json();
+}
+
+export async function rejectBookingRequest(bookingId) {
+  const res = await fetch(`${BASE_URL}/driver/requests/${bookingId}/reject`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' }
+  });
+  return res.json();
+}
+
+export async function advanceTripStep(bookingId, targetStatus, otp = '') {
+  const res = await fetch(`${BASE_URL}/driver/trip/${bookingId}/step`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ targetStatus, otp })
+  });
+  return res.json();
+}
+
+export async function fetchDriverEarnings() {
+  const res = await fetch(`${BASE_URL}/driver/earnings`);
+  return res.json();
+}
+
+export async function fetchDriverReviews() {
+  const res = await fetch(`${BASE_URL}/driver/reviews`);
+  return res.json();
+}
+

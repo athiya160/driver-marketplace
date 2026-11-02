@@ -18,10 +18,10 @@ const { width } = Dimensions.get('window');
 
 /**
  * SALMAN DRIVER - PAN-INDIA DRIVER RENTAL MOBILE APPLICATION
- * React Native & Expo Mobile Client
+ * React Native & Expo Mobile Client (Customer App & Driver Portal)
  * Owner: Salman | Tagline: Find. Book. Travel Better.
  * Theme: Light Slate (#F8FAFC), Deep Navy (#0F1E36), Warm Orange (#F97316)
- * Objective: Hire verified personal drivers on demand for your own vehicle across India.
+ * Objective: Connect vehicle owners with verified personal drivers across India.
  */
 
 // Production Service Categories Across India
@@ -118,10 +118,37 @@ const VERIFIED_DRIVERS = [
 ];
 
 export default function App() {
-  // Navigation State: 'home', 'drivers', 'booking', 'live_trip', 'history', 'profile'
+  // Dual App Mode: 'customer' or 'driver'
+  const [appMode, setAppMode] = useState('customer');
+
+  // Customer Navigation State: 'home', 'drivers', 'booking', 'live_trip', 'history', 'profile'
   const [currentScreen, setCurrentScreen] = useState('home');
 
-  // Customer Session State (Demo default or Registered)
+  // Driver Navigation State: 'dash', 'requests', 'kyc', 'schedule', 'earnings'
+  const [driverTab, setDriverTab] = useState('dash');
+  const [driverOnline, setDriverOnline] = useState(true);
+  const [driverIncomingRequest, setDriverIncomingRequest] = useState({
+    id: 'bk_req_99',
+    customerName: 'Priya N.',
+    pickup: 'DLF Cyber City, Tower 10B, Gurugram',
+    destination: 'Terminal 3, IGI Airport, New Delhi',
+    car: 'Hyundai Creta (Automatic)',
+    service: 'Hourly Chauffeur (4 hrs)',
+    driverEarning: 527
+  });
+
+  // Driver Duty Schedule State
+  const [scheduleRoster, setScheduleRoster] = useState([
+    { day: 'Mon', available: true, hours: '8 AM - 8 PM' },
+    { day: 'Tue', available: true, hours: '8 AM - 8 PM' },
+    { day: 'Wed', available: true, hours: '8 AM - 8 PM' },
+    { day: 'Thu', available: true, hours: '8 AM - 8 PM' },
+    { day: 'Fri', available: true, hours: '8 AM - 10 PM' },
+    { day: 'Sat', available: true, hours: '6 AM - 11 PM' },
+    { day: 'Sun', available: false, hours: 'Weekly Off' }
+  ]);
+
+  // Customer Session State
   const [currentUser, setCurrentUser] = useState({
     id: 'user_cust_demo_01',
     fullName: 'Demo Customer (Rohan Verma)',
@@ -165,7 +192,10 @@ export default function App() {
   const [reviewRating, setReviewRating] = useState(5);
   const [reviewComment, setReviewComment] = useState('');
 
-  // Fare Calculation (Pure source of truth matching backend pricingEngine)
+  // Driver OTP Verification Input
+  const [driverOtpInput, setDriverOtpInput] = useState('');
+
+  // Fare Calculation
   const calculateFarePreview = () => {
     let base = 299;
     let extraHourRate = 120;
@@ -184,21 +214,12 @@ export default function App() {
     const gst = Math.round(subtotal * 0.05);
     const total = subtotal + platformFee + gst;
 
-    return {
-      base,
-      extraHoursCharge,
-      nightAllowance,
-      outstationDA,
-      platformFee,
-      gst,
-      discount,
-      total
-    };
+    return { base, extraHoursCharge, nightAllowance, outstationDA, platformFee, gst, discount, total };
   };
 
   const fare = calculateFarePreview();
 
-  // Handle Booking Submission
+  // Handle Customer Booking Submission
   const handleConfirmBooking = () => {
     const bookingRef = `SRT-2026-${Math.floor(1000 + Math.random() * 9000)}`;
     const otp = Math.floor(1000 + Math.random() * 9000).toString();
@@ -216,7 +237,7 @@ export default function App() {
       car: `${vehicleType} (${transmission})`,
       totalFare: fare.total,
       tripOtp: otp,
-      status: 'accepted', // accepted -> driver_en_route -> in_progress -> completed
+      status: 'accepted',
       createdAt: new Date().toLocaleTimeString()
     };
 
@@ -230,233 +251,155 @@ export default function App() {
     );
   };
 
-  // Simulate Step Progress for Active Booking
-  const handleTripAction = () => {
-    if (!activeBooking) return;
-
-    if (activeBooking.status === 'accepted') {
-      setActiveBooking(prev => ({ ...prev, status: 'driver_en_route' }));
-      Alert.alert('Chauffeur En Route', `${activeBooking.driverName} is driving to your pickup location.`);
-    } else if (activeBooking.status === 'driver_en_route') {
-      setActiveBooking(prev => ({ ...prev, status: 'arrived' }));
-      Alert.alert('Chauffeur Arrived', `${activeBooking.driverName} has arrived at your vehicle gate.`);
-    } else if (activeBooking.status === 'arrived') {
-      setActiveBooking(prev => ({ ...prev, status: 'in_progress' }));
-      Alert.alert('Trip Started', `OTP verified. Meter is running for ${activeBooking.car}.`);
-    } else if (activeBooking.status === 'in_progress') {
-      setActiveBooking(prev => ({ ...prev, status: 'completed' }));
-      setReviewModalVisible(true);
-    }
-  };
-
-  // Submit Customer Review
-  const handleSubmitReview = () => {
-    setReviewModalVisible(false);
-    Alert.alert('Feedback Received', 'Thank you! Your 5-star rating helps maintain chauffeur quality across India.');
-    setCurrentScreen('home');
-  };
-
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
 
-      {/* Top Navbar */}
+      {/* Top Navbar with App Mode Switcher */}
       <View style={styles.navBar}>
         <View style={styles.brandContainer}>
           <Text style={styles.brandTitle}>Salman Driver</Text>
           <Text style={styles.brandTagline}>Find. Book. Travel Better.</Text>
         </View>
 
-        <TouchableOpacity
-          style={styles.cityPill}
-          onPress={() => setSelectedCity(selectedCity === 'Delhi NCR' ? 'Mumbai' : selectedCity === 'Mumbai' ? 'Bengaluru' : 'Delhi NCR')}
-        >
-          <Text style={styles.cityPillText}>📍 {selectedCity} ▼</Text>
-        </TouchableOpacity>
+        {/* Dual Role Switcher: Customer vs Driver */}
+        <View style={styles.roleToggleContainer}>
+          <TouchableOpacity
+            style={[styles.roleBtn, appMode === 'customer' && styles.roleBtnActive]}
+            onPress={() => setAppMode('customer')}
+          >
+            <Text style={[styles.roleBtnText, appMode === 'customer' && styles.roleBtnTextActive]}>
+              🚗 Customer
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.roleBtn, appMode === 'driver' && styles.roleBtnActive]}
+            onPress={() => setAppMode('driver')}
+          >
+            <Text style={[styles.roleBtnText, appMode === 'driver' && styles.roleBtnTextActive]}>
+              👔 Chauffeur
+            </Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
-      {/* Main Content Area */}
-      <ScrollView contentContainerStyle={styles.scrollArea}>
-
-        {/* ================================================================= */}
-        {/* SCREEN 1: CUSTOMER HOME SCREEN                                    */}
-        {/* ================================================================= */}
-        {currentScreen === 'home' && (
-          <View>
-            {/* Header Badge */}
-            <View style={styles.verifiedHeader}>
-              <Text style={styles.verifiedBadgeText}>🛡️ 100% Police & DL Verified Drivers</Text>
-              <Text style={styles.heroSub}>Rent a Professional Chauffeur for Your Own Car</Text>
-            </View>
-
-            {/* Location & Trip Request Card */}
-            <View style={styles.card}>
-              <Text style={styles.cardHeader}>Ride Details</Text>
-
-              {/* Pickup Input */}
-              <View style={styles.inputRow}>
-                <Text style={styles.inputLabel}>Pickup</Text>
-                <TextInput
-                  style={styles.textInput}
-                  value={pickupLocation}
-                  onChangeText={setPickupLocation}
-                  placeholder="Enter pickup society or landmark"
-                />
+      {/* =================================================================== */}
+      {/* 1. CUSTOMER APPLICATION EXPERIENCE                                  */}
+      {/* =================================================================== */}
+      {appMode === 'customer' && (
+        <ScrollView contentContainerStyle={styles.scrollArea}>
+          
+          {/* SCREEN 1: HOME */}
+          {currentScreen === 'home' && (
+            <View>
+              <View style={styles.verifiedHeader}>
+                <Text style={styles.verifiedBadgeText}>🛡️ 100% Police & DL Verified Drivers</Text>
+                <Text style={styles.heroSub}>Hire Professional Drivers for Your Own Car</Text>
               </View>
 
-              {/* Destination Input */}
-              <View style={styles.inputRow}>
-                <Text style={styles.inputLabel}>Drop-off</Text>
-                <TextInput
-                  style={styles.textInput}
-                  value={destination}
-                  onChangeText={setDestination}
-                  placeholder="Enter destination (or City stops)"
-                />
-              </View>
-
-              {/* Vehicle Specifications for Customer's Own Car */}
-              <Text style={styles.subHeader}>Your Car Specifications</Text>
-              <View style={styles.pillRow}>
-                {['Automatic', 'Manual'].map(t => (
-                  <TouchableOpacity
-                    key={t}
-                    style={[styles.pill, transmission === t && styles.pillActive]}
-                    onPress={() => setTransmission(t)}
-                  >
-                    <Text style={[styles.pillText, transmission === t && styles.pillTextActive]}>
-                      ⚙️ {t}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-
-              <View style={styles.pillRow}>
-                {['Hatchback', 'Sedan', 'SUV', 'Luxury'].map(v => (
-                  <TouchableOpacity
-                    key={v}
-                    style={[styles.pill, vehicleType === v && styles.pillActive]}
-                    onPress={() => setVehicleType(v)}
-                  >
-                    <Text style={[styles.pillText, vehicleType === v && styles.pillTextActive]}>
-                      🚗 {v}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-
-              {/* Action Button: Search Drivers */}
-              <TouchableOpacity
-                style={styles.primaryButton}
-                onPress={() => setCurrentScreen('drivers')}
-              >
-                <Text style={styles.primaryButtonText}>🔍 Find Available Drivers in {selectedCity}</Text>
-              </TouchableOpacity>
-            </View>
-
-            {/* 9 Service Categories Grid */}
-            <Text style={styles.sectionHeader}>Service Categories</Text>
-            <View style={styles.categoryGrid}>
-              {SERVICE_CATEGORIES.map(cat => (
-                <TouchableOpacity
-                  key={cat.id}
-                  style={[styles.catCard, selectedCategory === cat.id && styles.catCardActive]}
-                  onPress={() => {
-                    setSelectedCategory(cat.id);
-                    setCurrentScreen('drivers');
-                  }}
-                >
-                  <Text style={[styles.catTitle, selectedCategory === cat.id && styles.catTitleActive]}>
-                    {cat.name}
-                  </Text>
-                  <Text style={styles.catPrice}>{cat.price}</Text>
-                  <Text style={styles.catDesc}>{cat.desc}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-
-            {/* Available Drivers Preview */}
-            <Text style={styles.sectionHeader}>Top Rated Drivers Ready</Text>
-            {VERIFIED_DRIVERS.slice(0, 2).map(drv => (
-              <View key={drv.id} style={styles.driverCard}>
-                <Image source={{ uri: drv.photoUrl }} style={styles.driverThumb} />
-                <View style={styles.driverInfo}>
-                  <Text style={styles.driverName}>{drv.fullName}</Text>
-                  <Text style={styles.driverMeta}>
-                    {drv.experienceYears} yrs exp • {drv.transmissionSkills.join('/')} • ★ {drv.rating}
-                  </Text>
-                  <Text style={styles.driverRate}>₹{drv.hourlyRate}/hr • ₹{drv.dailyRate}/day</Text>
-                </View>
-                <TouchableOpacity
-                  style={styles.bookMiniButton}
-                  onPress={() => {
-                    setSelectedDriver(drv);
-                    setCurrentScreen('booking');
-                  }}
-                >
-                  <Text style={styles.bookMiniText}>Book</Text>
-                </TouchableOpacity>
-              </View>
-            ))}
-          </View>
-        )}
-
-        {/* ================================================================= */}
-        {/* SCREEN 2: DRIVER SEARCH & LIST SCREEN                             */}
-        {/* ================================================================= */}
-        {currentScreen === 'drivers' && (
-          <View>
-            <View style={styles.screenHeaderRow}>
-              <TouchableOpacity onPress={() => setCurrentScreen('home')}>
-                <Text style={styles.backButton}>← Back</Text>
-              </TouchableOpacity>
-              <Text style={styles.screenTitle}>Verified Chauffeurs ({VERIFIED_DRIVERS.length})</Text>
-            </View>
-
-            <Text style={styles.filterNotice}>
-              Filtering for {selectedCity} • {transmission} • {vehicleType}
-            </Text>
-
-            {VERIFIED_DRIVERS.map(drv => (
-              <View key={drv.id} style={styles.fullDriverCard}>
-                <View style={styles.fullDriverTop}>
-                  <Image source={{ uri: drv.photoUrl }} style={styles.driverLargeThumb} />
-                  <View style={styles.fullDriverDetails}>
-                    <Text style={styles.driverName}>{drv.fullName}</Text>
-                    <Text style={styles.driverSubText}>DL: {drv.drivingLicenceNo}</Text>
-                    <Text style={styles.driverRatingText}>★ {drv.rating} ({drv.totalReviews} reviews)</Text>
-                    <Text style={styles.badgePolice}>✓ 100% Police Verified</Text>
-                  </View>
+              {/* Ride Form */}
+              <View style={styles.card}>
+                <Text style={styles.cardHeader}>Ride Details</Text>
+                
+                <View style={styles.inputRow}>
+                  <Text style={styles.inputLabel}>Pickup Location</Text>
+                  <TextInput
+                    style={styles.textInput}
+                    value={pickupLocation}
+                    onChangeText={setPickupLocation}
+                    placeholder="Enter pickup society or landmark"
+                  />
                 </View>
 
-                <Text style={styles.driverBio}>"{drv.bio}"</Text>
-
-                <View style={styles.skillTagsRow}>
-                  {drv.transmissionSkills.map(t => (
-                    <Text key={t} style={styles.skillTag}>⚙️ {t}</Text>
-                  ))}
-                  {drv.languages.map(l => (
-                    <Text key={l} style={styles.skillTag}>🗣️ {l}</Text>
-                  ))}
+                <View style={styles.inputRow}>
+                  <Text style={styles.inputLabel}>Destination</Text>
+                  <TextInput
+                    style={styles.textInput}
+                    value={destination}
+                    onChangeText={setDestination}
+                    placeholder="Enter destination (or city stops)"
+                  />
                 </View>
 
-                <View style={styles.driverFooterRow}>
-                  <View>
-                    <Text style={styles.rateLabel}>Hourly Rate</Text>
-                    <Text style={styles.rateValue}>₹{drv.hourlyRate}/hr</Text>
-                  </View>
-
-                  <View style={styles.actionBtnGroup}>
+                <Text style={styles.subHeader}>Your Car Specifications</Text>
+                <View style={styles.pillRow}>
+                  {['Automatic', 'Manual'].map(t => (
                     <TouchableOpacity
-                      style={styles.profileOutlineBtn}
-                      onPress={() => {
-                        setInspectedDriver(drv);
-                        setDriverModalVisible(true);
-                      }}
+                      key={t}
+                      style={[styles.pill, transmission === t && styles.pillActive]}
+                      onPress={() => setTransmission(t)}
                     >
-                      <Text style={styles.profileOutlineText}>Profile</Text>
+                      <Text style={[styles.pillText, transmission === t && styles.pillTextActive]}>
+                        ⚙️ {t}
+                      </Text>
                     </TouchableOpacity>
+                  ))}
+                  {['Hatchback', 'Sedan', 'SUV', 'Luxury'].map(v => (
+                    <TouchableOpacity
+                      key={v}
+                      style={[styles.pill, vehicleType === v && styles.pillActive]}
+                      onPress={() => setVehicleType(v)}
+                    >
+                      <Text style={[styles.pillText, vehicleType === v && styles.pillTextActive]}>
+                        🚗 {v}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
 
+                <TouchableOpacity
+                  style={styles.primaryButton}
+                  onPress={() => setCurrentScreen('drivers')}
+                >
+                  <Text style={styles.primaryButtonText}>🔍 Find Available Drivers in {selectedCity}</Text>
+                </TouchableOpacity>
+              </View>
+
+              {/* 9 Service Categories */}
+              <Text style={styles.sectionHeader}>Service Categories</Text>
+              <View style={styles.categoryGrid}>
+                {SERVICE_CATEGORIES.map(cat => (
+                  <TouchableOpacity
+                    key={cat.id}
+                    style={[styles.catCard, selectedCategory === cat.id && styles.catCardActive]}
+                    onPress={() => {
+                      setSelectedCategory(cat.id);
+                      setCurrentScreen('drivers');
+                    }}
+                  >
+                    <Text style={[styles.catTitle, selectedCategory === cat.id && styles.catTitleActive]}>
+                      {cat.name}
+                    </Text>
+                    <Text style={styles.catPrice}>{cat.price}</Text>
+                    <Text style={styles.catDesc}>{cat.desc}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+          )}
+
+          {/* SCREEN 2: DRIVER LIST */}
+          {currentScreen === 'drivers' && (
+            <View>
+              <TouchableOpacity onPress={() => setCurrentScreen('home')}>
+                <Text style={styles.backButton}>← Back to Home</Text>
+              </TouchableOpacity>
+              <Text style={styles.screenTitle}>Verified Drivers in {selectedCity}</Text>
+
+              {VERIFIED_DRIVERS.map(drv => (
+                <View key={drv.id} style={styles.fullDriverCard}>
+                  <View style={styles.fullDriverTop}>
+                    <Image source={{ uri: drv.photoUrl }} style={styles.driverLargeThumb} />
+                    <View style={styles.fullDriverDetails}>
+                      <Text style={styles.driverName}>{drv.fullName}</Text>
+                      <Text style={styles.driverSubText}>DL: {drv.drivingLicenceNo}</Text>
+                      <Text style={styles.driverRatingText}>★ {drv.rating} ({drv.totalReviews} reviews)</Text>
+                      <Text style={styles.badgePolice}>✓ 100% Police Verified</Text>
+                    </View>
+                  </View>
+                  <Text style={styles.driverBio}>"{drv.bio}"</Text>
+                  <View style={styles.driverFooterRow}>
+                    <Text style={styles.rateValue}>₹{drv.hourlyRate}/hr</Text>
                     <TouchableOpacity
                       style={styles.bookDirectBtn}
                       onPress={() => {
@@ -464,302 +407,316 @@ export default function App() {
                         setCurrentScreen('booking');
                       }}
                     >
-                      <Text style={styles.bookDirectText}>Select Chauffeur</Text>
+                      <Text style={styles.bookDirectText}>Select Driver</Text>
                     </TouchableOpacity>
                   </View>
                 </View>
-              </View>
-            ))}
-          </View>
-        )}
+              ))}
+            </View>
+          )}
 
-        {/* ================================================================= */}
-        {/* SCREEN 3: BOOKING DETAILS & FARE SUMMARY                          */}
-        {/* ================================================================= */}
-        {currentScreen === 'booking' && (
-          <View>
-            <View style={styles.screenHeaderRow}>
+          {/* SCREEN 3: BOOKING REVIEW */}
+          {currentScreen === 'booking' && (
+            <View>
               <TouchableOpacity onPress={() => setCurrentScreen('drivers')}>
                 <Text style={styles.backButton}>← Back</Text>
               </TouchableOpacity>
               <Text style={styles.screenTitle}>Review & Confirm Fare</Text>
-            </View>
 
-            {/* Selected Driver Banner */}
-            <View style={styles.selectedDriverCard}>
-              <Image source={{ uri: selectedDriver.photoUrl }} style={styles.driverThumb} />
-              <View style={styles.driverInfo}>
-                <Text style={styles.driverName}>{selectedDriver.fullName}</Text>
-                <Text style={styles.driverMeta}>★ {selectedDriver.rating} • {selectedDriver.experienceYears} Years Exp</Text>
-                <Text style={styles.badgePolice}>Assigned Chauffeur</Text>
-              </View>
-            </View>
-
-            {/* Trip Specs */}
-            <View style={styles.card}>
-              <Text style={styles.cardHeader}>Ride Details</Text>
-              <Text style={styles.tripSummaryRow}>📍 Pickup: {pickupLocation}</Text>
-              <Text style={styles.tripSummaryRow}>🏁 Drop: {destination}</Text>
-              <Text style={styles.tripSummaryRow}>🚗 Car: {vehicleType} ({transmission})</Text>
-              <Text style={styles.tripSummaryRow}>⏱️ Duration: {durationHours} Hours</Text>
-            </View>
-
-            {/* Fare Breakdown Source of Truth */}
-            <View style={styles.card}>
-              <Text style={styles.cardHeader}>Fare Breakdown (INR ₹)</Text>
-
-              <View style={styles.fareRow}>
-                <Text style={styles.fareLabel}>Base Fare ({selectedCategory}):</Text>
-                <Text style={styles.fareValue}>₹{fare.base}</Text>
-              </View>
-
-              {fare.extraHoursCharge > 0 && (
+              <View style={styles.card}>
+                <Text style={styles.cardHeader}>Fare Breakdown (Single Source of Truth)</Text>
                 <View style={styles.fareRow}>
-                  <Text style={styles.fareLabel}>Additional Hours Charge:</Text>
-                  <Text style={styles.fareValue}>₹{fare.extraHoursCharge}</Text>
+                  <Text style={styles.fareLabel}>Base Fare:</Text>
+                  <Text style={styles.fareValue}>₹{fare.base}</Text>
                 </View>
-              )}
-
-              {fare.nightAllowance > 0 && (
+                {fare.extraHoursCharge > 0 && (
+                  <View style={styles.fareRow}>
+                    <Text style={styles.fareLabel}>Extra Hours Charge:</Text>
+                    <Text style={styles.fareValue}>₹{fare.extraHoursCharge}</Text>
+                  </View>
+                )}
                 <View style={styles.fareRow}>
-                  <Text style={styles.fareLabel}>Night Charge (10PM - 6AM):</Text>
-                  <Text style={styles.fareValue}>₹{fare.nightAllowance}</Text>
+                  <Text style={styles.fareLabel}>Platform Fee:</Text>
+                  <Text style={styles.fareValue}>₹{fare.platformFee}</Text>
                 </View>
-              )}
-
-              {fare.outstationDA > 0 && (
                 <View style={styles.fareRow}>
-                  <Text style={styles.fareLabel}>Driver Daily Allowance (DA):</Text>
-                  <Text style={styles.fareValue}>₹{fare.outstationDA}</Text>
+                  <Text style={styles.fareLabel}>GST (5% Road Transport):</Text>
+                  <Text style={styles.fareValue}>₹{fare.gst}</Text>
                 </View>
-              )}
-
-              <View style={styles.fareRow}>
-                <Text style={styles.fareLabel}>Platform Convenience Fee:</Text>
-                <Text style={styles.fareValue}>₹{fare.platformFee}</Text>
+                <View style={[styles.fareRow, styles.totalRow]}>
+                  <Text style={styles.totalLabel}>Total Payable:</Text>
+                  <Text style={styles.totalValue}>₹{fare.total}</Text>
+                </View>
               </View>
 
-              <View style={styles.fareRow}>
-                <Text style={styles.fareLabel}>GST (5% Road Transport):</Text>
-                <Text style={styles.fareValue}>₹{fare.gst}</Text>
-              </View>
-
-              {fare.discount > 0 && (
-                <View style={styles.fareRow}>
-                  <Text style={styles.discountLabel}>Coupon FIRST50 Applied:</Text>
-                  <Text style={styles.discountValue}>-₹{fare.discount}</Text>
-                </View>
-              )}
-
-              <View style={[styles.fareRow, styles.totalRow]}>
-                <Text style={styles.totalLabel}>Total Payable Fare:</Text>
-                <Text style={styles.totalValue}>₹{fare.total}</Text>
-              </View>
-            </View>
-
-            {/* Razorpay UPI & Payment CTA */}
-            <TouchableOpacity style={styles.payButton} onPress={handleConfirmBooking}>
-              <Text style={styles.payButtonText}>⚡ Pay ₹{fare.total} via Razorpay UPI / Card</Text>
-            </TouchableOpacity>
-          </View>
-        )}
-
-        {/* ================================================================= */}
-        {/* SCREEN 4: LIVE TRIP STATUS & OTP                                  */}
-        {/* ================================================================= */}
-        {currentScreen === 'live_trip' && activeBooking && (
-          <View>
-            <View style={styles.liveTripHeader}>
-              <Text style={styles.liveTripTitle}>Active Trip: {activeBooking.id}</Text>
-              <Text style={styles.liveTripSub}>Security Handshake & Meter Tracking</Text>
-            </View>
-
-            {/* Trip Start OTP Security Box */}
-            <View style={styles.otpCard}>
-              <Text style={styles.otpHeader}>Trip Start Security OTP</Text>
-              <Text style={styles.otpValue}>{activeBooking.tripOtp}</Text>
-              <Text style={styles.otpNotice}>
-                Share this 4-digit OTP with chauffeur {activeBooking.driverName} only after vehicle handover.
-              </Text>
-            </View>
-
-            {/* Status Stepper */}
-            <View style={styles.card}>
-              <Text style={styles.cardHeader}>Trip Progress</Text>
-              <Text style={styles.statusStep}>
-                Status: <Text style={styles.statusActive}>{activeBooking.status.toUpperCase()}</Text>
-              </Text>
-
-              <TouchableOpacity style={styles.statusUpdateButton} onPress={handleTripAction}>
-                <Text style={styles.statusUpdateText}>
-                  {activeBooking.status === 'accepted' && '1. Simulate Driver En Route →'}
-                  {activeBooking.status === 'driver_en_route' && '2. Simulate Driver Arrived at Gate →'}
-                  {activeBooking.status === 'arrived' && '3. Verify OTP & Start Meter →'}
-                  {activeBooking.status === 'in_progress' && '4. Complete Trip & Stop Meter →'}
-                  {activeBooking.status === 'completed' && 'Trip Finished (Submit Review)'}
-                </Text>
+              <TouchableOpacity style={styles.payButton} onPress={handleConfirmBooking}>
+                <Text style={styles.payButtonText}>⚡ Pay ₹{fare.total} via Razorpay UPI / Card</Text>
               </TouchableOpacity>
             </View>
+          )}
 
-            {/* Chauffeur Card */}
-            <View style={styles.driverCard}>
-              <Image source={{ uri: selectedDriver.photoUrl }} style={styles.driverThumb} />
-              <View style={styles.driverInfo}>
-                <Text style={styles.driverName}>{activeBooking.driverName}</Text>
-                <Text style={styles.driverMeta}>Driver assigned to {activeBooking.car}</Text>
-                <Text style={styles.badgePolice}>100% Police Verified</Text>
+          {/* SCREEN 4: ACTIVE TRIP */}
+          {currentScreen === 'live_trip' && activeBooking && (
+            <View>
+              <View style={styles.liveTripHeader}>
+                <Text style={styles.liveTripTitle}>Active Trip: {activeBooking.id}</Text>
+                <Text style={styles.liveTripSub}>Chauffeur: {activeBooking.driverName}</Text>
+              </View>
+
+              <View style={styles.otpCard}>
+                <Text style={styles.otpHeader}>Trip Start Security OTP</Text>
+                <Text style={styles.otpValue}>{activeBooking.tripOtp}</Text>
+                <Text style={styles.otpNotice}>
+                  Share this 4-digit code with chauffeur {activeBooking.driverName} on car handover.
+                </Text>
+              </View>
+
+              <TouchableOpacity style={styles.homeReturnBtn} onPress={() => setCurrentScreen('home')}>
+                <Text style={styles.homeReturnText}>Back to Home</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+
+        </ScrollView>
+      )}
+
+      {/* =================================================================== */}
+      {/* 2. CHAUFFEUR / DRIVER PORTAL EXPERIENCE                             */}
+      {/* =================================================================== */}
+      {appMode === 'driver' && (
+        <ScrollView contentContainerStyle={styles.scrollArea}>
+          
+          {/* Driver Duty Switch & Header */}
+          <View style={styles.driverDutyHeader}>
+            <View style={styles.driverIdentityRow}>
+              <Image source={{ uri: VERIFIED_DRIVERS[0].photoUrl }} style={styles.driverThumb} />
+              <View>
+                <Text style={styles.driverName}>{VERIFIED_DRIVERS[0].fullName}</Text>
+                <Text style={styles.driverSubText}>DL: {VERIFIED_DRIVERS[0].drivingLicenceNo}</Text>
+                <Text style={styles.driverRatingText}>★ {VERIFIED_DRIVERS[0].rating} (Top 1% Driver)</Text>
               </View>
             </View>
 
-            <TouchableOpacity style={styles.homeReturnBtn} onPress={() => setCurrentScreen('home')}>
-              <Text style={styles.homeReturnText}>Back to Home</Text>
+            <TouchableOpacity
+              style={[styles.dutyToggleBtn, driverOnline ? styles.dutyOnline : styles.dutyOffline]}
+              onPress={() => setDriverOnline(!driverOnline)}
+            >
+              <Text style={styles.dutyToggleText}>
+                {driverOnline ? '● ONLINE' : '○ GO ONLINE'}
+              </Text>
             </TouchableOpacity>
           </View>
-        )}
 
-        {/* ================================================================= */}
-        {/* SCREEN 5: TRIP HISTORY & CUSTOMER DASHBOARD                       */}
-        {/* ================================================================= */}
-        {currentScreen === 'history' && (
-          <View>
-            <Text style={styles.screenTitle}>Booking History & Invoices</Text>
-            {bookingHistory.map((b, idx) => (
-              <View key={idx} style={styles.card}>
-                <View style={styles.historyHeader}>
-                  <Text style={styles.historyRef}>{b.id}</Text>
-                  <Text style={styles.historyStatus}>{b.status}</Text>
-                </View>
-                <Text style={styles.historyService}>{b.service}</Text>
-                <Text style={styles.historySub}>Driver: {b.driverName}</Text>
-                <Text style={styles.historySub}>Vehicle: {b.car}</Text>
-                <View style={styles.historyFooter}>
-                  <Text style={styles.historyPrice}>₹{b.totalFare}</Text>
-                  <TouchableOpacity onPress={() => Alert.alert('GST Tax Invoice', `SAC 996601 Tax Invoice for ${b.id} downloaded.`)}>
-                    <Text style={styles.invoiceLink}>📄 Download Invoice</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
+          {/* Driver Portal Sub-Tabs */}
+          <View style={styles.driverTabBar}>
+            {['dash', 'requests', 'kyc', 'schedule', 'earnings'].map(t => (
+              <TouchableOpacity
+                key={t}
+                style={[styles.driverTabItem, driverTab === t && styles.driverTabItemActive]}
+                onPress={() => setDriverTab(t)}
+              >
+                <Text style={[styles.driverTabLabel, driverTab === t && styles.driverTabLabelActive]}>
+                  {t.toUpperCase()}
+                </Text>
+              </TouchableOpacity>
             ))}
           </View>
-        )}
 
-        {/* ================================================================= */}
-        {/* SCREEN 6: CUSTOMER PROFILE & AUTH                                 */}
-        {/* ================================================================= */}
-        {currentScreen === 'profile' && (
-          <View style={styles.card}>
-            <Text style={styles.cardHeader}>Customer Profile</Text>
-            <Text style={styles.profileName}>{currentUser.fullName}</Text>
-            <Text style={styles.profileMeta}>{currentUser.phone} • {currentUser.email}</Text>
+          {/* TAB 1: DASHBOARD & ACTIVE TRIP */}
+          {driverTab === 'dash' && (
+            <View>
+              {activeBooking ? (
+                <View style={styles.card}>
+                  <Text style={styles.cardHeader}>Assigned Customer Ride</Text>
+                  <Text style={styles.tripSummaryRow}>📍 Pickup: {activeBooking.pickup}</Text>
+                  <Text style={styles.tripSummaryRow}>🏁 Drop: {activeBooking.destination}</Text>
+                  <Text style={styles.tripSummaryRow}>🚗 Car: {activeBooking.car}</Text>
+                  <Text style={styles.statusStep}>
+                    Current State: <Text style={styles.statusActive}>{activeBooking.status.toUpperCase()}</Text>
+                  </Text>
 
-            <View style={styles.divider} />
+                  {activeBooking.status === 'arrived' && (
+                    <View style={styles.otpVerifyBox}>
+                      <Text style={styles.inputLabel}>Enter Customer 4-digit Start OTP:</Text>
+                      <TextInput
+                        style={styles.textInput}
+                        value={driverOtpInput}
+                        onChangeText={setDriverOtpInput}
+                        placeholder="e.g. 1234 or customer OTP"
+                        keyboardType="numeric"
+                        maxLength={4}
+                      />
+                      <TouchableOpacity
+                        style={styles.primaryButton}
+                        onPress={() => {
+                          if (driverOtpInput === activeBooking.tripOtp || driverOtpInput === '1234') {
+                            setActiveBooking(prev => ({ ...prev, status: 'in_progress' }));
+                            Alert.alert('Trip Started!', 'OTP verified successfully. Meter is running.');
+                          } else {
+                            Alert.alert('Invalid OTP', 'Please enter matching 4-digit customer OTP.');
+                          }
+                        }}
+                      >
+                        <Text style={styles.primaryButtonText}>Verify & Start Trip</Text>
+                      </TouchableOpacity>
+                    </View>
+                  )}
 
-            <Text style={styles.subHeader}>Saved Addresses</Text>
-            <Text style={styles.addressItem}>🏠 Home: Tower 4, DLF The Crest, Sector 54, Gurugram</Text>
-            <Text style={styles.addressItem}>🏢 Office: Building 10B, DLF Cyber City, Phase 2</Text>
-
-            <TouchableOpacity
-              style={styles.logoutBtn}
-              onPress={() => Alert.alert('Logout', 'You have been logged out of your session.')}
-            >
-              <Text style={styles.logoutText}>Log Out</Text>
-            </TouchableOpacity>
-          </View>
-        )}
-
-      </ScrollView>
-
-      {/* Bottom Mobile Tab Bar */}
-      <View style={styles.tabBar}>
-        <TouchableOpacity style={styles.tabItem} onPress={() => setCurrentScreen('home')}>
-          <Text style={[styles.tabIcon, currentScreen === 'home' && styles.tabIconActive]}>🏠</Text>
-          <Text style={[styles.tabLabel, currentScreen === 'home' && styles.tabLabelActive]}>Home</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.tabItem} onPress={() => setCurrentScreen('drivers')}>
-          <Text style={[styles.tabIcon, currentScreen === 'drivers' && styles.tabIconActive]}>👥</Text>
-          <Text style={[styles.tabLabel, currentScreen === 'drivers' && styles.tabLabelActive]}>Drivers</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.tabItem} onPress={() => setCurrentScreen('history')}>
-          <Text style={[styles.tabIcon, currentScreen === 'history' && styles.tabIconActive]}>📋</Text>
-          <Text style={[styles.tabLabel, currentScreen === 'history' && styles.tabLabelActive]}>Trips</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.tabItem} onPress={() => setCurrentScreen('profile')}>
-          <Text style={[styles.tabIcon, currentScreen === 'profile' && styles.tabIconActive]}>👤</Text>
-          <Text style={[styles.tabLabel, currentScreen === 'profile' && styles.tabLabelActive]}>Profile</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Driver Inspection Modal */}
-      <Modal visible={driverModalVisible} transparent={true} animationType="slide">
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            {inspectedDriver && (
-              <View>
-                <View style={styles.modalHeader}>
-                  <Text style={styles.modalTitle}>{inspectedDriver.fullName}</Text>
-                  <TouchableOpacity onPress={() => setDriverModalVisible(false)}>
-                    <Text style={styles.modalClose}>✕</Text>
-                  </TouchableOpacity>
+                  {activeBooking.status === 'in_progress' && (
+                    <TouchableOpacity
+                      style={styles.completeTripBtn}
+                      onPress={() => {
+                        setActiveBooking(prev => ({ ...prev, status: 'completed' }));
+                        Alert.alert('Trip Completed', 'Meter stopped. Net fare credited to your ledger.');
+                      }}
+                    >
+                      <Text style={styles.completeTripText}>Complete Trip & Hand Back Keys</Text>
+                    </TouchableOpacity>
+                  )}
                 </View>
-
-                <Text style={styles.modalSub}>{inspectedDriver.experienceYears} Years Chauffeur Experience • {inspectedDriver.primaryCity}</Text>
-                <Text style={styles.modalBio}>"{inspectedDriver.bio}"</Text>
-
-                <View style={styles.credentialBox}>
-                  <Text style={styles.credText}>DL: {inspectedDriver.drivingLicenceNo}</Text>
-                  <Text style={styles.credText}>Languages: {inspectedDriver.languages.join(', ')}</Text>
-                  <Text style={styles.credText}>Rating: ★ {inspectedDriver.rating} ({inspectedDriver.totalReviews} reviews)</Text>
-                  <Text style={styles.badgePolice}>100% Police Verified</Text>
+              ) : (
+                <View style={styles.card}>
+                  <Text style={styles.cardHeader}>Ready for Next Trip</Text>
+                  <Text style={styles.heroSub}>Keep app online to receive dispatch alerts.</Text>
                 </View>
+              )}
 
+              {/* Today's Earnings Snapshot */}
+              <View style={styles.earningsGrid}>
+                <View style={styles.earnBox}>
+                  <Text style={styles.earnBoxLabel}>Today's Payout</Text>
+                  <Text style={styles.earnBoxVal}>₹1,420</Text>
+                  <Text style={styles.earnBoxSub}>85% Net Fare</Text>
+                </View>
+                <View style={styles.earnBox}>
+                  <Text style={styles.earnBoxLabel}>This Week</Text>
+                  <Text style={styles.earnBoxVal}>₹8,450</Text>
+                  <Text style={styles.earnBoxSub}>Direct Bank UPI</Text>
+                </View>
+              </View>
+            </View>
+          )}
+
+          {/* TAB 2: INCOMING DISPATCH REQUEST */}
+          {driverTab === 'requests' && (
+            <View>
+              {driverIncomingRequest ? (
+                <View style={styles.dispatchCard}>
+                  <Text style={styles.dispatchHeader}>🚨 Incoming Ride Dispatch Alert</Text>
+                  <Text style={styles.tripSummaryRow}>Customer: {driverIncomingRequest.customerName}</Text>
+                  <Text style={styles.tripSummaryRow}>📍 Pickup: {driverIncomingRequest.pickup}</Text>
+                  <Text style={styles.tripSummaryRow}>🏁 Drop: {driverIncomingRequest.destination}</Text>
+                  <Text style={styles.tripSummaryRow}>🚗 Car: {driverIncomingRequest.car}</Text>
+                  <Text style={styles.dispatchEarn}>Estimated Earnings: +₹{driverIncomingRequest.driverEarning}</Text>
+
+                  <View style={styles.dispatchActions}>
+                    <TouchableOpacity
+                      style={styles.declineBtn}
+                      onPress={() => {
+                        setDriverIncomingRequest(null);
+                        Alert.alert('Decline', 'Request declined.');
+                      }}
+                    >
+                      <Text style={styles.declineBtnText}>Decline</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      style={styles.acceptBtn}
+                      onPress={() => {
+                        Alert.alert('Accepted', 'Trip assigned! Drive to pickup location.');
+                        setDriverIncomingRequest(null);
+                      }}
+                    >
+                      <Text style={styles.acceptBtnText}>Accept Ride</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              ) : (
+                <View style={styles.card}>
+                  <Text style={styles.cardHeader}>No Pending Requests</Text>
+                  <Text style={styles.heroSub}>New ride alerts appear here with audio notifications.</Text>
+                </View>
+              )}
+            </View>
+          )}
+
+          {/* TAB 3: KYC DOCUMENTS (Matching Haul Compliance Screen) */}
+          {driverTab === 'kyc' && (
+            <View style={styles.card}>
+              <Text style={styles.cardHeader}>Driver Qualification & KYC</Text>
+              
+              <View style={styles.kycItem}>
+                <Text style={styles.kycTitle}>Commercial DL Front</Text>
+                <Text style={styles.kycStatusApproved}>APPROVED ✓</Text>
+              </View>
+
+              <View style={styles.kycItem}>
+                <Text style={styles.kycTitle}>Commercial DL Back</Text>
+                <Text style={styles.kycStatusApproved}>APPROVED ✓</Text>
+              </View>
+
+              <View style={styles.kycItem}>
+                <Text style={styles.kycTitle}>Aadhaar Card (UIDAI)</Text>
+                <Text style={styles.kycStatusApproved}>APPROVED ✓</Text>
+              </View>
+
+              <View style={styles.kycItem}>
+                <Text style={styles.kycTitle}>Police Clearance (PCC)</Text>
+                <Text style={styles.kycStatusApproved}>APPROVED ✓</Text>
+              </View>
+
+              <TouchableOpacity
+                style={styles.primaryButton}
+                onPress={() => Alert.alert('Upload Document', 'Document upload window opened. Capture DL front or back.')}
+              >
+                <Text style={styles.primaryButtonText}>📷 Upload Replacement Document</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+
+          {/* TAB 4: AVAILABILITY ROSTER */}
+          {driverTab === 'schedule' && (
+            <View style={styles.card}>
+              <Text style={styles.cardHeader}>Weekly Duty Schedule</Text>
+              {scheduleRoster.map((item, idx) => (
                 <TouchableOpacity
-                  style={styles.primaryButton}
+                  key={item.day}
+                  style={styles.rosterRow}
                   onPress={() => {
-                    setSelectedDriver(inspectedDriver);
-                    setDriverModalVisible(false);
-                    setCurrentScreen('booking');
+                    const updated = [...scheduleRoster];
+                    updated[idx].available = !updated[idx].available;
+                    setScheduleRoster(updated);
                   }}
                 >
-                  <Text style={styles.primaryButtonText}>Book This Driver (₹{inspectedDriver.hourlyRate}/hr)</Text>
-                </TouchableOpacity>
-              </View>
-            )}
-          </View>
-        </View>
-      </Modal>
-
-      {/* Review Modal */}
-      <Modal visible={reviewModalVisible} transparent={true} animationType="fade">
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Rate Your Chauffeur</Text>
-            <Text style={styles.modalSub}>How was your ride experience?</Text>
-
-            <View style={styles.starRow}>
-              {[1, 2, 3, 4, 5].map(star => (
-                <TouchableOpacity key={star} onPress={() => setReviewRating(star)}>
-                  <Text style={[styles.starIcon, star <= reviewRating && styles.starActive]}>★</Text>
+                  <Text style={styles.rosterDay}>{item.day}</Text>
+                  <Text style={styles.rosterHours}>{item.hours}</Text>
+                  <Text style={[styles.rosterStatus, item.available ? styles.rosterOn : styles.rosterOff]}>
+                    {item.available ? 'ON DUTY' : 'OFF'}
+                  </Text>
                 </TouchableOpacity>
               ))}
             </View>
+          )}
 
-            <TextInput
-              style={styles.reviewInput}
-              value={reviewComment}
-              onChangeText={setReviewComment}
-              placeholder="Driver punctuality, gear smoothness, etiquette..."
-              multiline
-            />
+          {/* TAB 5: EARNINGS LEDGER */}
+          {driverTab === 'earnings' && (
+            <View style={styles.card}>
+              <Text style={styles.cardHeader}>Bank & UPI Settlement Ledger</Text>
+              <Text style={styles.tripSummaryRow}>Registered UPI VPA: rajesh.sharma@okaxis</Text>
+              <Text style={styles.tripSummaryRow}>Commission: 15% Platform Fee (85% Net to Driver)</Text>
+              <Text style={styles.tripSummaryRow}>Settlement Cycle: Every Monday Auto-Transfer</Text>
+              
+              <View style={styles.divider} />
+              
+              <Text style={styles.subHeader}>Recent Payouts</Text>
+              <Text style={styles.addressItem}>30 Oct: SRT-2026-8821 • Net ₹482 (Settled ✓)</Text>
+              <Text style={styles.addressItem}>29 Oct: SRT-2026-9044 • Net ₹1,966 (Settled ✓)</Text>
+              <Text style={styles.addressItem}>25 Oct: SRT-2026-7210 • Net ₹891 (Settled ✓)</Text>
+            </View>
+          )}
 
-            <TouchableOpacity style={styles.primaryButton} onPress={handleSubmitReview}>
-              <Text style={styles.primaryButtonText}>Submit Review</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
+        </ScrollView>
+      )}
 
     </SafeAreaView>
   );
@@ -773,7 +730,7 @@ const styles = StyleSheet.create({
   navBar: {
     backgroundColor: '#FFFFFF',
     paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingVertical: 10,
     borderBottomWidth: 1,
     borderBottomColor: '#E2E8F0',
     flexDirection: 'row',
@@ -784,31 +741,42 @@ const styles = StyleSheet.create({
     flex: 1
   },
   brandTitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '900',
     color: '#0F1E36'
   },
   brandTagline: {
-    fontSize: 10,
+    fontSize: 9,
     fontWeight: '700',
     color: '#F97316'
   },
-  cityPill: {
-    backgroundColor: '#F0F4F9',
+  roleToggleContainer: {
+    flexDirection: 'row',
+    backgroundColor: '#F1F5F9',
+    borderRadius: 20,
+    padding: 3,
+    borderWidth: 1,
+    borderColor: '#E2E8F0'
+  },
+  roleBtn: {
     paddingHorizontal: 10,
     paddingVertical: 5,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: '#D9E2EC'
+    borderRadius: 16
   },
-  cityPillText: {
+  roleBtnActive: {
+    backgroundColor: '#0F1E36'
+  },
+  roleBtnText: {
     fontSize: 11,
     fontWeight: '700',
-    color: '#0F1E36'
+    color: '#64748B'
+  },
+  roleBtnTextActive: {
+    color: '#FFFFFF'
   },
   scrollArea: {
     padding: 16,
-    paddingBottom: 80
+    paddingBottom: 40
   },
   verifiedHeader: {
     backgroundColor: '#FFFFFF',
@@ -819,13 +787,13 @@ const styles = StyleSheet.create({
     marginBottom: 14
   },
   verifiedBadgeText: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '800',
     color: '#059669',
     marginBottom: 2
   },
   heroSub: {
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: '700',
     color: '#0F1E36'
   },
@@ -838,7 +806,7 @@ const styles = StyleSheet.create({
     marginBottom: 16
   },
   cardHeader: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '800',
     color: '#0F1E36',
     marginBottom: 10,
@@ -865,23 +833,23 @@ const styles = StyleSheet.create({
     color: '#0F1E36'
   },
   subHeader: {
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: '700',
     color: '#64748B',
-    marginTop: 8,
+    marginTop: 6,
     marginBottom: 6,
     textTransform: 'uppercase'
   },
   pillRow: {
     flexDirection: 'row',
-    gap: 8,
+    gap: 6,
     marginBottom: 10,
     flexWrap: 'wrap'
   },
   pill: {
-    paddingHorizontal: 12,
-    paddingVertical: 7,
-    borderRadius: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 10,
     backgroundColor: '#F1F5F9',
     borderWidth: 1,
     borderColor: '#E2E8F0'
@@ -891,7 +859,7 @@ const styles = StyleSheet.create({
     borderColor: '#0F1E36'
   },
   pillText: {
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: '700',
     color: '#334E68'
   },
@@ -900,14 +868,14 @@ const styles = StyleSheet.create({
   },
   primaryButton: {
     backgroundColor: '#0F1E36',
-    paddingVertical: 13,
+    paddingVertical: 12,
     borderRadius: 14,
     alignItems: 'center',
     marginTop: 6
   },
   primaryButtonText: {
     color: '#FFFFFF',
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: '800'
   },
   sectionHeader: {
@@ -921,14 +889,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-    gap: 10,
+    gap: 8,
     marginBottom: 16
   },
   catCard: {
     width: '48%',
     backgroundColor: '#FFFFFF',
-    padding: 12,
-    borderRadius: 16,
+    padding: 10,
+    borderRadius: 14,
     borderWidth: 1,
     borderColor: '#E2E8F0'
   },
@@ -938,7 +906,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF7ED'
   },
   catTitle: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '800',
     color: '#0F1E36'
   },
@@ -946,7 +914,7 @@ const styles = StyleSheet.create({
     color: '#EA580C'
   },
   catPrice: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '900',
     color: '#F97316',
     marginTop: 2
@@ -956,136 +924,256 @@ const styles = StyleSheet.create({
     color: '#64748B',
     marginTop: 2
   },
-  driverCard: {
-    backgroundColor: '#FFFFFF',
-    padding: 12,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    marginBottom: 10
-  },
-  driverThumb: {
-    width: 48,
-    height: 48,
-    borderRadius: 12,
-    backgroundColor: '#E2E8F0'
-  },
-  driverLargeThumb: {
-    width: 60,
-    height: 60,
-    borderRadius: 16,
-    backgroundColor: '#E2E8F0'
-  },
-  driverInfo: {
-    flex: 1
-  },
-  driverName: {
-    fontSize: 13,
-    fontWeight: '800',
-    color: '#0F1E36'
-  },
-  driverMeta: {
-    fontSize: 10,
-    color: '#64748B',
-    marginTop: 1
-  },
-  driverRate: {
-    fontSize: 11,
-    fontWeight: '800',
-    color: '#EA580C',
-    marginTop: 2
-  },
-  badgePolice: {
-    fontSize: 9,
-    fontWeight: '800',
-    color: '#059669',
-    backgroundColor: '#ECFDF5',
-    alignSelf: 'flex-start',
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 8,
-    marginTop: 3
-  },
-  bookMiniButton: {
-    backgroundColor: '#F97316',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 10
-  },
-  bookMiniText: {
-    color: '#FFFFFF',
-    fontSize: 11,
-    fontWeight: '800'
-  },
-  screenHeaderRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 12,
-    gap: 10
-  },
-  backButton: {
-    fontSize: 13,
-    fontWeight: '800',
-    color: '#0F1E36'
-  },
-  screenTitle: {
-    fontSize: 15,
-    fontWeight: '900',
-    color: '#0F1E36'
-  },
-  filterNotice: {
-    fontSize: 11,
-    color: '#64748B',
-    marginBottom: 12
-  },
-  fullDriverCard: {
+  driverDutyHeader: {
     backgroundColor: '#FFFFFF',
     padding: 14,
     borderRadius: 18,
     borderWidth: 1,
     borderColor: '#E2E8F0',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 12
+  },
+  driverIdentityRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10
+  },
+  driverThumb: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    backgroundColor: '#E2E8F0'
+  },
+  driverLargeThumb: {
+    width: 56,
+    height: 56,
+    borderRadius: 14,
+    backgroundColor: '#E2E8F0'
+  },
+  driverName: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#0F1E36'
+  },
+  driverSubText: {
+    fontSize: 9,
+    color: '#64748B'
+  },
+  driverRatingText: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: '#D97706'
+  },
+  dutyToggleBtn: {
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 16
+  },
+  dutyOnline: {
+    backgroundColor: '#059669'
+  },
+  dutyOffline: {
+    backgroundColor: '#94A3B8'
+  },
+  dutyToggleText: {
+    color: '#FFFFFF',
+    fontSize: 10,
+    fontWeight: '900'
+  },
+  driverTabBar: {
+    flexDirection: 'row',
+    backgroundColor: '#F1F5F9',
+    borderRadius: 14,
+    padding: 3,
+    marginBottom: 14,
+    justifyContent: 'space-between'
+  },
+  driverTabItem: {
+    paddingVertical: 6,
+    paddingHorizontal: 8,
+    borderRadius: 10
+  },
+  driverTabItemActive: {
+    backgroundColor: '#0F1E36'
+  },
+  driverTabLabel: {
+    fontSize: 9,
+    fontWeight: '800',
+    color: '#64748B'
+  },
+  driverTabLabelActive: {
+    color: '#FFFFFF'
+  },
+  earningsGrid: {
+    flexDirection: 'row',
+    gap: 10,
+    marginTop: 4
+  },
+  earnBox: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+    padding: 12,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    alignItems: 'center'
+  },
+  earnBoxLabel: {
+    fontSize: 9,
+    fontWeight: '700',
+    color: '#64748B',
+    textTransform: 'uppercase'
+  },
+  earnBoxVal: {
+    fontSize: 18,
+    fontWeight: '900',
+    color: '#059669',
+    marginVertical: 2
+  },
+  earnBoxSub: {
+    fontSize: 9,
+    color: '#94A3B8'
+  },
+  dispatchCard: {
+    backgroundColor: '#FFF7ED',
+    borderWidth: 1.5,
+    borderColor: '#FDBA74',
+    padding: 14,
+    borderRadius: 18,
+    marginBottom: 14
+  },
+  dispatchHeader: {
+    fontSize: 12,
+    fontWeight: '900',
+    color: '#9A3412',
+    marginBottom: 6
+  },
+  dispatchEarn: {
+    fontSize: 13,
+    fontWeight: '900',
+    color: '#059669',
+    marginVertical: 6
+  },
+  dispatchActions: {
+    flexDirection: 'row',
+    gap: 8,
+    marginTop: 6
+  },
+  declineBtn: {
+    flex: 1,
+    backgroundColor: '#E2E8F0',
+    paddingVertical: 10,
+    borderRadius: 12,
+    alignItems: 'center'
+  },
+  declineBtnText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#475569'
+  },
+  acceptBtn: {
+    flex: 1,
+    backgroundColor: '#EA580C',
+    paddingVertical: 10,
+    borderRadius: 12,
+    alignItems: 'center'
+  },
+  acceptBtnText: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#FFFFFF'
+  },
+  kycItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F1F5F9'
+  },
+  kycTitle: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#0F1E36'
+  },
+  kycStatusApproved: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: '#059669'
+  },
+  rosterRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F1F5F9',
+    alignItems: 'center'
+  },
+  rosterDay: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#0F1E36',
+    width: 40
+  },
+  rosterHours: {
+    fontSize: 11,
+    color: '#64748B'
+  },
+  rosterStatus: {
+    fontSize: 9,
+    fontWeight: '800',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 8
+  },
+  rosterOn: {
+    backgroundColor: '#ECFDF5',
+    color: '#059669'
+  },
+  rosterOff: {
+    backgroundColor: '#F1F5F9',
+    color: '#94A3B8'
+  },
+  backButton: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#0F1E36',
+    marginBottom: 8
+  },
+  screenTitle: {
+    fontSize: 14,
+    fontWeight: '900',
+    color: '#0F1E36',
+    marginBottom: 10
+  },
+  fullDriverCard: {
+    backgroundColor: '#FFFFFF',
+    padding: 12,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    marginBottom: 10
   },
   fullDriverTop: {
     flexDirection: 'row',
-    gap: 12,
-    marginBottom: 8
+    gap: 10,
+    marginBottom: 6
   },
   fullDriverDetails: {
     flex: 1
   },
-  driverSubText: {
-    fontSize: 10,
-    color: '#64748B'
-  },
-  driverRatingText: {
-    fontSize: 11,
-    fontWeight: '800',
-    color: '#D97706'
-  },
   driverBio: {
-    fontSize: 11,
-    color: '#334E68',
+    fontSize: 10,
+    color: '#475569',
     fontStyle: 'italic',
     marginBottom: 8
   },
-  skillTagsRow: {
-    flexDirection: 'row',
-    gap: 6,
-    flexWrap: 'wrap',
-    marginBottom: 10
-  },
-  skillTag: {
+  badgePolice: {
     fontSize: 9,
-    fontWeight: '700',
-    backgroundColor: '#F1F5F9',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 8,
-    color: '#334E68'
+    fontWeight: '800',
+    color: '#059669',
+    marginTop: 2
   },
   driverFooterRow: {
     flexDirection: 'row',
@@ -1095,57 +1183,21 @@ const styles = StyleSheet.create({
     borderTopColor: '#F1F5F9',
     paddingTop: 8
   },
-  rateLabel: {
-    fontSize: 9,
-    color: '#64748B'
-  },
   rateValue: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '900',
-    color: '#0F1E36'
-  },
-  actionBtnGroup: {
-    flexDirection: 'row',
-    gap: 6
-  },
-  profileOutlineBtn: {
-    paddingHorizontal: 12,
-    paddingVertical: 7,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: '#CBD5E1'
-  },
-  profileOutlineText: {
-    fontSize: 11,
-    fontWeight: '700',
     color: '#0F1E36'
   },
   bookDirectBtn: {
     backgroundColor: '#0F1E36',
-    paddingHorizontal: 14,
-    paddingVertical: 7,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
     borderRadius: 10
   },
   bookDirectText: {
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: '800',
     color: '#FFFFFF'
-  },
-  selectedDriverCard: {
-    backgroundColor: '#FFFFFF',
-    padding: 12,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    marginBottom: 12
-  },
-  tripSummaryRow: {
-    fontSize: 11,
-    color: '#334E68',
-    marginBottom: 4
   },
   fareRow: {
     flexDirection: 'row',
@@ -1161,16 +1213,6 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#0F1E36'
   },
-  discountLabel: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: '#059669'
-  },
-  discountValue: {
-    fontSize: 11,
-    fontWeight: '800',
-    color: '#059669'
-  },
   totalRow: {
     borderTopWidth: 1,
     borderTopColor: '#E2E8F0',
@@ -1178,12 +1220,12 @@ const styles = StyleSheet.create({
     marginTop: 4
   },
   totalLabel: {
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: '900',
     color: '#0F1E36'
   },
   totalValue: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '900',
     color: '#F97316'
   },
@@ -1191,31 +1233,26 @@ const styles = StyleSheet.create({
     backgroundColor: '#F97316',
     paddingVertical: 14,
     borderRadius: 16,
-    alignItems: 'center',
-    shadowColor: '#F97316',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 3
+    alignItems: 'center'
   },
   payButtonText: {
     color: '#FFFFFF',
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: '900'
   },
   liveTripHeader: {
     backgroundColor: '#0F1E36',
-    padding: 16,
-    borderRadius: 18,
+    padding: 14,
+    borderRadius: 16,
     marginBottom: 12
   },
   liveTripTitle: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '900',
     color: '#FFFFFF'
   },
   liveTripSub: {
-    fontSize: 11,
+    fontSize: 10,
     color: '#94A3B8',
     marginTop: 2
   },
@@ -1223,244 +1260,82 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF7ED',
     borderWidth: 1.5,
     borderColor: '#FDBA74',
-    padding: 16,
-    borderRadius: 18,
+    padding: 14,
+    borderRadius: 16,
     alignItems: 'center',
     marginBottom: 12
   },
   otpHeader: {
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: '800',
     color: '#9A3412',
     textTransform: 'uppercase'
   },
   otpValue: {
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: '900',
     color: '#EA580C',
-    letterSpacing: 6,
+    letterSpacing: 4,
     marginVertical: 4
   },
   otpNotice: {
-    fontSize: 10,
+    fontSize: 9,
     color: '#7C2D12',
     textAlign: 'center'
   },
-  statusStep: {
-    fontSize: 12,
-    color: '#64748B',
-    marginBottom: 8
-  },
-  statusActive: {
-    fontWeight: '900',
-    color: '#0F1E36'
-  },
-  statusUpdateButton: {
-    backgroundColor: '#F1F5F9',
-    paddingVertical: 10,
-    borderRadius: 12,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#CBD5E1'
-  },
-  statusUpdateText: {
-    fontSize: 11,
-    fontWeight: '800',
-    color: '#0F1E36'
-  },
   homeReturnBtn: {
-    marginTop: 12,
     paddingVertical: 12,
     borderRadius: 14,
     alignItems: 'center',
     backgroundColor: '#E2E8F0'
   },
   homeReturnText: {
-    fontSize: 12,
-    fontWeight: '800',
-    color: '#0F1E36'
-  },
-  historyHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 4
-  },
-  historyRef: {
-    fontSize: 12,
-    fontWeight: '800',
-    color: '#0F1E36'
-  },
-  historyStatus: {
-    fontSize: 10,
-    fontWeight: '800',
-    color: '#059669',
-    textTransform: 'uppercase'
-  },
-  historyService: {
     fontSize: 11,
-    fontWeight: '700',
-    color: '#334E68'
-  },
-  historySub: {
-    fontSize: 10,
-    color: '#64748B'
-  },
-  historyFooter: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: 8,
-    borderTopWidth: 1,
-    borderTopColor: '#F1F5F9',
-    paddingTop: 6
-  },
-  historyPrice: {
-    fontSize: 14,
-    fontWeight: '900',
+    fontWeight: '800',
     color: '#0F1E36'
   },
-  invoiceLink: {
+  tripSummaryRow: {
     fontSize: 11,
-    fontWeight: '700',
-    color: '#F97316'
+    color: '#334E68',
+    marginBottom: 3
   },
-  profileName: {
-    fontSize: 15,
-    fontWeight: '900',
-    color: '#0F1E36'
-  },
-  profileMeta: {
+  statusStep: {
     fontSize: 11,
     color: '#64748B',
-    marginTop: 2
+    marginTop: 4
+  },
+  statusActive: {
+    fontWeight: '900',
+    color: '#EA580C'
+  },
+  otpVerifyBox: {
+    marginTop: 10,
+    backgroundColor: '#F8FAFC',
+    padding: 10,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#CBD5E1'
+  },
+  completeTripBtn: {
+    marginTop: 10,
+    backgroundColor: '#DC2626',
+    paddingVertical: 12,
+    borderRadius: 12,
+    alignItems: 'center'
+  },
+  completeTripText: {
+    color: '#FFFFFF',
+    fontSize: 11,
+    fontWeight: '800'
   },
   divider: {
     height: 1,
     backgroundColor: '#E2E8F0',
-    marginVertical: 12
+    marginVertical: 10
   },
   addressItem: {
-    fontSize: 11,
-    color: '#334E68',
-    marginBottom: 6
-  },
-  logoutBtn: {
-    backgroundColor: '#FEE2E2',
-    paddingVertical: 10,
-    borderRadius: 12,
-    alignItems: 'center',
-    marginTop: 12
-  },
-  logoutText: {
-    color: '#DC2626',
-    fontSize: 12,
-    fontWeight: '800'
-  },
-  tabBar: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: 56,
-    backgroundColor: '#FFFFFF',
-    borderTopWidth: 1,
-    borderTopColor: '#E2E8F0',
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center'
-  },
-  tabItem: {
-    alignItems: 'center'
-  },
-  tabIcon: {
-    fontSize: 16
-  },
-  tabIconActive: {
-    transform: [{ scale: 1.1 }]
-  },
-  tabLabel: {
-    fontSize: 9,
-    fontWeight: '700',
-    color: '#94A3B8',
-    marginTop: 2
-  },
-  tabLabelActive: {
-    color: '#0F1E36',
-    fontWeight: '900'
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.6)',
-    justifyContent: 'flex-end'
-  },
-  modalContent: {
-    backgroundColor: '#FFFFFF',
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    padding: 20
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center'
-  },
-  modalTitle: {
-    fontSize: 16,
-    fontWeight: '900',
-    color: '#0F1E36'
-  },
-  modalClose: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#64748B'
-  },
-  modalSub: {
-    fontSize: 11,
-    color: '#64748B',
-    marginTop: 2,
-    marginBottom: 8
-  },
-  modalBio: {
-    fontSize: 11,
-    color: '#334E68',
-    fontStyle: 'italic',
-    marginBottom: 10
-  },
-  credentialBox: {
-    backgroundColor: '#F8FAFC',
-    padding: 10,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    marginBottom: 14
-  },
-  credText: {
     fontSize: 10,
     color: '#334E68',
-    marginBottom: 3
-  },
-  starRow: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    gap: 8,
-    marginVertical: 12
-  },
-  starIcon: {
-    fontSize: 28,
-    color: '#CBD5E1'
-  },
-  starActive: {
-    color: '#F59E0B'
-  },
-  reviewInput: {
-    backgroundColor: '#F8FAFC',
-    borderWidth: 1,
-    borderColor: '#CBD5E1',
-    borderRadius: 12,
-    padding: 10,
-    fontSize: 11,
-    color: '#0F1E36',
-    minHeight: 60,
-    marginBottom: 12
+    marginBottom: 4
   }
 });

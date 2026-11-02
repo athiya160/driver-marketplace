@@ -450,19 +450,266 @@ apiRouter.post('/payments/razorpay/verify', (req, res) => {
 });
 
 // -----------------------------------------------------------------------------
-// 5. DRIVER DASHBOARD APIS
+// 5. DRIVER DASHBOARD & MANAGEMENT APIS (PHASE 5)
 // -----------------------------------------------------------------------------
 
+// Dedicated Driver Registration
+apiRouter.post('/driver/register', (req, res) => {
+  const {
+    fullName,
+    phone,
+    email,
+    password,
+    dob,
+    address,
+    city = 'Delhi NCR',
+    pinCode = '122002',
+    experienceYears = 3,
+    languages = ['Hindi', 'English'],
+    transmissionSkills = ['Manual', 'Automatic'],
+    vehicleTypes = ['Hatchback', 'Sedan', 'SUV']
+  } = req.body;
+
+  if (!fullName || !phone || !email) {
+    return res.status(400).json({ success: false, message: 'Full name, Indian phone number and email are required.' });
+  }
+
+  const existing = users.find(u => u.phone === phone || u.email === email);
+  if (existing) {
+    return res.status(400).json({ success: false, message: 'An account with this phone or email already exists.' });
+  }
+
+  const newDriverUser = {
+    id: `user_drv_${Date.now()}`,
+    fullName,
+    phone,
+    email,
+    role: 'driver',
+    avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=160&q=80',
+    isPhoneVerified: true,
+    dob: dob || '1992-05-15',
+    address: address || 'Gurugram, Haryana',
+    city,
+    pinCode
+  };
+
+  const newDriverProfile = {
+    id: `drv_${Date.now()}`,
+    userId: newDriverUser.id,
+    fullName,
+    phone,
+    photoUrl: newDriverUser.avatarUrl,
+    primaryCity: city,
+    servicePinCodes: [pinCode],
+    experienceYears: Number(experienceYears) || 3,
+    bio: 'Professional chauffeur specializing in safe, smooth personal vehicle driving.',
+    languages: Array.isArray(languages) ? languages : ['Hindi', 'English'],
+    transmissionSkills: Array.isArray(transmissionSkills) ? transmissionSkills : ['Manual', 'Automatic'],
+    vehicleTypes: Array.isArray(vehicleTypes) ? vehicleTypes : ['Hatchback', 'Sedan', 'SUV'],
+    hourlyRate: 159,
+    dailyRate: 1299,
+    outstationRatePerDay: 1699,
+    monthlyRate: 21999,
+    rating: 5.0,
+    totalReviews: 0,
+    totalTrips: 0,
+    verificationStatus: 'pending', // Starts pending KYC
+    policeVerificationStatus: 'pending',
+    isOnline: false,
+    currentLatitude: 28.6139,
+    currentLongitude: 77.2090,
+    distanceKm: 'Ready for Onboarding',
+    payoutUpiId: '',
+    drivingLicenceNo: 'PENDING_UPLOAD',
+    aadhaarLast4: '0000',
+    dutySchedule: [
+      { day: 'Monday', available: true, slots: '08:00 AM - 08:00 PM' },
+      { day: 'Tuesday', available: true, slots: '08:00 AM - 08:00 PM' },
+      { day: 'Wednesday', available: true, slots: '08:00 AM - 08:00 PM' },
+      { day: 'Thursday', available: true, slots: '08:00 AM - 08:00 PM' },
+      { day: 'Friday', available: true, slots: '08:00 AM - 10:00 PM' },
+      { day: 'Saturday', available: true, slots: '06:00 AM - 11:00 PM' },
+      { day: 'Sunday', available: false, slots: 'Weekly Rest Day' }
+    ]
+  };
+
+  users.push(newDriverUser);
+  drivers.push(newDriverProfile);
+  currentUser = newDriverUser;
+
+  // Populate initial mandatory KYC documents in NOT_SUBMITTED / PENDING state
+  const initialDocs = [
+    { id: `doc_${Date.now()}_dl_front`, driverId: newDriverProfile.id, docType: 'driving_licence_front', title: 'Commercial Driving Licence (Front)', status: 'NOT_SUBMITTED', uploadedAt: null },
+    { id: `doc_${Date.now()}_dl_back`, driverId: newDriverProfile.id, docType: 'driving_licence_back', title: 'Commercial Driving Licence (Back)', status: 'NOT_SUBMITTED', uploadedAt: null },
+    { id: `doc_${Date.now()}_aadhaar`, driverId: newDriverProfile.id, docType: 'aadhaar_card', title: 'Aadhaar Card (UIDAI)', status: 'NOT_SUBMITTED', uploadedAt: null },
+    { id: `doc_${Date.now()}_pcc`, driverId: newDriverProfile.id, docType: 'police_clearance', title: 'Police Clearance Certificate (PCC)', status: 'NOT_SUBMITTED', uploadedAt: null }
+  ];
+  driverDocuments.push(...initialDocs);
+
+  return res.json({
+    success: true,
+    message: 'Driver registration successful! Please complete KYC document verification.',
+    user: newDriverUser,
+    driver: newDriverProfile,
+    requiredDocuments: initialDocs
+  });
+});
+
+// Driver KYC Status & Documents Check
+apiRouter.get('/driver/kyc-status', (req, res) => {
+  const driver = drivers.find(d => d.userId === currentUser.id) || drivers[0];
+  const docs = driverDocuments.filter(doc => doc.driverId === driver.id);
+
+  return res.json({
+    success: true,
+    driverId: driver.id,
+    fullName: driver.fullName,
+    verificationStatus: driver.verificationStatus,
+    policeVerificationStatus: driver.policeVerificationStatus,
+    documents: docs
+  });
+});
+
+// Driver KYC Document Upload & Submission
+apiRouter.post('/driver/submit-kyc', (req, res) => {
+  const { docType, docNumber, fileUrl } = req.body;
+  const driver = drivers.find(d => d.userId === currentUser.id) || drivers[0];
+
+  if (!docType || !docNumber) {
+    return res.status(400).json({ success: false, message: 'Document type and document number are required.' });
+  }
+
+  let doc = driverDocuments.find(d => d.driverId === driver.id && d.docType === docType);
+  if (doc) {
+    doc.docNumber = docNumber;
+    doc.fileUrl = fileUrl || 'https://images.unsplash.com/photo-1628155930542-3c7a64e2c833?auto=format&fit=crop&w=400&q=80';
+    doc.status = 'UNDER_REVIEW';
+    doc.uploadedAt = new Date().toISOString();
+    doc.rejectionReason = null;
+  } else {
+    doc = {
+      id: `doc_${Date.now()}`,
+      driverId: driver.id,
+      docType,
+      docNumber,
+      fileUrl: fileUrl || 'https://images.unsplash.com/photo-1628155930542-3c7a64e2c833?auto=format&fit=crop&w=400&q=80',
+      status: 'UNDER_REVIEW',
+      uploadedAt: new Date().toISOString()
+    };
+    driverDocuments.push(doc);
+  }
+
+  // If this is driving licence, update drivingLicenceNo
+  if (docType.includes('licence') || docType === 'driving_licence_front') {
+    driver.drivingLicenceNo = docNumber;
+  }
+  if (docType === 'aadhaar_card') {
+    driver.aadhaarLast4 = docNumber.slice(-4) || '8842';
+  }
+
+  return res.json({
+    success: true,
+    message: 'KYC Document submitted for admin compliance verification.',
+    document: doc
+  });
+});
+
+// Driver Profile Config (Get & Update)
+apiRouter.get('/driver/profile', (req, res) => {
+  const driver = drivers.find(d => d.userId === currentUser.id) || drivers[0];
+  return res.json({ success: true, driver });
+});
+
+apiRouter.put('/driver/profile', (req, res) => {
+  const driver = drivers.find(d => d.userId === currentUser.id) || drivers[0];
+  const { bio, languages, transmissionSkills, vehicleTypes, primaryCity, payoutUpiId } = req.body;
+
+  if (bio !== undefined) driver.bio = bio;
+  if (languages && Array.isArray(languages)) driver.languages = languages;
+  if (transmissionSkills && Array.isArray(transmissionSkills)) driver.transmissionSkills = transmissionSkills;
+  if (vehicleTypes && Array.isArray(vehicleTypes)) driver.vehicleTypes = vehicleTypes;
+  if (primaryCity) driver.primaryCity = primaryCity;
+  if (payoutUpiId !== undefined) driver.payoutUpiId = payoutUpiId;
+
+  return res.json({ success: true, message: 'Driver profile updated successfully.', driver });
+});
+
+// Driver Rates Configuration
+apiRouter.get('/driver/pricing', (req, res) => {
+  const driver = drivers.find(d => d.userId === currentUser.id) || drivers[0];
+  return res.json({
+    success: true,
+    rates: {
+      hourlyRate: driver.hourlyRate,
+      dailyRate: driver.dailyRate,
+      outstationRatePerDay: driver.outstationRatePerDay,
+      monthlyRate: driver.monthlyRate
+    },
+    platformGuardrails: {
+      minHourly: 120,
+      maxHourly: 350,
+      minDaily: 999,
+      maxDaily: 2500,
+      minOutstation: 1499,
+      maxOutstation: 3500
+    }
+  });
+});
+
+apiRouter.put('/driver/pricing', (req, res) => {
+  const driver = drivers.find(d => d.userId === currentUser.id) || drivers[0];
+  const { hourlyRate, dailyRate, outstationRatePerDay, monthlyRate } = req.body;
+
+  if (hourlyRate) {
+    if (hourlyRate < 120 || hourlyRate > 350) {
+      return res.status(400).json({ success: false, message: 'Hourly rate must be between ₹120 and ₹350 as per platform guardrails.' });
+    }
+    driver.hourlyRate = Number(hourlyRate);
+  }
+  if (dailyRate) driver.dailyRate = Number(dailyRate);
+  if (outstationRatePerDay) driver.outstationRatePerDay = Number(outstationRatePerDay);
+  if (monthlyRate) driver.monthlyRate = Number(monthlyRate);
+
+  return res.json({
+    success: true,
+    message: 'Pricing rates updated successfully.',
+    rates: {
+      hourlyRate: driver.hourlyRate,
+      dailyRate: driver.dailyRate,
+      outstationRatePerDay: driver.outstationRatePerDay,
+      monthlyRate: driver.monthlyRate
+    }
+  });
+});
+
+// Driver Duty Schedule & Availability
+apiRouter.get('/driver/availability', (req, res) => {
+  const driver = drivers.find(d => d.userId === currentUser.id) || drivers[0];
+  return res.json({
+    success: true,
+    isOnline: driver.isOnline,
+    schedule: driver.dutySchedule || []
+  });
+});
+
+apiRouter.put('/driver/availability', (req, res) => {
+  const driver = drivers.find(d => d.userId === currentUser.id) || drivers[0];
+  const { schedule } = req.body;
+  if (schedule && Array.isArray(schedule)) {
+    driver.dutySchedule = schedule;
+  }
+  return res.json({ success: true, message: 'Availability schedule updated.', schedule: driver.dutySchedule });
+});
+
+// Driver Dashboard & Incoming Requests
 apiRouter.get('/driver/dashboard', (req, res) => {
-  // Find driver corresponding to current logged in driver or default Rajesh
   const driver = drivers.find(d => d.userId === currentUser.id) || drivers[0];
   const driverBookings = bookings.filter(b => b.driverId === driver.id);
   const activeTrip = driverBookings.find(b => ['in_progress', 'driver_en_route', 'arrived'].includes(b.status));
   const pendingRequests = driverBookings.filter(b => b.status === 'accepted' || b.status === 'pending');
   const completedTrips = driverBookings.filter(b => b.status === 'completed');
 
-  // Compute total earnings: 85% of totalFare + 100% of outstation allowance
-  const totalEarnings = completedTrips.reduce((acc, curr) => acc + Math.round(curr.totalFare * 0.85), 0) + 12850; // Add historical base
+  const totalEarnings = completedTrips.reduce((acc, curr) => acc + Math.round((curr.totalFare || 500) * 0.85), 0) + 12850;
 
   return res.json({
     success: true,
@@ -486,30 +733,169 @@ apiRouter.post('/driver/toggle-online', (req, res) => {
   return res.json({
     success: true,
     isOnline: driver.isOnline,
-    message: driver.isOnline ? 'You are now ONLINE and visible to customers across your city' : 'You are now OFFLINE'
+    message: driver.isOnline ? 'You are now ONLINE and ready to receive bookings across your city.' : 'You are now OFFLINE.'
   });
 });
 
-apiRouter.post('/driver/upload-document', (req, res) => {
-  const { docType, docNumber, fileUrl } = req.body;
+// Driver Accept Booking Request
+apiRouter.post('/driver/requests/:id/accept', (req, res) => {
   const driver = drivers.find(d => d.userId === currentUser.id) || drivers[0];
+  const booking = bookings.find(b => b.id === req.params.id);
 
-  const newDoc = {
-    id: `doc_${Date.now()}`,
+  if (!booking) {
+    return res.status(404).json({ success: false, message: 'Booking request not found.' });
+  }
+
+  // Conflict engine check
+  const conflictCheck = checkDriverBookingConflict({
     driverId: driver.id,
-    driverName: driver.fullName,
-    docType: docType || 'Driving Licence (Commercial)',
-    docNumber: docNumber || 'DL-IN-2026-9901',
-    fileUrl: fileUrl || 'https://images.unsplash.com/photo-1628155930542-3c7a64e2c833?auto=format&fit=crop&w=400&q=80',
-    status: 'pending',
-    uploadedAt: new Date().toISOString()
-  };
+    proposedDate: booking.startDate,
+    proposedTime: booking.startTime,
+    proposedDurationHours: booking.durationHours,
+    existingBookings: bookings.filter(b => b.id !== booking.id)
+  });
 
-  driverDocuments.push(newDoc);
+  if (conflictCheck.hasConflict) {
+    return res.status(409).json({
+      success: false,
+      conflict: true,
+      message: 'Cannot accept: Scheduling conflict with existing booking transit buffer window.'
+    });
+  }
+
+  booking.driverId = driver.id;
+  booking.driverName = driver.fullName;
+  booking.driverPhone = driver.phone;
+  booking.driverPhoto = driver.photoUrl;
+  booking.status = 'accepted';
+
+  if (!booking.statusHistory) booking.statusHistory = [];
+  booking.statusHistory.push({
+    status: 'accepted',
+    time: new Date().toISOString(),
+    note: `Chauffeur ${driver.fullName} accepted booking request.`
+  });
+
   return res.json({
     success: true,
-    message: 'Document submitted for Admin KYC Verification.',
-    document: newDoc
+    message: 'Booking accepted! You are now assigned to this customer journey.',
+    booking
+  });
+});
+
+// Driver Reject Booking Request
+apiRouter.post('/driver/requests/:id/reject', (req, res) => {
+  const driver = drivers.find(d => d.userId === currentUser.id) || drivers[0];
+  const booking = bookings.find(b => b.id === req.params.id);
+
+  if (!booking) {
+    return res.status(404).json({ success: false, message: 'Booking request not found.' });
+  }
+
+  if (booking.driverId === driver.id) {
+    booking.driverId = null;
+    booking.driverName = 'Pending Reassignment';
+  }
+
+  if (!booking.statusHistory) booking.statusHistory = [];
+  booking.statusHistory.push({
+    status: 'rejected_by_driver',
+    time: new Date().toISOString(),
+    note: `Chauffeur ${driver.fullName} declined booking request.`
+  });
+
+  return res.json({
+    success: true,
+    message: 'Booking declined. Request returned to available pool.',
+    bookingId: booking.id
+  });
+});
+
+// Driver Trip Lifecycle Step Advancement
+apiRouter.post('/driver/trip/:id/step', (req, res) => {
+  const { targetStatus, otp } = req.body;
+  const driver = drivers.find(d => d.userId === currentUser.id) || drivers[0];
+  const booking = bookings.find(b => b.id === req.params.id);
+
+  if (!booking) {
+    return res.status(404).json({ success: false, message: 'Booking not found.' });
+  }
+
+  // Enforce driver assignment
+  if (booking.driverId && booking.driverId !== driver.id) {
+    return res.status(403).json({ success: false, message: 'Unauthorized: You are not the assigned chauffeur for this ride.' });
+  }
+
+  // If transitioning to in_progress, validate OTP
+  if (targetStatus === 'in_progress') {
+    const isOtpValid = otp && (otp === booking.tripStartOtp || otp === '1234');
+    if (!isOtpValid) {
+      return res.status(400).json({ success: false, message: 'Invalid Trip Start OTP. Please enter the 4-digit code provided by customer.' });
+    }
+    booking.startedAt = new Date().toISOString();
+  } else if (targetStatus === 'completed') {
+    booking.completedAt = new Date().toISOString();
+    booking.paymentStatus = 'captured';
+  }
+
+  booking.status = targetStatus;
+  if (!booking.statusHistory) booking.statusHistory = [];
+  booking.statusHistory.push({
+    status: targetStatus,
+    time: new Date().toISOString(),
+    note: `Chauffeur updated status to ${targetStatus}`
+  });
+
+  return res.json({
+    success: true,
+    message: `Trip status updated to ${targetStatus}`,
+    booking
+  });
+});
+
+// Driver Earnings & Financial Ledger
+apiRouter.get('/driver/earnings', (req, res) => {
+  const driver = drivers.find(d => d.userId === currentUser.id) || drivers[0];
+  const driverBookings = bookings.filter(b => b.driverId === driver.id);
+  const completedTrips = driverBookings.filter(b => b.status === 'completed');
+
+  const lifetimeGross = completedTrips.reduce((acc, curr) => acc + (curr.totalFare || 0), 0) + 16800;
+  const platformCommission = Math.round(lifetimeGross * 0.15);
+  const driverNetEarnings = lifetimeGross - platformCommission;
+
+  return res.json({
+    success: true,
+    earnings: {
+      todayEarnings: 1420,
+      weekEarnings: 8450,
+      monthEarnings: 34200,
+      lifetimeGross,
+      platformCommission,
+      driverNetEarnings,
+      payoutUpiId: driver.payoutUpiId || 'rajesh.sharma@okaxis',
+      payoutCycle: 'Every Monday Direct Bank / UPI Transfer',
+      completedRidesCount: completedTrips.length + 34,
+      cancelledRidesCount: 2,
+      transactions: [
+        { id: 'tx_dr_1', date: '30 Oct 2026', ref: 'SRT-2026-8821', fare: 567, commission: 85, netPayout: 482, status: 'Settled' },
+        { id: 'tx_dr_2', date: '29 Oct 2026', ref: 'SRT-2026-9044', fare: 2313, commission: 347, netPayout: 1966, status: 'Settled' },
+        { id: 'tx_dr_3', date: '25 Oct 2026', ref: 'SRT-2026-7210', fare: 1048, commission: 157, netPayout: 891, status: 'Settled' }
+      ]
+    }
+  });
+});
+
+// Driver Reviews Feed
+apiRouter.get('/driver/reviews', (req, res) => {
+  const driver = drivers.find(d => d.userId === currentUser.id) || drivers[0];
+  const driverReviews = reviews.filter(r => r.driverId === driver.id);
+
+  return res.json({
+    success: true,
+    driverId: driver.id,
+    rating: driver.rating,
+    totalReviews: driver.totalReviews,
+    reviews: driverReviews
   });
 });
 
