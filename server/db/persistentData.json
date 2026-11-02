@@ -1,0 +1,792 @@
+{
+  "users": [
+    {
+      "id": "user_cust_demo_01",
+      "fullName": "Demo Customer (Rohan Verma)",
+      "phone": "+91 98765 43210",
+      "email": "rohan.demo@example.com",
+      "role": "customer",
+      "avatarUrl": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=160&q=80",
+      "isPhoneVerified": true,
+      "savedAddresses": [
+        {
+          "id": "addr_1",
+          "title": "Home",
+          "address": "Tower 4, DLF The Crest, Sector 54, Golf Course Road",
+          "city": "Delhi NCR",
+          "pinCode": "122002",
+          "isDefault": true
+        },
+        {
+          "id": "addr_2",
+          "title": "Office",
+          "address": "Building 10B, Cyber City, DLF Phase 2",
+          "city": "Delhi NCR",
+          "pinCode": "122008",
+          "isDefault": false
+        },
+        {
+          "id": "addr_3",
+          "title": "Airport Drop",
+          "address": "Terminal 3, Indira Gandhi International Airport",
+          "city": "Delhi NCR",
+          "pinCode": "110037",
+          "isDefault": false
+        }
+      ],
+      "favoriteDriverIds": [
+        "drv_delhi_1",
+        "drv_mumbai_1"
+      ]
+    },
+    {
+      "id": "user_drv_001",
+      "fullName": "Rajesh Kumar Sharma",
+      "phone": "+91 98111 22334",
+      "email": "rajesh.driver@example.com",
+      "role": "driver",
+      "avatarUrl": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=160&q=80",
+      "isPhoneVerified": true
+    },
+    {
+      "id": "user_adm_001",
+      "fullName": "Sarathi Operations Admin",
+      "phone": "+91 99999 88888",
+      "email": "admin.ops@example.com",
+      "role": "admin",
+      "avatarUrl": "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=160&q=80",
+      "isPhoneVerified": true
+    }
+  ],
+  "drivers": [
+    {
+      "id": "drv_delhi_1",
+      "userId": "user_drv_001",
+      "fullName": "Rajesh Kumar Sharma",
+      "phone": "+91 98111 22334",
+      "photoUrl": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80",
+      "primaryCity": "Delhi NCR",
+      "experienceYears": 9,
+      "bio": "Professional chauffeur with 9+ years experience. Expert in manual and high-end automatic German cars (Audi, BMW, Merc). Non-smoker, punctual and polite.",
+      "languages": [
+        "Hindi",
+        "English",
+        "Punjabi"
+      ],
+      "transmissionSkills": [
+        "Manual",
+        "Automatic"
+      ],
+      "vehicleTypes": [
+        "Hatchback",
+        "Sedan",
+        "SUV",
+        "Luxury"
+      ],
+      "hourlyRate": 159,
+      "dailyRate": 1299,
+      "outstationRatePerDay": 1699,
+      "rating": 4.9,
+      "totalReviews": 248,
+      "totalTrips": 1420,
+      "verificationStatus": "approved",
+      "policeVerificationStatus": "verified",
+      "isOnline": true,
+      "currentLatitude": 28.4595,
+      "currentLongitude": 77.0266,
+      "distanceKm": "1.8 km away",
+      "payoutUpiId": "rajesh.sharma@okaxis",
+      "drivingLicenceNo": "DL-0420150089211",
+      "aadhaarLast4": "8842"
+    },
+    {
+      "id": "drv_delhi_2",
+      "userId": "user_drv_002",
+      "fullName": "Harpreet Singh",
+      "phone": "+91 98722 33445",
+      "photoUrl": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&q=80",
+      "primaryCity": "Delhi NCR",
+      "experienceYears": 12,
+      "bio": "Veteran highway and outstation specialist. Master of overnight trips to Manali, Shimla, Jaipur, Agra, and Uttarakhand.",
+      "languages": [
+        "Punjabi",
+        "Hindi",
+        "English"
+      ],
+      "transmissionSkills": [
+        "Manual",
+        "Automatic"
+      ],
+      "vehicleTypes": [
+        "Sedan",
+        "SUV",
+        "Luxury"
+      ],
+      "hourlyRate": 179,
+      "dailyRate": 1499,
+      "outstationRatePerDay": 1799,
+      "rating": 4.95,
+      "totalReviews": 412,
+      "totalTrips": 2150,
+      "verificationStatus": "approved",
+      "policeVerificationStatus": "verified",
+      "isOnline": true,
+      "currentLatitude": 28.6139,
+      "currentLongitude": 77.209,
+      "distanceKm": "3.2 km away",
+      "payoutUpiId": "harpreet.highway@okhdfcbank",
+      "drivingLicenceNo": "DL-1120120034120",
+      "aadhaarLast4": "3190"
+    },
+    {
+      "id": "drv_mumbai_1",
+      "userId": "user_drv_003",
+      "fullName": "Suresh Patil",
+      "phone": "+91 98200 11223",
+      "photoUrl": "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=200&q=80",
+      "primaryCity": "Mumbai",
+      "experienceYears": 8,
+      "bio": "Familiar with all arterial routes of Mumbai, Navi Mumbai, and Pune Expressway. Highly reliable for corporate CEOs.",
+      "languages": [
+        "Marathi",
+        "Hindi",
+        "English"
+      ],
+      "transmissionSkills": [
+        "Manual",
+        "Automatic"
+      ],
+      "vehicleTypes": [
+        "Hatchback",
+        "Sedan",
+        "SUV",
+        "Luxury"
+      ],
+      "hourlyRate": 169,
+      "dailyRate": 1349,
+      "outstationRatePerDay": 1749,
+      "rating": 4.85,
+      "totalReviews": 184,
+      "totalTrips": 980,
+      "verificationStatus": "approved",
+      "policeVerificationStatus": "verified",
+      "isOnline": true,
+      "currentLatitude": 19.076,
+      "currentLongitude": 72.8777,
+      "distanceKm": "2.4 km away",
+      "payoutUpiId": "patil.suresh@icici",
+      "drivingLicenceNo": "MH-0220160012399",
+      "aadhaarLast4": "6421"
+    },
+    {
+      "id": "drv_blr_1",
+      "userId": "user_drv_004",
+      "fullName": "Venkatesh Rao",
+      "phone": "+91 98450 77889",
+      "photoUrl": "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=200&q=80",
+      "primaryCity": "Bengaluru",
+      "experienceYears": 7,
+      "bio": "Patient and smooth driving through Bengaluru traffic. Expert with EV vehicles (Nexon, ZS EV) and automatic luxury sedans.",
+      "languages": [
+        "Kannada",
+        "English",
+        "Hindi",
+        "Tamil"
+      ],
+      "transmissionSkills": [
+        "Manual",
+        "Automatic"
+      ],
+      "vehicleTypes": [
+        "Hatchback",
+        "Sedan",
+        "SUV"
+      ],
+      "hourlyRate": 159,
+      "dailyRate": 1249,
+      "outstationRatePerDay": 1649,
+      "rating": 4.9,
+      "totalReviews": 210,
+      "totalTrips": 1120,
+      "verificationStatus": "approved",
+      "policeVerificationStatus": "verified",
+      "isOnline": true,
+      "currentLatitude": 12.9716,
+      "currentLongitude": 77.5946,
+      "distanceKm": "2.1 km away",
+      "payoutUpiId": "venky.rao@sbi",
+      "drivingLicenceNo": "KA-0120170098412",
+      "aadhaarLast4": "9920"
+    },
+    {
+      "id": "drv_chn_1",
+      "userId": "user_drv_005",
+      "fullName": "Kavitha Murugan",
+      "phone": "+91 98400 44556",
+      "photoUrl": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=200&q=80",
+      "primaryCity": "Chennai",
+      "experienceYears": 6,
+      "bio": "Certified female executive chauffeur. Specializes in female passenger safety, school pickups, airport commutes, and long-term rentals.",
+      "languages": [
+        "Tamil",
+        "English",
+        "Hindi"
+      ],
+      "transmissionSkills": [
+        "Manual",
+        "Automatic"
+      ],
+      "vehicleTypes": [
+        "Hatchback",
+        "Sedan",
+        "SUV"
+      ],
+      "hourlyRate": 169,
+      "dailyRate": 1399,
+      "outstationRatePerDay": 1799,
+      "rating": 5,
+      "totalReviews": 128,
+      "totalTrips": 610,
+      "verificationStatus": "approved",
+      "policeVerificationStatus": "verified",
+      "isOnline": true,
+      "currentLatitude": 13.0827,
+      "currentLongitude": 80.2707,
+      "distanceKm": "1.5 km away",
+      "payoutUpiId": "kavitha.safe@paytm",
+      "drivingLicenceNo": "TN-0920180055122",
+      "aadhaarLast4": "4102"
+    },
+    {
+      "id": "drv_hyd_1",
+      "userId": "user_drv_006",
+      "fullName": "Mohammed Farooq",
+      "phone": "+91 98480 33221",
+      "photoUrl": "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=200&q=80",
+      "primaryCity": "Hyderabad",
+      "experienceYears": 6,
+      "bio": "HITEC City & Gachibowli specialist. Very polite, well-mannered and disciplined chauffeur for corporate executives.",
+      "languages": [
+        "Telugu",
+        "Urdu",
+        "Hindi",
+        "English"
+      ],
+      "transmissionSkills": [
+        "Manual",
+        "Automatic"
+      ],
+      "vehicleTypes": [
+        "Sedan",
+        "SUV"
+      ],
+      "hourlyRate": 139,
+      "dailyRate": 1099,
+      "outstationRatePerDay": 1549,
+      "rating": 4.8,
+      "totalReviews": 145,
+      "totalTrips": 740,
+      "verificationStatus": "approved",
+      "policeVerificationStatus": "verified",
+      "isOnline": true,
+      "currentLatitude": 17.385,
+      "currentLongitude": 78.4867,
+      "distanceKm": "3.8 km away",
+      "payoutUpiId": "farooq.hyd@ybl",
+      "drivingLicenceNo": "TS-0920190011440",
+      "aadhaarLast4": "1098"
+    },
+    {
+      "id": "drv_kol_1",
+      "userId": "user_drv_007",
+      "fullName": "Amitava Ghosh",
+      "phone": "+91 98300 66778",
+      "photoUrl": "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&w=200&q=80",
+      "primaryCity": "Kolkata",
+      "experienceYears": 10,
+      "bio": "10 years experience navigating North & South Kolkata, Salt Lake and Durgapur expressway. Calm demeanor under heavy traffic.",
+      "languages": [
+        "Bengali",
+        "Hindi",
+        "English"
+      ],
+      "transmissionSkills": [
+        "Manual",
+        "Automatic"
+      ],
+      "vehicleTypes": [
+        "Hatchback",
+        "Sedan",
+        "SUV"
+      ],
+      "hourlyRate": 129,
+      "dailyRate": 999,
+      "outstationRatePerDay": 1499,
+      "rating": 4.88,
+      "totalReviews": 310,
+      "totalTrips": 1620,
+      "verificationStatus": "approved",
+      "policeVerificationStatus": "verified",
+      "isOnline": true,
+      "currentLatitude": 22.5726,
+      "currentLongitude": 88.3639,
+      "distanceKm": "2.9 km away",
+      "payoutUpiId": "amitava.g@okaxis",
+      "drivingLicenceNo": "WB-0120140087123",
+      "aadhaarLast4": "7721"
+    },
+    {
+      "id": "drv_pune_1",
+      "userId": "user_drv_008",
+      "fullName": "Ganesh Shinde",
+      "phone": "+91 98220 99887",
+      "photoUrl": "https://images.unsplash.com/photo-1501196354995-cbb51c65aaea?auto=format&fit=crop&w=200&q=80",
+      "primaryCity": "Pune",
+      "experienceYears": 5,
+      "bio": "Specialist in Hinjewadi IT park commute, Lonavala/Mahabaleshwar outstations and luxury German cars.",
+      "languages": [
+        "Marathi",
+        "Hindi"
+      ],
+      "transmissionSkills": [
+        "Manual",
+        "Automatic"
+      ],
+      "vehicleTypes": [
+        "Hatchback",
+        "Sedan",
+        "SUV"
+      ],
+      "hourlyRate": 139,
+      "dailyRate": 1099,
+      "outstationRatePerDay": 1549,
+      "rating": 4.75,
+      "totalReviews": 98,
+      "totalTrips": 540,
+      "verificationStatus": "approved",
+      "policeVerificationStatus": "verified",
+      "isOnline": false,
+      "currentLatitude": 18.5204,
+      "currentLongitude": 73.8567,
+      "distanceKm": "4.5 km away",
+      "payoutUpiId": "shinde.ganesh@kotak",
+      "drivingLicenceNo": "MH-1220200034567",
+      "aadhaarLast4": "5561"
+    },
+    {
+      "id": "drv_pending_1",
+      "userId": "user_drv_009",
+      "fullName": "Santosh Kumar Verma",
+      "phone": "+91 98109 99001",
+      "photoUrl": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=200&q=80",
+      "primaryCity": "Delhi NCR",
+      "experienceYears": 4,
+      "bio": "Experienced driver seeking verification. Commercial badge holder.",
+      "languages": [
+        "Hindi"
+      ],
+      "transmissionSkills": [
+        "Manual"
+      ],
+      "vehicleTypes": [
+        "Hatchback",
+        "Sedan"
+      ],
+      "hourlyRate": 130,
+      "dailyRate": 1050,
+      "outstationRatePerDay": 1450,
+      "rating": 0,
+      "totalReviews": 0,
+      "totalTrips": 0,
+      "verificationStatus": "pending",
+      "policeVerificationStatus": "pending",
+      "isOnline": false,
+      "currentLatitude": 28.5355,
+      "currentLongitude": 77.391,
+      "distanceKm": "5.1 km away",
+      "payoutUpiId": "santosh.v@airtel",
+      "drivingLicenceNo": "UP-1620210099411",
+      "aadhaarLast4": "2093"
+    }
+  ],
+  "driver_documents": [
+    {
+      "id": "doc_1",
+      "driverId": "drv_pending_1",
+      "driverName": "Santosh Kumar Verma",
+      "docType": "Driving Licence (Commercial LMV)",
+      "docNumber": "UP-1620210099411",
+      "fileUrl": "https://images.unsplash.com/photo-1628155930542-3c7a64e2c833?auto=format&fit=crop&w=400&q=80",
+      "status": "pending",
+      "uploadedAt": "2026-10-28T14:30:00Z"
+    },
+    {
+      "id": "doc_2",
+      "driverId": "drv_pending_1",
+      "driverName": "Santosh Kumar Verma",
+      "docType": "Aadhaar Card (UIDAI Verified)",
+      "docNumber": "XXXX-XXXX-2093",
+      "fileUrl": "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=400&q=80",
+      "status": "pending",
+      "uploadedAt": "2026-10-28T14:32:00Z"
+    },
+    {
+      "id": "doc_3",
+      "driverId": "drv_delhi_1",
+      "driverName": "Rajesh Kumar Sharma",
+      "docType": "Police Clearance Certificate (PCC)",
+      "docNumber": "PCC-DL-2025-99812",
+      "fileUrl": "https://images.unsplash.com/photo-1450133064473-71024230f91b?auto=format&fit=crop&w=400&q=80",
+      "status": "approved",
+      "uploadedAt": "2025-06-12T10:00:00Z"
+    }
+  ],
+  "bookings": [
+    {
+      "id": "bk_active_01",
+      "bookingReference": "SRT-2026-8821",
+      "customerId": "user_cust_demo_01",
+      "customerName": "Rohan Verma (Demo)",
+      "customerPhone": "+91 98765 43210",
+      "driverId": "drv_delhi_1",
+      "driverName": "Rajesh Kumar Sharma",
+      "driverPhone": "+91 98111 22334",
+      "serviceType": "hourly",
+      "serviceTitle": "Hourly Driver Rental",
+      "transmissionType": "Automatic",
+      "vehicleType": "Sedan",
+      "pickupAddress": "Tower 4, DLF The Crest, Sector 54, Golf Course Road, Gurugram",
+      "pickupCity": "Delhi NCR",
+      "dropAddress": "Ambience Mall, NH-8, Gurugram",
+      "startDate": "2026-10-30",
+      "startTime": "14:30",
+      "durationHours": 4,
+      "status": "in_progress",
+      "tripStartOtp": "4821",
+      "tripQrPayload": "SARATHI:TRIP:SRT-2026-8821:OTP-4821",
+      "baseFare": 299,
+      "extraHoursCharge": 240,
+      "nightCharge": 0,
+      "outstationDA": 0,
+      "platformFee": 49,
+      "gstTax": 29,
+      "discountAmount": 50,
+      "couponCode": "FIRST50",
+      "totalFare": 567,
+      "paymentStatus": "captured",
+      "paymentMethod": "upi",
+      "specialInstructions": "Car is a Honda City ZX Automatic. Please handle with care.",
+      "createdAt": "2026-10-29T18:00:00Z",
+      "startedAt": "2026-10-30T14:35:00Z"
+    },
+    {
+      "id": "bk_sched_02",
+      "bookingReference": "SRT-2026-9044",
+      "customerId": "user_cust_demo_01",
+      "customerName": "Rohan Verma (Demo)",
+      "customerPhone": "+91 98765 43210",
+      "driverId": "drv_delhi_2",
+      "driverName": "Harpreet Singh",
+      "driverPhone": "+91 98722 33445",
+      "serviceType": "outstation",
+      "serviceTitle": "Outstation Highway Trip",
+      "transmissionType": "Manual",
+      "vehicleType": "SUV",
+      "pickupAddress": "Cyber City, Gurugram",
+      "pickupCity": "Delhi NCR",
+      "dropAddress": "Jaypee Palace Hotel, Fatehabad Road, Agra",
+      "startDate": "2026-11-02",
+      "startTime": "06:00",
+      "durationHours": 14,
+      "status": "accepted",
+      "tripStartOtp": "7912",
+      "tripQrPayload": "SARATHI:TRIP:SRT-2026-9044:OTP-7912",
+      "baseFare": 1599,
+      "extraHoursCharge": 300,
+      "nightCharge": 0,
+      "outstationDA": 350,
+      "platformFee": 49,
+      "gstTax": 115,
+      "discountAmount": 100,
+      "couponCode": "WEEKEND100",
+      "totalFare": 2313,
+      "paymentStatus": "authorized",
+      "paymentMethod": "upi",
+      "specialInstructions": "Trip to Agra via Yamuna Expressway. Car: Mahindra XUV700.",
+      "createdAt": "2026-10-29T20:15:00Z"
+    },
+    {
+      "id": "bk_past_03",
+      "bookingReference": "SRT-2026-7210",
+      "customerId": "user_cust_demo_01",
+      "customerName": "Rohan Verma (Demo)",
+      "customerPhone": "+91 98765 43210",
+      "driverId": "drv_delhi_1",
+      "driverName": "Rajesh Kumar Sharma",
+      "driverPhone": "+91 98111 22334",
+      "serviceType": "airport",
+      "serviceTitle": "Airport Transfer Flight-Safe",
+      "transmissionType": "Automatic",
+      "vehicleType": "Sedan",
+      "pickupAddress": "Sector 54, Gurugram",
+      "pickupCity": "Delhi NCR",
+      "dropAddress": "Terminal 3, IGI Airport New Delhi",
+      "startDate": "2026-10-25",
+      "startTime": "23:30",
+      "durationHours": 4,
+      "status": "completed",
+      "tripStartOtp": "1109",
+      "tripQrPayload": "SARATHI:TRIP:SRT-2026-7210:OTP-1109",
+      "baseFare": 699,
+      "extraHoursCharge": 0,
+      "nightCharge": 250,
+      "outstationDA": 0,
+      "platformFee": 49,
+      "gstTax": 50,
+      "discountAmount": 0,
+      "couponCode": null,
+      "totalFare": 1048,
+      "paymentStatus": "captured",
+      "paymentMethod": "card",
+      "createdAt": "2026-10-25T19:00:00Z",
+      "startedAt": "2026-10-25T23:30:00Z",
+      "completedAt": "2026-10-26T03:15:00Z"
+    }
+  ],
+  "reviews": [
+    {
+      "id": "rev_1",
+      "bookingId": "bk_past_03",
+      "driverId": "drv_delhi_1",
+      "customerName": "Rohan Verma (Demo)",
+      "rating": 5,
+      "punctualityRating": 5,
+      "drivingSkillRating": 5,
+      "behaviorRating": 5,
+      "comment": "Exceptional driving! Reached on time at 11:30 PM for our midnight airport drop. Very smooth braking on Gurgaon Expressway.",
+      "date": "2026-10-26"
+    },
+    {
+      "id": "rev_2",
+      "bookingId": "bk_past_02",
+      "driverId": "drv_delhi_2",
+      "customerName": "Vikramaditya Roy",
+      "rating": 5,
+      "punctualityRating": 5,
+      "drivingSkillRating": 5,
+      "behaviorRating": 5,
+      "comment": "Harpreet drove our family safely from Delhi to Jaipur on NH-48. Extremely experienced with highways.",
+      "date": "2026-10-20"
+    }
+  ],
+  "support_tickets": [
+    {
+      "id": "tkt_1",
+      "userId": "user_cust_demo_01",
+      "userName": "Rohan Verma (Demo)",
+      "bookingReference": "SRT-2026-7210",
+      "category": "billing",
+      "subject": "Request for Corporate GST Tax Invoice",
+      "message": "Please send the GST tax invoice mentioning company GSTIN 07AAAAA0000A1Z5 for the airport drop ride.",
+      "status": "resolved",
+      "createdAt": "2026-10-26T08:00:00Z"
+    },
+    {
+      "id": "tkt_2",
+      "userId": "user_cust_demo_01",
+      "userName": "Rohan Verma (Demo)",
+      "bookingReference": "SRT-2026-9044",
+      "category": "outstation",
+      "subject": "Inquiry regarding outstation driver night stay allowance",
+      "message": "Does the ₹350 DA cover driver food and hotel stay during our 2-day Agra trip?",
+      "status": "open",
+      "createdAt": "2026-10-29T21:00:00Z"
+    }
+  ],
+  "service_areas": [
+    {
+      "id": "city_delhi",
+      "name": "Delhi NCR",
+      "state": "Delhi & NCR",
+      "active": true,
+      "baseRate": 149,
+      "activeDrivers": 420
+    },
+    {
+      "id": "city_mumbai",
+      "name": "Mumbai",
+      "state": "Maharashtra",
+      "active": true,
+      "baseRate": 169,
+      "activeDrivers": 380
+    },
+    {
+      "id": "city_blr",
+      "name": "Bengaluru",
+      "state": "Karnataka",
+      "active": true,
+      "baseRate": 159,
+      "activeDrivers": 310
+    },
+    {
+      "id": "city_hyd",
+      "name": "Hyderabad",
+      "state": "Telangana",
+      "active": true,
+      "baseRate": 139,
+      "activeDrivers": 240
+    },
+    {
+      "id": "city_chn",
+      "name": "Chennai",
+      "state": "Tamil Nadu",
+      "active": true,
+      "baseRate": 149,
+      "activeDrivers": 190
+    },
+    {
+      "id": "city_pune",
+      "name": "Pune",
+      "state": "Maharashtra",
+      "active": true,
+      "baseRate": 139,
+      "activeDrivers": 175
+    },
+    {
+      "id": "city_kol",
+      "name": "Kolkata",
+      "state": "West Bengal",
+      "active": true,
+      "baseRate": 129,
+      "activeDrivers": 160
+    },
+    {
+      "id": "city_jpr",
+      "name": "Jaipur",
+      "state": "Rajasthan",
+      "active": true,
+      "baseRate": 129,
+      "activeDrivers": 120
+    },
+    {
+      "id": "city_chd",
+      "name": "Chandigarh",
+      "state": "Punjab & Haryana",
+      "active": true,
+      "baseRate": 139,
+      "activeDrivers": 95
+    },
+    {
+      "id": "city_lko",
+      "name": "Lucknow",
+      "state": "Uttar Pradesh",
+      "active": true,
+      "baseRate": 119,
+      "activeDrivers": 80
+    }
+  ],
+  "pricing_rules": {
+    "baseHourlyRate": 299,
+    "extraHourlyRate": 120,
+    "fullDay8Hours": 1199,
+    "outstationDriverDA": 350,
+    "nightAllowance": 250,
+    "platformConvenienceFee": 49,
+    "platformCommissionPercent": 15,
+    "transportGstPercent": 5
+  },
+  "promo_coupons": [
+    {
+      "id": "cpn_1",
+      "code": "FIRST50",
+      "discountType": "flat",
+      "discountValue": 50,
+      "minBookingAmount": 299,
+      "description": "Flat ₹50 OFF on your first personal chauffeur booking",
+      "isActive": true,
+      "expiresAt": "2026-12-31"
+    },
+    {
+      "id": "cpn_2",
+      "code": "WEEKEND100",
+      "discountType": "flat",
+      "discountValue": 100,
+      "minBookingAmount": 999,
+      "description": "Flat ₹100 OFF on full-day and outstation weekend trips",
+      "isActive": true,
+      "expiresAt": "2026-12-31"
+    },
+    {
+      "id": "cpn_3",
+      "code": "SALMAN10",
+      "discountType": "percentage",
+      "discountValue": 10,
+      "maxDiscount": 150,
+      "minBookingAmount": 499,
+      "description": "10% OFF up to ₹150 for loyal customers",
+      "isActive": true,
+      "expiresAt": "2026-12-31"
+    }
+  ],
+  "financial_transactions": [
+    {
+      "id": "tx_901",
+      "bookingReference": "SRT-2026-8821",
+      "customerName": "Demo Customer (Rohan Verma)",
+      "driverName": "Rajesh Kumar Sharma",
+      "amount": 567,
+      "paymentMethod": "UPI (Google Pay)",
+      "paymentStatus": "captured",
+      "gatewayPaymentId": "pay_rzp_9841284",
+      "createdAt": "2026-10-30T14:31:00Z"
+    },
+    {
+      "id": "tx_902",
+      "bookingReference": "SRT-2026-9044",
+      "customerName": "Demo Customer (Rohan Verma)",
+      "driverName": "Harpreet Singh",
+      "amount": 2313,
+      "paymentMethod": "UPI (PhonePe)",
+      "paymentStatus": "authorized",
+      "gatewayPaymentId": "pay_rzp_9901421",
+      "createdAt": "2026-10-29T20:16:00Z"
+    },
+    {
+      "id": "tx_903",
+      "bookingReference": "SRT-2026-7210",
+      "customerName": "Demo Customer (Rohan Verma)",
+      "driverName": "Rajesh Kumar Sharma",
+      "amount": 1048,
+      "paymentMethod": "Credit Card (Visa)",
+      "paymentStatus": "captured",
+      "gatewayPaymentId": "pay_rzp_8712391",
+      "createdAt": "2026-10-25T19:05:00Z"
+    }
+  ],
+  "admin_audit_logs": [
+    {
+      "id": "log_01",
+      "adminName": "Salman (Operations Admin)",
+      "action": "PLATFORM_SYSTEM_INIT",
+      "target": "Salman Driver Core Engine",
+      "details": "System initialized across 10 operational Indian metros with strict verification rules.",
+      "timestamp": "2026-10-20T09:00:00Z"
+    },
+    {
+      "id": "log_02",
+      "adminName": "Salman (Operations Admin)",
+      "action": "DRIVER_KYC_APPROVED",
+      "target": "drv_delhi_1 (Rajesh Kumar Sharma)",
+      "details": "Commercial DL DL-0420150089211 and Police Clearance Certificate verified and approved.",
+      "timestamp": "2026-10-22T11:30:00Z"
+    },
+    {
+      "id": "log_03",
+      "adminName": "Salman (Operations Admin)",
+      "action": "DRIVER_KYC_APPROVED",
+      "target": "drv_delhi_2 (Harpreet Singh)",
+      "details": "Commercial Driving License and outstation background check approved.",
+      "timestamp": "2026-10-23T14:15:00Z"
+    }
+  ]
+}

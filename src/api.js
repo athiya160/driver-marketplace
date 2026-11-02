@@ -407,3 +407,60 @@ export async function fetchAdminAuditLogs() {
   return res.json();
 }
 
+// -----------------------------------------------------------------------------
+// PHASE 7: REAL-TIME MOBILITY MARKETPLACE & DISPATCH CLIENT APIS
+// -----------------------------------------------------------------------------
+
+export async function requestChauffeurDispatch(dispatchParams) {
+  const res = await fetch(`${BASE_URL}/dispatch/request`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(dispatchParams)
+  });
+  return res.json();
+}
+
+export async function respondToChauffeurDispatch(responseParams) {
+  const res = await fetch(`${BASE_URL}/dispatch/respond`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(responseParams)
+  });
+  return res.json();
+}
+
+export async function fetchDispatchStatus(bookingId) {
+  const res = await fetch(`${BASE_URL}/dispatch/${bookingId}/status`);
+  return res.json();
+}
+
+export async function broadcastDriverLocation(locationPayload) {
+  const res = await fetch(`${BASE_URL}/driver/location`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(locationPayload)
+  });
+  return res.json();
+}
+
+export async function fetchLiveTripTelemetry(bookingId) {
+  const res = await fetch(`${BASE_URL}/bookings/${bookingId}/live-tracking`);
+  return res.json();
+}
+
+export async function loginWithToken(credentials) {
+  const res = await fetch(`${BASE_URL}/auth/token-login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(credentials)
+  });
+  return res.json();
+}
+
+export async function verifyAuthToken(token) {
+  const res = await fetch(`${BASE_URL}/auth/verify-token`, {
+    headers: { 'Authorization': `Bearer ${token}` }
+  });
+  return res.json();
+}
+
