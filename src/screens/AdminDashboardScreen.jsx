@@ -65,7 +65,7 @@ export default function AdminDashboardScreen({ onSwitchRole }) {
   const [adminPin, setAdminPin] = useState('1234');
   const [loginError, setLoginError] = useState('');
   const [currentAdmin, setCurrentAdmin] = useState({
-    name: 'Salman (Operations Admin)',
+    name: 'Operations Admin (Console)',
     role: 'SuperAdmin',
     email: 'admin.ops@example.com'
   });
@@ -411,7 +411,7 @@ export default function AdminDashboardScreen({ onSwitchRole }) {
             <div className="w-16 h-16 rounded-2xl bg-orange-500/20 text-orange-400 mx-auto flex items-center justify-center font-bold border border-orange-500/30">
               <Shield className="w-8 h-8" />
             </div>
-            <h2 className="text-xl font-extrabold tracking-tight">Salman Driver Operations Center</h2>
+            <h2 className="text-xl font-extrabold tracking-tight">Marketplace Operations Center</h2>
             <p className="text-xs text-slate-400">Restricted Executive Control Panel</p>
           </div>
 
@@ -446,7 +446,7 @@ export default function AdminDashboardScreen({ onSwitchRole }) {
               className="w-full py-3 bg-orange-500 hover:bg-orange-600 text-white font-extrabold text-sm rounded-xl shadow-lg shadow-orange-500/20 transition flex items-center justify-center gap-2"
             >
               <Unlock className="w-4 h-4" />
-              <span>Sign In as Salman (Operations Desk)</span>
+              <span>Sign In to Operations Console</span>
             </button>
           </form>
         </div>
@@ -497,7 +497,7 @@ export default function AdminDashboardScreen({ onSwitchRole }) {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="font-extrabold text-sm text-[#0F1E36] tracking-tight">Salman Driver Operations Center</h1>
+                <h1 className="font-extrabold text-sm text-[#0F1E36] tracking-tight">Marketplace Operations Center</h1>
                 <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200 uppercase flex items-center gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                   Active Metros: {citiesList.filter(c => c.active).length}

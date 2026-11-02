@@ -31,7 +31,7 @@ export const USERS = [
   },
   {
     id: 'user_adm_001',
-    fullName: 'Sarathi Operations Admin',
+    fullName: 'Marketplace Operations Admin',
     phone: '+91 99999 88888',
     email: 'admin.ops@example.com',
     role: 'admin',
@@ -590,15 +590,15 @@ export const FINANCIAL_TRANSACTIONS = [
 export const ADMIN_AUDIT_LOGS = [
   {
     id: 'log_01',
-    adminName: 'Salman (Operations Admin)',
+    adminName: 'Marketplace Operations Admin',
     action: 'PLATFORM_SYSTEM_INIT',
-    target: 'Salman Driver Core Engine',
+    target: 'Marketplace Core Engine',
     details: 'System initialized across 10 operational Indian metros with strict verification rules.',
     timestamp: '2026-10-20T09:00:00Z'
   },
   {
     id: 'log_02',
-    adminName: 'Salman (Operations Admin)',
+    adminName: 'Marketplace Operations Admin',
     action: 'DRIVER_KYC_APPROVED',
     target: 'drv_delhi_1 (Rajesh Kumar Sharma)',
     details: 'Commercial DL DL-0420150089211 and Police Clearance Certificate verified and approved.',
@@ -606,7 +606,7 @@ export const ADMIN_AUDIT_LOGS = [
   },
   {
     id: 'log_03',
-    adminName: 'Salman (Operations Admin)',
+    adminName: 'Marketplace Operations Admin',
     action: 'DRIVER_KYC_APPROVED',
     target: 'drv_delhi_2 (Harpreet Singh)',
     details: 'Commercial Driving License and outstation background check approved.',

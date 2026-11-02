@@ -1,7 +1,7 @@
-# Salman Driver – Production Database Architecture & Schema Documentation
+# Personal Driver Marketplace – Production Database Architecture & Schema Documentation
 
 > **Platform:** Pan-India On-Demand Personal Driver Marketplace  
-> **Brand Promise:** *"Your Car. Your Journey. Our Drivers."*  
+> **Value Proposition:** *"Your Car. Your Journey. Your Driver."*  
 > **Core Principle:** Customers own their vehicles; verified professional drivers operate customers' vehicles on-demand.
 
 ---

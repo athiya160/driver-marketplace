@@ -11,6 +11,7 @@ import {
 import { globalLocationTracker } from './marketplace/locationTracker.js';
 import { signJwt, verifyJwt, hashPassword, authenticateToken, requireRole } from './auth/authService.js';
 import { persistentStorage } from './db/persistentStorage.js';
+import { demoManager } from './demo/demoManager.js';
 import {
   USERS,
   DRIVERS,
@@ -42,7 +43,7 @@ let adminAuditLogs = [...ADMIN_AUDIT_LOGS];
 let currentUser = users[0]; // Initialized with demo customer profile
 
 // Audit Log Helper
-function recordAuditLog(action, target, details, adminName = 'Salman (Operations Admin)') {
+function recordAuditLog(action, target, details, adminName = 'Operations Admin') {
   const logEntry = {
     id: `log_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
     adminName,
@@ -942,7 +943,7 @@ apiRouter.post('/admin/login', (req, res) => {
   const { email, password, pin } = req.body;
   const adminUser = users.find(u => u.role === 'admin') || {
     id: 'user_adm_001',
-    fullName: 'Salman (Operations Admin)',
+    fullName: 'Operations Admin',
     phone: '+91 99999 88888',
     email: 'admin.ops@example.com',
     role: 'admin',
@@ -950,7 +951,7 @@ apiRouter.post('/admin/login', (req, res) => {
   };
 
   // Allow admin login with correct password/pin or quick demo passkey
-  const isMatch = (pin === '1234' || password === 'admin123' || password === 'SALMAN_ADMIN_2026' || !password);
+  const isMatch = (pin === '1234' || password === 'admin123' || password === 'DEMO_ADMIN_2026' || password === 'SALMAN_ADMIN_2026' || !password);
   if (!isMatch) {
     return res.status(401).json({ success: false, message: 'Invalid Admin PIN or credentials' });
   }
@@ -960,7 +961,7 @@ apiRouter.post('/admin/login', (req, res) => {
 
   return res.json({
     success: true,
-    message: 'Welcome to Salman Driver Admin Operations Center',
+    message: 'Welcome to Marketplace Operations Center',
     token: `adm_session_${Date.now()}`,
     user: adminUser
   });
@@ -1711,5 +1712,62 @@ apiRouter.get('/auth/verify-token', authenticateToken, (req, res) => {
   return res.json({
     success: true,
     user: req.user
+  });
+});
+
+// -----------------------------------------------------------------------------
+// 8. DEDICATED DEMO ENVIRONMENT APIS (PHASE 7.5)
+// -----------------------------------------------------------------------------
+
+// Fetch full synthetic demo state
+apiRouter.get('/demo/state', (req, res) => {
+  return res.json({
+    success: true,
+    demoMode: true,
+    currentRole: demoManager.currentRole,
+    currentUser: demoManager.currentUser,
+    customers: demoManager.customers,
+    drivers: demoManager.drivers,
+    documents: demoManager.documents,
+    bookings: demoManager.bookings,
+    cities: demoManager.cities,
+    coupons: demoManager.coupons,
+    tickets: demoManager.tickets,
+    reviews: demoManager.reviews,
+    auditLogs: demoManager.auditLogs,
+    pricingRules: demoManager.pricingRules,
+    analytics: demoManager.getDemoAnalytics(),
+    lastResetAt: demoManager.lastResetAt
+  });
+});
+
+// 1-Click Reset Demo Environment
+apiRouter.post('/demo/reset', (req, res) => {
+  const result = demoManager.resetToBaseline();
+  return res.json(result);
+});
+
+// 1-Click Demo Role Switcher (Customer, Driver, Admin)
+apiRouter.post('/demo/switch-role', (req, res) => {
+  const { role } = req.body;
+  const result = demoManager.switchDemoRole(role);
+  if (result.success) {
+    currentUser = result.user;
+  }
+  return res.json(result);
+});
+
+// Advance Demo Trip Step (Deterministic Simulation)
+apiRouter.post('/demo/simulate-step', (req, res) => {
+  const { bookingId, targetStep } = req.body; // 'arriving', 'arrived', 'start_trip', 'complete_trip'
+  const result = demoManager.simulateStepTrip(bookingId, targetStep);
+  return res.json(result);
+});
+
+// Demo Marketplace Analytics
+apiRouter.get('/demo/analytics', (req, res) => {
+  return res.json({
+    success: true,
+    analytics: demoManager.getDemoAnalytics()
   });
 });

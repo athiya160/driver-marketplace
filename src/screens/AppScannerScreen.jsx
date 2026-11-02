@@ -42,7 +42,7 @@ export default function AppScannerScreen({ onBack }) {
             📱 Official Expo Mobile QR
           </div>
           <h2 className="font-extrabold text-base text-white">
-            Run Salman Driver on Your Android or iPhone
+            Run Chauffeur Mobile App on Android or iPhone
           </h2>
           <p className="text-xs text-slate-400 mt-1 mb-4">
             Point your phone camera or Expo Go scanner at this QR code:
@@ -52,7 +52,7 @@ export default function AppScannerScreen({ onBack }) {
           <div className="bg-white p-4 rounded-3xl inline-block shadow-2xl mx-auto mb-4 border-4 border-slate-800">
             <img
               src="/public/expo_qr_code.png"
-              alt="Salman Driver Expo Go QR Code"
+              alt="Expo Go Mobile QR Code"
               className="w-56 h-56 object-contain block"
               onError={(e) => {
                 // Fallback to inline SVG if image loading

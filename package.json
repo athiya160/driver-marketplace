@@ -23,7 +23,7 @@
     "booking-system",
     "razorpay"
   ],
-  "author": "Sarathi Mobility Technologies",
+  "author": "Personal Driver Marketplace Team",
   "license": "MIT",
   "dependencies": {
     "cookie-parser": "^1.4.7",

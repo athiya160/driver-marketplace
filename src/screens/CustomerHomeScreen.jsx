@@ -67,7 +67,7 @@ export default function CustomerHomeScreen({
   return (
     <div className="flex flex-col min-h-full pb-24 bg-[#F8FAFC] text-[#172033] font-sans">
       
-      {/* Top Header - Salman Driver */}
+      {/* Top Header - Chauffeur Marketplace */}
       <div className="p-4 bg-white border-b border-slate-200/90 sticky top-0 z-20 shadow-sm">
         <div className="flex items-center justify-between mb-3">
           
@@ -469,7 +469,7 @@ export default function CustomerHomeScreen({
         {/* Confidence & Safety Badges */}
         <div className="bg-white border border-slate-200 rounded-2xl p-3.5 shadow-sm space-y-2 text-xs">
           <div className="flex items-center justify-between border-b border-slate-100 pb-1.5">
-            <span className="font-extrabold text-[#0F1E36]">Why Hire With Salman Driver?</span>
+            <span className="font-extrabold text-[#0F1E36]">Why Hire With Our Marketplace?</span>
             <span className="text-[10px] text-emerald-600 font-bold">100% Peace of Mind</span>
           </div>
           <div className="grid grid-cols-2 gap-2 text-[11px] text-slate-600">

@@ -1,5 +1,5 @@
 -- =============================================================================
--- SALMAN DRIVER - ROW LEVEL SECURITY (RLS) POLICIES (MIGRATION 002)
+-- PERSONAL DRIVER MARKETPLACE - ROW LEVEL SECURITY (RLS) POLICIES (MIGRATION 002)
 -- Enforces customer isolation, chauffeur booking privacy & admin authority
 -- =============================================================================
 

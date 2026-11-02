@@ -464,3 +464,43 @@ export async function verifyAuthToken(token) {
   return res.json();
 }
 
+// -----------------------------------------------------------------------------
+// PHASE 7.5: DEMO ENVIRONMENT CLIENT APIS
+// -----------------------------------------------------------------------------
+
+export async function fetchDemoState() {
+  const res = await fetch(`${BASE_URL}/demo/state`);
+  return res.json();
+}
+
+export async function resetDemoEnvironment() {
+  const res = await fetch(`${BASE_URL}/demo/reset`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' }
+  });
+  return res.json();
+}
+
+export async function switchDemoRole(role) {
+  const res = await fetch(`${BASE_URL}/demo/switch-role`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ role })
+  });
+  return res.json();
+}
+
+export async function simulateDemoTripStep(bookingId, targetStep) {
+  const res = await fetch(`${BASE_URL}/demo/simulate-step`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ bookingId, targetStep })
+  });
+  return res.json();
+}
+
+export async function fetchDemoAnalytics() {
+  const res = await fetch(`${BASE_URL}/demo/analytics`);
+  return res.json();
+}
+

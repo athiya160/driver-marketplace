@@ -293,7 +293,7 @@ export default function DriverDashboardScreen({
   if (loading) {
     return (
       <div className="p-8 text-center text-slate-500 animate-pulse font-sans">
-        Loading Salman Driver Chauffeur Portal...
+        Loading Chauffeur Partner Portal...
       </div>
     );
   }

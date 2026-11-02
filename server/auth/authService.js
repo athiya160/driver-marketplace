@@ -1,5 +1,5 @@
 /**
- * SALMAN DRIVER - SECURE AUTHENTICATION & ROLE-BASED ACCESS CONTROL
+ * PERSONAL DRIVER MARKETPLACE - SECURE AUTHENTICATION & ROLE-BASED ACCESS CONTROL
  * Production Token Signer & Role Authorization
  * Uses Node.js native crypto for zero-dependency security
  */

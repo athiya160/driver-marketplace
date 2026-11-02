@@ -17,9 +17,9 @@ import {
 const { width } = Dimensions.get('window');
 
 /**
- * SALMAN DRIVER - PAN-INDIA DRIVER RENTAL MOBILE APPLICATION
+ * PERSONAL DRIVER MARKETPLACE - MOBILE APPLICATION
  * React Native & Expo Mobile Client (Customer App & Driver Portal)
- * Owner: Salman | Tagline: Find. Book. Travel Better.
+ * Value Proposition: Your Car. Your Journey. Your Driver.
  * Theme: Light Slate (#F8FAFC), Deep Navy (#0F1E36), Warm Orange (#F97316)
  * Objective: Connect vehicle owners with verified personal drivers across India.
  */
@@ -258,8 +258,8 @@ export default function App() {
       {/* Top Navbar with App Mode Switcher */}
       <View style={styles.navBar}>
         <View style={styles.brandContainer}>
-          <Text style={styles.brandTitle}>Salman Driver</Text>
-          <Text style={styles.brandTagline}>Find. Book. Travel Better.</Text>
+          <Text style={styles.brandTitle}>Driver Marketplace</Text>
+          <Text style={styles.brandTagline}>Your Car. Your Journey. Your Driver.</Text>
         </View>
 
         {/* Dual Role Switcher: Customer vs Driver */}

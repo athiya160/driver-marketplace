@@ -238,6 +238,15 @@ export default function App() {
     setAuthModalOpen(true);
   };
 
+  const handleReloadAll = () => {
+    fetchDrivers({ city: selectedCity }).then(res => {
+      if (res.success) setAllDrivers(res.drivers || []);
+    });
+    fetchBookings(currentRole).then(res => {
+      if (res.success) setAllBookings(res.bookings || []);
+    });
+  };
+
   const unreadNotifsCount = notifications.filter(n => !n.read).length;
 
   return (
@@ -250,6 +259,7 @@ export default function App() {
       onOpenNotifications={() => setNotificationsOpen(true)}
       unreadCount={unreadNotifsCount}
       onOpenAuth={handleOpenAuth}
+      onResetDemo={handleReloadAll}
     >
       <div className="flex-1 flex flex-col h-full relative">
         
@@ -516,7 +526,7 @@ export default function App() {
           setSelectedDriver(drv);
           setActiveScreen('booking');
         }}
-        onCallDriver={(drv) => alert(`Masked Virtual Call placed to ${drv.fullName} (+91 800-SALMAN-DRV). Passenger phone number is protected.`)}
+        onCallDriver={(drv) => alert(`Masked Virtual Call placed to ${drv.fullName} (+91 1800-120-0044). Passenger phone number is protected.`)}
         onChatDriver={(drv) => alert(`In-App Chat conversation opened with ${drv.fullName}.`)}
       />
 
@@ -541,7 +551,7 @@ export default function App() {
         onAuthSuccess={(user) => {
           setCurrentUser(user);
           setCurrentRole(user.role || 'customer');
-          alert(`Welcome to Salman Driver, ${user.fullName}!`);
+          alert(`Welcome to Chauffeur Marketplace, ${user.fullName}!`);
         }}
       />
 

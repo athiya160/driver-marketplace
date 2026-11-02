@@ -1,7 +1,7 @@
 -- =============================================================================
--- SALMAN DRIVER - PRODUCTION POSTGRESQL SCHEMA (SUPABASE MIGRATION 001)
+-- PERSONAL DRIVER MARKETPLACE - PRODUCTION POSTGRESQL SCHEMA (SUPABASE MIGRATION 001)
 -- Business Model: Pan-India On-Demand Personal Driver Marketplace
--- "Your Car. Your Journey. Our Drivers."
+-- "Your Car. Your Journey. Your Driver."
 -- =============================================================================
 
 -- Enable UUID extension
