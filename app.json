@@ -1,0 +1,54 @@
+{
+  "expo": {
+    "name": "Sarathi - Driver Rental India",
+    "slug": "sarathi-driver-rental",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0F172A"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.sarathi.driverrental",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "Sarathi requires your location to find nearby verified drivers for your vehicle.",
+        "NSLocationAlwaysUsageDescription": "Sarathi needs background location during active trips to track driver arrival and route.",
+        "NSCameraUsageDescription": "Sarathi uses camera access to scan booking QR codes and upload driver documents."
+      }
+    },
+    "android": {
+      "package": "com.sarathi.driverrental",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0F172A"
+      },
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION",
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "sarathi-driver-rental-india-prod"
+      },
+      "apiUrl": "http://localhost:5000/api",
+      "currency": "INR",
+      "country": "IN",
+      "supportPhone": "+91 800 123 4567"
+    }
+  }
+}

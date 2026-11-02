@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sarathi Driver Rental - App Scanner & Mobile Connect</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: #0B1120;
+      color: #F8FAFC;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    .badge {
+      display: inline-block;
+      padding: 6px 16px;
+      background: rgba(14, 165, 233, 0.15);
+      border: 1px solid rgba(14, 165, 233, 0.4);
+      color: #38BDF8;
+      border-radius: 9999px;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+    }
+    h1 {
+      font-size: 32px;
+      font-weight: 800;
+      color: #FFFFFF;
+      margin-bottom: 8px;
+    }
+    p.subtitle {
+      color: #94A3B8;
+      font-size: 16px;
+      max-width: 600px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 24px;
+      width: 100%;
+      max-width: 960px;
+    }
+    .card {
+      background: #1E293B;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+    }
+    .qr-frame {
+      background: #FFFFFF;
+      padding: 16px;
+      border-radius: 16px;
+      margin: 16px 0;
+      box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3);
+    }
+    .qr-frame img {
+      display: block;
+      width: 240px;
+      height: 240px;
+    }
+    .instructions {
+      text-align: left;
+      width: 100%;
+      background: #0F172A;
+      border-radius: 12px;
+      padding: 16px;
+      margin-top: 16px;
+      font-size: 13px;
+      line-height: 1.6;
+      color: #CBD5E1;
+    }
+    .instructions ol {
+      padding-left: 20px;
+    }
+    .url-pill {
+      background: #334155;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-family: monospace;
+      font-size: 13px;
+      color: #38BDF8;
+      margin: 8px 0;
+      word-break: break-all;
+    }
+    .btn {
+      display: inline-block;
+      margin-top: 16px;
+      background: linear-gradient(135deg, #0284C7, #2563EB);
+      color: #FFF;
+      text-decoration: none;
+      font-weight: 700;
+      padding: 12px 24px;
+      border-radius: 10px;
+      transition: all 0.2s;
+    }
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(2, 132, 199, 0.4);
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="badge">🚀 Official App Scanner & Connect</div>
+    <h1>Sarathi Driver Rental Booking (Across India)</h1>
+    <p class="subtitle">Scan the QR code below using your mobile camera or Expo Go to instantly launch the application on your phone.</p>
+  </div>
+
+  <div class="grid">
+    <!-- 1. Expo Go App QR Scanner -->
+    <div class="card">
+      <div class="badge" style="background: rgba(34, 197, 94, 0.15); color: #4ADE80; border-color: rgba(34, 197, 94, 0.3);">
+        📱 Mobile App Preview (Expo Go)
+      </div>
+      <h3 style="margin-top: 4px;">Expo Go Mobile QR Code</h3>
+      <div class="qr-frame">
+        <img src="data:image/png;base64,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" alt="Expo Go QR Code" />
+      </div>
+      <div class="url-pill">exp://10.221.98.204:8081</div>
+      <div class="instructions">
+        <strong>How to run on phone:</strong>
+        <ol>
+          <li>Install <strong>Expo Go</strong> from Play Store or App Store.</li>
+          <li><strong>Android:</strong> Open Expo Go and tap "Scan QR Code".</li>
+          <li><strong>iOS:</strong> Open the built-in Camera app and scan this QR code.</li>
+          <li>Make sure phone & laptop are on the same Wi-Fi.</li>
+        </ol>
+      </div>
+      <a href="http://10.221.98.204:5173" target="_blank" class="btn">Open Web App Preview (Browser)</a>
+    </div>
+
+    <!-- 2. Driver Trip Verification QR Code -->
+    <div class="card">
+      <div class="badge" style="background: rgba(245, 158, 11, 0.15); color: #FBBF24; border-color: rgba(245, 158, 11, 0.3);">
+        🛡️ Trip Check-in & Security
+      </div>
+      <h3 style="margin-top: 4px;">In-App Trip Start QR Code</h3>
+      <div class="qr-frame">
+        <img src="data:image/png;base64,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" alt="Sample Trip QR Code" />
+      </div>
+      <div class="url-pill">SARATHI:TRIP:SRT-2026-8821:OTP-4821</div>
+      <div class="instructions">
+        <strong>Driver In-App QR Scanner:</strong>
+        <ol>
+          <li>When customer books a driver, app generates this unique encrypted QR code & 4-digit OTP.</li>
+          <li>When driver arrives at customer vehicle, driver opens in-app camera scanner.</li>
+          <li>Scanning this QR automatically verifies customer identity and transitions trip status to <strong>In Progress</strong>!</li>
+        </ol>
+      </div>
+      <a href="http://10.221.98.204:5173" target="_blank" class="btn" style="background: #334155;">Test Scanner In Web App</a>
+    </div>
+  </div>
+</body>
+</html>
