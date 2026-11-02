@@ -8,14 +8,24 @@ import {
   Navigation,
   ShieldCheck,
   Star,
-  ChevronRight,
   Sparkles,
   Tag,
   ArrowRight,
+  ArrowUpRight,
   Map as MapIcon,
-  ListFilter
+  ChevronDown,
+  CheckCircle2,
+  Clock4,
+  Zap,
+  PhoneCall,
+  SlidersHorizontal,
+  Compass,
+  Repeat,
+  Plane,
+  Briefcase
 } from 'lucide-react';
 import { INDIAN_CITIES, SERVICE_CATEGORIES, VEHICLE_TYPES, TRANSMISSION_TYPES } from '../constants.js';
+import { BRAND, THEME } from '../config/branding.js';
 import InteractiveMap from '../components/InteractiveMap.jsx';
 
 export default function CustomerHomeScreen({
@@ -31,7 +41,8 @@ export default function CustomerHomeScreen({
   const [locating, setLocating] = useState(false);
   const [showCityPicker, setShowCityPicker] = useState(false);
   const [showInteractiveMap, setShowInteractiveMap] = useState(false);
-  const [pinCodeSearch, setPinCodeSearch] = useState('');
+  const [isImmediate, setIsImmediate] = useState(true); // Immediate vs Scheduled
+  const [pinCodeFilter, setPinCodeFilter] = useState('');
 
   // Auto-detect GPS simulation
   const handleDetectLocation = () => {
@@ -43,31 +54,38 @@ export default function CustomerHomeScreen({
         pickupAddress: 'Tower 4, DLF The Crest, Sector 54, Golf Course Road, Gurugram',
         pickupCity: selectedCity
       }));
-    }, 800);
+    }, 700);
   };
 
+  // Filter available drivers by city and transmission
+  const availableDrivers = topDrivers.filter(d => {
+    const matchesCity = !selectedCity || d.primaryCity.toLowerCase().includes(selectedCity.toLowerCase());
+    const matchesTrans = !bookingForm.transmissionType || d.transmissionSkills.includes(bookingForm.transmissionType);
+    return d.verificationStatus === 'approved' && matchesCity && matchesTrans;
+  });
+
   return (
-    <div className="flex flex-col min-h-full pb-20 bg-slate-950 text-slate-100">
+    <div className="flex flex-col min-h-full pb-24 bg-[#F8FAFC] text-[#172033] font-sans">
       
-      {/* Top City Bar & Header */}
-      <div className="bg-gradient-to-b from-slate-900 to-slate-950 p-4 border-b border-slate-800/80">
+      {/* Top Header - Salman Driver */}
+      <div className="p-4 bg-white border-b border-slate-200/90 sticky top-0 z-20 shadow-sm">
         <div className="flex items-center justify-between mb-3">
           
-          {/* City Selector Button */}
+          {/* Operating City Selector */}
           <div className="relative">
             <button
               onClick={() => setShowCityPicker(!showCityPicker)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-800/90 border border-slate-700 text-xs font-bold text-white hover:bg-slate-750 transition"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-100 border border-slate-200 text-xs font-bold text-[#0F1E36] hover:bg-slate-200 transition"
             >
-              <MapPin className="w-3.5 h-3.5 text-brand-400" />
+              <MapPin className="w-3.5 h-3.5 text-orange-500" />
               <span>{selectedCity}</span>
-              <span className="text-[10px] text-slate-400">▼</span>
+              <ChevronDown className="w-3 h-3 text-slate-500" />
             </button>
 
             {/* City Dropdown Menu */}
             {showCityPicker && (
-              <div className="absolute top-10 left-0 w-48 max-h-64 overflow-y-auto bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl p-1 z-50">
-                <div className="px-3 py-1.5 text-[10px] uppercase font-bold text-slate-400 border-b border-slate-800">
+              <div className="absolute top-10 left-0 w-48 max-h-64 overflow-y-auto bg-white border border-slate-200 rounded-2xl shadow-xl p-1 z-50 text-xs">
+                <div className="px-3 py-1.5 text-[10px] uppercase font-bold text-slate-400 border-b border-slate-100">
                   Select Operating City
                 </div>
                 {INDIAN_CITIES.map(city => (
@@ -80,8 +98,8 @@ export default function CustomerHomeScreen({
                     }}
                     className={`w-full text-left px-3 py-2 rounded-xl text-xs font-medium transition ${
                       selectedCity === city
-                        ? 'bg-brand-600 text-white font-bold'
-                        : 'text-slate-300 hover:bg-slate-800'
+                        ? 'bg-[#0F1E36] text-white font-bold'
+                        : 'text-slate-700 hover:bg-slate-100'
                     }`}
                   >
                     {city}
@@ -92,218 +110,239 @@ export default function CustomerHomeScreen({
           </div>
 
           {/* Safe Driving Verified Badge */}
-          <div className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-[11px] font-bold text-emerald-400">
-            <ShieldCheck className="w-3.5 h-3.5" />
+          <div className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-[11px] font-bold text-emerald-700">
+            <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
             <span>100% Police Verified</span>
           </div>
         </div>
 
-        {/* Hero Tagline */}
-        <h1 className="text-xl font-extrabold tracking-tight text-white">
-          Rent a Driver for <span className="bg-gradient-to-r from-brand-400 to-cyan-400 bg-clip-text text-transparent">Your Own Car</span>
-        </h1>
-        <p className="text-xs text-slate-400 mt-0.5">
-          Verified chauffeurs for hourly, daily, outstation and monthly travel across India.
-        </p>
+        {/* Hero Title & Subtitle */}
+        <div className="mt-1">
+          <h1 className="text-xl font-extrabold tracking-tight text-[#0F1E36] flex items-center justify-between">
+            <span>{BRAND.appName}</span>
+            <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-orange-100 text-orange-700">
+              For Your Own Car
+            </span>
+          </h1>
+          <p className="text-xs text-slate-500 mt-0.5">
+            {BRAND.tagline} • Verified personal chauffeurs across India.
+          </p>
+        </div>
       </div>
 
       {/* Main Booking Controls Container */}
       <div className="p-4 space-y-4">
         
-        {/* Location Selection Card */}
-        <div className="bg-slate-900 border border-slate-800 rounded-3xl p-4 shadow-xl">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Pickup & Destination</span>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setShowInteractiveMap(!showInteractiveMap)}
-                className="flex items-center gap-1 text-[11px] font-semibold text-brand-400 hover:text-brand-300 transition"
-              >
-                <MapIcon className="w-3 h-3" />
-                <span>{showInteractiveMap ? 'Hide Map' : 'View Map'}</span>
-              </button>
+        {/* Booking Card: Immediate vs Scheduled + Location Inputs */}
+        <div className="bg-white border border-slate-200 rounded-3xl p-4 shadow-sm space-y-3">
+          
+          {/* Immediate vs Scheduled Tab Switcher */}
+          <div className="flex rounded-2xl bg-slate-100 p-1 border border-slate-200 text-xs font-bold">
+            <button
+              onClick={() => setIsImmediate(true)}
+              className={`flex-1 py-2 rounded-xl flex items-center justify-center gap-1.5 transition ${
+                isImmediate
+                  ? 'bg-white text-[#0F1E36] shadow-sm font-extrabold'
+                  : 'text-slate-500 hover:text-slate-800'
+              }`}
+            >
+              <Zap className={`w-3.5 h-3.5 ${isImmediate ? 'text-orange-500' : 'text-slate-400'}`} />
+              <span>Book Now (Instant)</span>
+            </button>
+            <button
+              onClick={() => setIsImmediate(false)}
+              className={`flex-1 py-2 rounded-xl flex items-center justify-center gap-1.5 transition ${
+                !isImmediate
+                  ? 'bg-white text-[#0F1E36] shadow-sm font-extrabold'
+                  : 'text-slate-500 hover:text-slate-800'
+              }`}
+            >
+              <Clock4 className={`w-3.5 h-3.5 ${!isImmediate ? 'text-orange-500' : 'text-slate-400'}`} />
+              <span>Schedule For Later</span>
+            </button>
+          </div>
+
+          {/* Pickup Address Input */}
+          <div>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+                <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-emerald-100"></div>
+                <span>Pickup Location</span>
+              </label>
               <button
                 onClick={handleDetectLocation}
                 disabled={locating}
-                className="flex items-center gap-1 text-[11px] font-semibold text-emerald-400 hover:text-emerald-300 transition"
+                className="text-[10px] text-emerald-600 hover:text-emerald-700 font-bold flex items-center gap-1"
               >
                 <Navigation className={`w-3 h-3 ${locating ? 'animate-spin' : ''}`} />
-                <span>{locating ? 'Locating...' : 'My GPS'}</span>
+                <span>{locating ? 'Locating...' : 'Detect GPS'}</span>
               </button>
+            </div>
+            
+            <div className="flex items-center gap-2.5 p-3 bg-slate-50 border border-slate-200 rounded-2xl">
+              <MapPin className="w-4 h-4 text-emerald-600 shrink-0" />
+              <input
+                type="text"
+                value={bookingForm.pickupAddress}
+                onChange={(e) => setBookingForm(prev => ({ ...prev, pickupAddress: e.target.value }))}
+                placeholder="Enter pickup address, society or office"
+                className="w-full bg-transparent text-xs text-[#172033] placeholder-slate-400 focus:outline-none"
+              />
             </div>
           </div>
 
-          {/* Interactive Map Component toggle */}
+          {/* Destination Address Input */}
+          <div>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+                <div className="w-2.5 h-2.5 rounded-full bg-rose-500 ring-2 ring-rose-100"></div>
+                <span>Destination (Optional for local errands)</span>
+              </label>
+              <button
+                onClick={() => setShowInteractiveMap(!showInteractiveMap)}
+                className="text-[10px] text-orange-600 hover:text-orange-700 font-bold flex items-center gap-1"
+              >
+                <MapIcon className="w-3 h-3" />
+                <span>{showInteractiveMap ? 'Hide Route' : 'Show Route'}</span>
+              </button>
+            </div>
+
+            <div className="flex items-center gap-2.5 p-3 bg-slate-50 border border-slate-200 rounded-2xl">
+              <Navigation className="w-4 h-4 text-rose-500 shrink-0" />
+              <input
+                type="text"
+                value={bookingForm.dropAddress}
+                onChange={(e) => setBookingForm(prev => ({ ...prev, dropAddress: e.target.value }))}
+                placeholder="Drop address, airport terminal or outstation city"
+                className="w-full bg-transparent text-xs text-[#172033] placeholder-slate-400 focus:outline-none"
+              />
+            </div>
+          </div>
+
+          {/* Interactive Route Map */}
           {showInteractiveMap && (
-            <div className="mb-3">
+            <div className="rounded-2xl overflow-hidden border border-slate-200">
               <InteractiveMap
                 pickupAddress={bookingForm.pickupAddress}
                 dropAddress={bookingForm.dropAddress}
-                height="190px"
+                height="180px"
               />
             </div>
           )}
 
-          {/* Pickup Address Input */}
-          <div className="flex items-center gap-2.5 p-3 bg-slate-950 border border-slate-800 rounded-2xl mb-2">
-            <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 ring-4 ring-emerald-500/20 shrink-0"></div>
-            <input
-              type="text"
-              value={bookingForm.pickupAddress}
-              onChange={(e) => setBookingForm(prev => ({ ...prev, pickupAddress: e.target.value }))}
-              placeholder="Enter pickup address, landmark or area"
-              className="w-full bg-transparent text-xs text-white placeholder-slate-500 focus:outline-none"
-            />
+          {/* Scheduled Date, Time & Duration (If not immediate) */}
+          {!isImmediate && (
+            <div className="pt-2 border-t border-slate-100 grid grid-cols-3 gap-2">
+              <div className="bg-slate-50 border border-slate-200 p-2 rounded-xl">
+                <div className="flex items-center gap-1 text-[10px] text-slate-500 mb-1">
+                  <Calendar className="w-3 h-3 text-orange-500" />
+                  <span>Date</span>
+                </div>
+                <input
+                  type="date"
+                  value={bookingForm.startDate}
+                  onChange={(e) => setBookingForm(prev => ({ ...prev, startDate: e.target.value }))}
+                  className="w-full bg-transparent text-xs font-semibold text-[#0F1E36] focus:outline-none"
+                />
+              </div>
+
+              <div className="bg-slate-50 border border-slate-200 p-2 rounded-xl">
+                <div className="flex items-center gap-1 text-[10px] text-slate-500 mb-1">
+                  <Clock className="w-3 h-3 text-orange-500" />
+                  <span>Time</span>
+                </div>
+                <input
+                  type="time"
+                  value={bookingForm.startTime}
+                  onChange={(e) => setBookingForm(prev => ({ ...prev, startTime: e.target.value }))}
+                  className="w-full bg-transparent text-xs font-semibold text-[#0F1E36] focus:outline-none"
+                />
+              </div>
+
+              <div className="bg-slate-50 border border-slate-200 p-2 rounded-xl">
+                <div className="flex items-center gap-1 text-[10px] text-slate-500 mb-1">
+                  <Sparkles className="w-3 h-3 text-orange-500" />
+                  <span>Duration</span>
+                </div>
+                <select
+                  value={bookingForm.durationHours}
+                  onChange={(e) => setBookingForm(prev => ({ ...prev, durationHours: Number(e.target.value) }))}
+                  className="w-full bg-transparent text-xs font-semibold text-[#0F1E36] focus:outline-none"
+                >
+                  <option value={2}>2 Hours</option>
+                  <option value={4}>4 Hours</option>
+                  <option value={8}>8 Hours</option>
+                  <option value={12}>12 Hours</option>
+                  <option value={24}>Full Day (24h)</option>
+                </select>
+              </div>
+            </div>
+          )}
+
+          {/* Customer Vehicle Specifications (Hatchback/Sedan/SUV/Luxury & MT/AT) */}
+          <div className="pt-2 border-t border-slate-100">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                Your Vehicle Specifications
+              </span>
+              <span className="text-[10px] text-orange-600 font-bold">Matches Driver Mastery</span>
+            </div>
+
+            {/* Transmission Selector: Automatic vs Manual */}
+            <div className="grid grid-cols-2 gap-2 mb-2">
+              {TRANSMISSION_TYPES.map(trans => (
+                <button
+                  key={trans.id}
+                  onClick={() => setBookingForm(prev => ({ ...prev, transmissionType: trans.id }))}
+                  className={`p-2.5 rounded-xl border text-left transition ${
+                    bookingForm.transmissionType === trans.id
+                      ? 'bg-orange-50 border-orange-500 text-[#0F1E36] ring-1 ring-orange-500/20'
+                      : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
+                  }`}
+                >
+                  <div className="font-extrabold text-xs">{trans.name}</div>
+                  <div className="text-[10px] text-slate-500 truncate">{trans.desc}</div>
+                </button>
+              ))}
+            </div>
+
+            {/* Vehicle Body Type */}
+            <div className="grid grid-cols-4 gap-1.5">
+              {VEHICLE_TYPES.map(veh => (
+                <button
+                  key={veh.id}
+                  onClick={() => setBookingForm(prev => ({ ...prev, vehicleType: veh.id }))}
+                  className={`py-1.5 px-1 rounded-xl border text-center transition flex flex-col items-center ${
+                    bookingForm.vehicleType === veh.id
+                      ? 'bg-[#0F1E36] text-white border-[#0F1E36] shadow-sm'
+                      : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
+                  }`}
+                >
+                  <Car className="w-3.5 h-3.5 mb-0.5" />
+                  <span className="text-[10px] font-bold leading-tight">{veh.name}</span>
+                </button>
+              ))}
+            </div>
           </div>
 
-          {/* Drop Address Input */}
-          <div className="flex items-center gap-2.5 p-3 bg-slate-950 border border-slate-800 rounded-2xl mb-2">
-            <div className="w-2.5 h-2.5 rounded-full bg-rose-400 ring-4 ring-rose-500/20 shrink-0"></div>
-            <input
-              type="text"
-              value={bookingForm.dropAddress}
-              onChange={(e) => setBookingForm(prev => ({ ...prev, dropAddress: e.target.value }))}
-              placeholder="Drop destination (or Multiple City Stops)"
-              className="w-full bg-transparent text-xs text-white placeholder-slate-500 focus:outline-none"
-            />
-          </div>
-
-          {/* PIN code or Local Area Filter */}
-          <div className="flex items-center gap-2 p-2 bg-slate-950/60 border border-slate-800/80 rounded-xl mb-2">
-            <Search className="w-3.5 h-3.5 text-slate-500" />
-            <input
-              type="text"
-              value={pinCodeSearch}
-              onChange={(e) => setPinCodeSearch(e.target.value)}
-              placeholder="Filter drivers by PIN code (e.g. 122002, 110001)"
-              className="w-full bg-transparent text-[11px] text-white placeholder-slate-500 focus:outline-none font-mono"
-            />
-          </div>
-
-          {/* Quick Location Shortcuts */}
-          <div className="flex items-center gap-2 overflow-x-auto text-[10px] text-slate-400 scrollbar-none pt-1">
-            <span className="font-semibold text-slate-500">Quick:</span>
-            <button
-              onClick={() => setBookingForm(prev => ({ ...prev, pickupAddress: 'Tower 4, DLF The Crest, Sector 54, Gurugram' }))}
-              className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300"
-            >
-              🏠 DLF Crest
-            </button>
-            <button
-              onClick={() => setBookingForm(prev => ({ ...prev, pickupAddress: 'Building 10B, DLF Cyber City Phase 2' }))}
-              className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300"
-            >
-              🏢 Cyber City
-            </button>
-            <button
-              onClick={() => setBookingForm(prev => ({ ...prev, dropAddress: 'Terminal 3, Indira Gandhi International Airport' }))}
-              className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300"
-            >
-              ✈️ Airport T3
-            </button>
-          </div>
+          {/* Search CTA */}
+          <button
+            onClick={onSearchDrivers}
+            className="w-full py-3.5 bg-[#0F1E36] hover:bg-[#1A2F45] text-white font-extrabold text-sm rounded-2xl shadow-md flex items-center justify-center gap-2 transition hover:scale-[1.01]"
+          >
+            <Search className="w-4 h-4 text-orange-400" />
+            <span>Search Verified Drivers in {selectedCity}</span>
+            <ArrowRight className="w-4 h-4 text-orange-400" />
+          </button>
         </div>
 
-        {/* Schedule & Duration Pickers */}
-        <div className="grid grid-cols-3 gap-2">
-          {/* Date */}
-          <div className="bg-slate-900 border border-slate-800 p-2.5 rounded-2xl">
-            <div className="flex items-center gap-1 text-[10px] text-slate-400 mb-1">
-              <Calendar className="w-3 h-3 text-brand-400" />
-              <span>Date</span>
-            </div>
-            <input
-              type="date"
-              value={bookingForm.startDate}
-              onChange={(e) => setBookingForm(prev => ({ ...prev, startDate: e.target.value }))}
-              className="w-full bg-transparent text-xs font-semibold text-white focus:outline-none"
-            />
-          </div>
-
-          {/* Start Time */}
-          <div className="bg-slate-900 border border-slate-800 p-2.5 rounded-2xl">
-            <div className="flex items-center gap-1 text-[10px] text-slate-400 mb-1">
-              <Clock className="w-3 h-3 text-brand-400" />
-              <span>Time</span>
-            </div>
-            <input
-              type="time"
-              value={bookingForm.startTime}
-              onChange={(e) => setBookingForm(prev => ({ ...prev, startTime: e.target.value }))}
-              className="w-full bg-transparent text-xs font-semibold text-white focus:outline-none"
-            />
-          </div>
-
-          {/* Duration */}
-          <div className="bg-slate-900 border border-slate-800 p-2.5 rounded-2xl">
-            <div className="flex items-center gap-1 text-[10px] text-slate-400 mb-1">
-              <Sparkles className="w-3 h-3 text-brand-400" />
-              <span>Duration</span>
-            </div>
-            <select
-              value={bookingForm.durationHours}
-              onChange={(e) => setBookingForm(prev => ({ ...prev, durationHours: Number(e.target.value) }))}
-              className="w-full bg-transparent text-xs font-semibold text-white focus:outline-none"
-            >
-              <option value={2} className="bg-slate-900">2 Hours</option>
-              <option value={4} className="bg-slate-900">4 Hours</option>
-              <option value={8} className="bg-slate-900">8 Hours</option>
-              <option value={12} className="bg-slate-900">12 Hours</option>
-              <option value={24} className="bg-slate-900">Full Day (24h)</option>
-            </select>
-          </div>
-        </div>
-
-        {/* Vehicle Transmission & Car Category */}
-        <div className="bg-slate-900 border border-slate-800 rounded-3xl p-4 shadow-xl">
-          <div className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">
-            Your Vehicle Specifications
-          </div>
-
-          {/* Transmission Toggle: Automatic vs Manual */}
-          <div className="grid grid-cols-2 gap-2 mb-3">
-            {TRANSMISSION_TYPES.map(trans => (
-              <button
-                key={trans.id}
-                onClick={() => setBookingForm(prev => ({ ...prev, transmissionType: trans.id }))}
-                className={`p-3 rounded-2xl border text-left transition ${
-                  bookingForm.transmissionType === trans.id
-                    ? 'bg-brand-600/20 border-brand-500 text-white'
-                    : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-slate-200'
-                }`}
-              >
-                <div className="font-extrabold text-xs">{trans.name}</div>
-                <div className="text-[10px] text-slate-400 truncate">{trans.desc}</div>
-              </button>
-            ))}
-          </div>
-
-          {/* Vehicle Body Type */}
-          <div className="grid grid-cols-4 gap-1.5">
-            {VEHICLE_TYPES.map(veh => (
-              <button
-                key={veh.id}
-                onClick={() => setBookingForm(prev => ({ ...prev, vehicleType: veh.id }))}
-                className={`py-2 px-1 rounded-xl border text-center transition flex flex-col items-center ${
-                  bookingForm.vehicleType === veh.id
-                    ? 'bg-brand-600 text-white border-brand-500 shadow-md'
-                    : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-slate-200'
-                }`}
-              >
-                <Car className="w-4 h-4 mb-1" />
-                <span className="text-[10px] font-bold leading-tight">{veh.name}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Driver Rental Categories Grid */}
+        {/* 9 Service Categories Grid */}
         <div>
-          <div className="flex items-center justify-between mb-2">
-            <h2 className="text-sm font-extrabold text-white uppercase tracking-wider">
-              Select Rental Service
+          <div className="flex items-center justify-between mb-2.5">
+            <h2 className="text-sm font-extrabold text-[#0F1E36] tracking-wide uppercase">
+              Driver Rental Categories
             </h2>
-            <span className="text-[11px] text-brand-400 font-medium">9 Indian Services</span>
+            <span className="text-[11px] text-orange-600 font-bold">9 Services</span>
           </div>
 
           <div className="grid grid-cols-2 gap-2.5">
@@ -318,27 +357,27 @@ export default function CustomerHomeScreen({
                   }}
                   className={`p-3 rounded-2xl border text-left relative transition flex flex-col justify-between ${
                     isSelected
-                      ? 'bg-slate-850 border-brand-500 ring-2 ring-brand-500/30 shadow-lg'
-                      : 'bg-slate-900 border-slate-800 hover:border-slate-700'
+                      ? 'bg-orange-50/60 border-orange-500 ring-2 ring-orange-500/20 shadow-sm'
+                      : 'bg-white border-slate-200 hover:border-slate-300 shadow-sm'
                   }`}
                 >
                   {cat.badge && (
-                    <span className="absolute top-2 right-2 text-[9px] font-extrabold px-1.5 py-0.5 rounded-full bg-brand-500/20 text-brand-400 border border-brand-500/30">
+                    <span className="absolute top-2 right-2 text-[9px] font-extrabold px-1.5 py-0.5 rounded-full bg-orange-100 text-orange-700 border border-orange-200">
                       {cat.badge}
                     </span>
                   )}
 
                   <div>
-                    <h3 className="font-extrabold text-xs text-white">{cat.name}</h3>
-                    <p className="text-[10px] text-slate-400 line-clamp-2 mt-0.5">{cat.tagline}</p>
+                    <h3 className="font-extrabold text-xs text-[#0F1E36]">{cat.name}</h3>
+                    <p className="text-[10px] text-slate-500 line-clamp-2 mt-0.5">{cat.tagline}</p>
                   </div>
 
                   <div className="mt-3 flex items-baseline justify-between">
                     <div>
-                      <span className="text-xs font-bold text-slate-300">from </span>
-                      <span className="font-mono font-extrabold text-sm text-brand-400">₹{cat.basePrice}</span>
+                      <span className="text-xs font-bold text-slate-400">from </span>
+                      <span className="font-mono font-extrabold text-sm text-orange-600">₹{cat.basePrice}</span>
                     </div>
-                    <span className="text-[9px] text-slate-500">{cat.unit}</span>
+                    <span className="text-[9px] text-slate-400">{cat.unit}</span>
                   </div>
                 </button>
               );
@@ -346,79 +385,112 @@ export default function CustomerHomeScreen({
           </div>
         </div>
 
-        {/* Promo Code Coupon Banner */}
-        <div className="p-3 bg-gradient-to-r from-amber-500/15 via-orange-500/15 to-transparent border border-amber-500/30 rounded-2xl flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0">
-              <Tag className="w-4 h-4" />
-            </div>
-            <div>
-              <p className="text-xs font-bold text-white">Flat ₹50 Off On First Ride</p>
-              <p className="text-[10px] text-amber-300/80 font-mono">Use code: FIRST50 at checkout</p>
-            </div>
+        {/* Available Verified Drivers in Selected City */}
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">
+              Verified Drivers Available in {selectedCity} ({availableDrivers.length})
+            </h3>
+            <span className="text-[10px] text-emerald-600 font-bold flex items-center gap-1">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              Ready Now
+            </span>
           </div>
-          <button
-            onClick={() => setBookingForm(prev => ({ ...prev, couponCode: 'FIRST50' }))}
-            className="px-2.5 py-1 rounded-lg bg-amber-500 text-slate-950 font-bold text-[10px] hover:bg-amber-400 transition"
-          >
-            Apply
-          </button>
-        </div>
 
-        {/* Search Drivers CTA */}
-        <button
-          onClick={onSearchDrivers}
-          className="w-full py-4 bg-gradient-to-r from-brand-600 to-cyan-600 hover:from-brand-500 hover:to-cyan-500 text-white font-extrabold text-sm rounded-2xl shadow-xl shadow-brand-600/30 flex items-center justify-center gap-2 transition hover:scale-[1.01]"
-        >
-          <Search className="w-4 h-4" />
-          <span>Find Available Drivers in {selectedCity}</span>
-          <ArrowRight className="w-4 h-4" />
-        </button>
-
-        {/* Top Verified Drivers Carousel */}
-        {topDrivers.length > 0 && (
-          <div className="pt-2">
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">
-                Top Rated Drivers Near You
-              </h3>
-              <span className="text-[10px] text-emerald-400 font-semibold">● Ready Now</span>
-            </div>
-
-            <div className="flex gap-2.5 overflow-x-auto pb-2 scrollbar-none">
-              {topDrivers.slice(0, 4).map(drv => (
-                <div
-                  key={drv.id}
-                  onClick={() => onViewDriverDetails(drv)}
-                  className="w-44 bg-slate-900 border border-slate-800 rounded-2xl p-3 shrink-0 cursor-pointer hover:border-slate-700 transition"
-                >
-                  <div className="flex items-center gap-2 mb-2">
-                    <img
-                      src={drv.photoUrl}
-                      alt={drv.fullName}
-                      className="w-10 h-10 rounded-xl object-cover border border-slate-700"
-                    />
-                    <div className="overflow-hidden">
-                      <p className="font-bold text-xs text-white truncate">{drv.fullName}</p>
-                      <div className="flex items-center gap-1 text-[10px] text-amber-400">
-                        <Star className="w-3 h-3 fill-current" />
+          <div className="space-y-2.5">
+            {availableDrivers.slice(0, 3).map(drv => (
+              <div
+                key={drv.id}
+                className="bg-white border border-slate-200 rounded-2xl p-3.5 shadow-sm hover:border-orange-300 transition"
+              >
+                <div className="flex items-start gap-3">
+                  <img
+                    src={drv.photoUrl}
+                    alt={drv.fullName}
+                    className="w-14 h-14 rounded-xl object-cover border border-slate-200 shrink-0"
+                  />
+                  <div className="flex-1 overflow-hidden">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1.5">
+                        <h4 className="font-extrabold text-xs text-[#0F1E36] truncate">{drv.fullName}</h4>
+                        <span className="text-[9px] px-1.5 py-0.2 rounded-full bg-emerald-50 text-emerald-700 font-bold border border-emerald-200">
+                          Verified ✓
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1 text-xs text-amber-500 font-bold">
+                        <Star className="w-3.5 h-3.5 fill-current" />
                         <span>{drv.rating}</span>
-                        <span className="text-slate-500">({drv.totalTrips})</span>
                       </div>
                     </div>
-                  </div>
-                  <div className="text-[10px] text-slate-400 mb-2 truncate">
-                    {drv.experienceYears} yrs exp • {drv.transmissionSkills.join('/')}
-                  </div>
-                  <div className="flex items-center justify-between pt-1.5 border-t border-slate-800">
-                    <span className="font-mono font-bold text-xs text-brand-400">₹{drv.hourlyRate}/hr</span>
-                    <span className="text-[9px] text-emerald-400 font-semibold">View Profile →</span>
+
+                    <p className="text-[11px] text-slate-500 mt-0.5 line-clamp-1">
+                      {drv.experienceYears} Years Experience • {drv.languages.join(', ')}
+                    </p>
+
+                    <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
+                      {drv.transmissionSkills.map(t => (
+                        <span key={t} className="text-[9px] px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 font-semibold">
+                          ⚙️ {t}
+                        </span>
+                      ))}
+                      <span className="text-[9px] px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 font-semibold">
+                        🚗 {drv.vehicleTypes.join('/')}
+                      </span>
+                    </div>
                   </div>
                 </div>
-              ))}
+
+                <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between">
+                  <div>
+                    <span className="font-mono font-extrabold text-sm text-[#0F1E36]">₹{drv.hourlyRate}</span>
+                    <span className="text-[10px] text-slate-500">/hr • ₹{drv.dailyRate}/day</span>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => onViewDriverDetails(drv)}
+                      className="px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-50 transition"
+                    >
+                      Profile
+                    </button>
+                    <button
+                      onClick={() => onViewDriverDetails(drv)}
+                      className="px-3.5 py-1.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold transition shadow-sm"
+                    >
+                      Book Driver
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Confidence & Safety Badges */}
+        <div className="bg-white border border-slate-200 rounded-2xl p-3.5 shadow-sm space-y-2 text-xs">
+          <div className="flex items-center justify-between border-b border-slate-100 pb-1.5">
+            <span className="font-extrabold text-[#0F1E36]">Why Hire With Salman Driver?</span>
+            <span className="text-[10px] text-emerald-600 font-bold">100% Peace of Mind</span>
+          </div>
+          <div className="grid grid-cols-2 gap-2 text-[11px] text-slate-600">
+            <div className="flex items-center gap-1.5">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+              <span>Police Verified (PCC)</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+              <span>Manual & Automatic Mastery</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+              <span>Commercial DL Authenticated</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+              <span>4-Digit Start OTP Security</span>
             </div>
           </div>
-        )}
+        </div>
 
       </div>
     </div>

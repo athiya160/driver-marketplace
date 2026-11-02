@@ -6,12 +6,12 @@
 
 export const USERS = [
   {
-    id: 'user_cust_001',
-    fullName: 'Athiya Tabassum',
+    id: 'user_cust_demo_01',
+    fullName: 'Demo Customer (Rohan Verma)',
     phone: '+91 98765 43210',
-    email: 'athiya@sarathi.in',
+    email: 'rohan.demo@example.com',
     role: 'customer',
-    avatarUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=160&q=80',
+    avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=160&q=80',
     isPhoneVerified: true,
     savedAddresses: [
       { id: 'addr_1', title: 'Home', address: 'Tower 4, DLF The Crest, Sector 54, Golf Course Road', city: 'Delhi NCR', pinCode: '122002', isDefault: true },
@@ -332,8 +332,8 @@ export const INITIAL_BOOKINGS = [
   {
     id: 'bk_active_01',
     bookingReference: 'SRT-2026-8821',
-    customerId: 'user_cust_001',
-    customerName: 'Athiya Tabassum',
+    customerId: 'user_cust_demo_01',
+    customerName: 'Rohan Verma (Demo)',
     customerPhone: '+91 98765 43210',
     driverId: 'drv_delhi_1',
     driverName: 'Rajesh Kumar Sharma',
@@ -369,8 +369,8 @@ export const INITIAL_BOOKINGS = [
   {
     id: 'bk_sched_02',
     bookingReference: 'SRT-2026-9044',
-    customerId: 'user_cust_001',
-    customerName: 'Athiya Tabassum',
+    customerId: 'user_cust_demo_01',
+    customerName: 'Rohan Verma (Demo)',
     customerPhone: '+91 98765 43210',
     driverId: 'drv_delhi_2',
     driverName: 'Harpreet Singh',
@@ -405,8 +405,8 @@ export const INITIAL_BOOKINGS = [
   {
     id: 'bk_past_03',
     bookingReference: 'SRT-2026-7210',
-    customerId: 'user_cust_001',
-    customerName: 'Athiya Tabassum',
+    customerId: 'user_cust_demo_01',
+    customerName: 'Rohan Verma (Demo)',
     customerPhone: '+91 98765 43210',
     driverId: 'drv_delhi_1',
     driverName: 'Rajesh Kumar Sharma',
@@ -446,7 +446,7 @@ export const REVIEWS = [
     id: 'rev_1',
     bookingId: 'bk_past_03',
     driverId: 'drv_delhi_1',
-    customerName: 'Athiya Tabassum',
+    customerName: 'Rohan Verma (Demo)',
     rating: 5.0,
     punctualityRating: 5.0,
     drivingSkillRating: 5.0,
@@ -471,8 +471,8 @@ export const REVIEWS = [
 export const SUPPORT_TICKETS = [
   {
     id: 'tkt_1',
-    userId: 'user_cust_001',
-    userName: 'Athiya Tabassum',
+    userId: 'user_cust_demo_01',
+    userName: 'Rohan Verma (Demo)',
     bookingReference: 'SRT-2026-7210',
     category: 'billing',
     subject: 'Request for Corporate GST Tax Invoice',

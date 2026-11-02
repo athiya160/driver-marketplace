@@ -14,6 +14,7 @@ import {
   Car
 } from 'lucide-react';
 import { loginUser, registerUser } from '../api.js';
+import { BRAND } from '../config/branding.js';
 
 export default function AuthModal({
   isOpen,
@@ -113,7 +114,7 @@ export default function AuthModal({
       setSuccessMsg('Phone verified successfully!');
       setTimeout(() => {
         onAuthSuccess({
-          fullName: fullName || 'Athiya Tabassum',
+          fullName: fullName || BRAND.owner,
           phone,
           email,
           role
@@ -138,15 +139,15 @@ export default function AuthModal({
         {/* 1. SPLASH SCREEN VIEW */}
         {view === 'splash' && (
           <div className="text-center py-6">
-            <div className="w-20 h-20 rounded-3xl bg-gradient-to-tr from-brand-600 via-cyan-500 to-blue-400 flex items-center justify-center mx-auto mb-4 shadow-2xl shadow-brand-500/40 font-black text-white text-3xl">
-              सार
+            <div className="w-20 h-20 rounded-3xl bg-gradient-to-tr from-orange-500 to-amber-500 flex items-center justify-center mx-auto mb-4 shadow-xl font-black text-white text-3xl">
+              SD
             </div>
-            <div className="inline-block px-3 py-1 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30 text-[10px] font-extrabold uppercase mb-2">
+            <div className="inline-block px-3 py-1 rounded-full bg-orange-100 text-orange-700 border border-orange-200 text-[10px] font-extrabold uppercase mb-2">
               Across India 🇮🇳
             </div>
-            <h2 className="text-2xl font-black tracking-tight text-white">SARATHI</h2>
-            <p className="text-xs font-bold text-amber-400 mt-0.5">Apni Gaadi, Bharosemand Sarathi</p>
-            <p className="text-xs text-slate-400 mt-2 px-4">
+            <h2 className="text-2xl font-black tracking-tight text-[#0F1E36]">{BRAND.appName}</h2>
+            <p className="text-xs font-bold text-orange-600 mt-0.5">{BRAND.tagline}</p>
+            <p className="text-xs text-slate-500 mt-2 px-4">
               Connecting personal vehicle owners with verified drivers across 14+ Indian cities.
             </p>
 
@@ -228,7 +229,7 @@ export default function AuthModal({
           <div>
             <div className="text-center mb-5">
               <h3 className="font-extrabold text-lg text-white">Welcome Back</h3>
-              <p className="text-xs text-slate-400 mt-0.5">Sign in to your Sarathi account</p>
+              <p className="text-xs text-slate-500 mt-0.5">Sign in to your {BRAND.appName} account</p>
             </div>
 
             {errorMsg && (
@@ -342,7 +343,7 @@ export default function AuthModal({
                   required
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
-                  placeholder="e.g. Athiya Tabassum"
+                  placeholder="e.g. Rahul Sharma"
                   className="w-full py-2 px-3 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white focus:outline-none"
                 />
               </div>
@@ -366,7 +367,7 @@ export default function AuthModal({
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="athiya@sarathi.in"
+                  placeholder="salman@salmandriver.in"
                   className="w-full py-2 px-3 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white focus:outline-none"
                 />
               </div>

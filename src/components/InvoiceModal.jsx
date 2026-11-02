@@ -1,5 +1,6 @@
 import React from 'react';
 import { X, Printer, Download, CheckCircle, FileText } from 'lucide-react';
+import { BRAND } from '../config/branding.js';
 
 export default function InvoiceModal({ isOpen, onClose, booking }) {
   if (!isOpen || !booking) return null;
@@ -41,9 +42,9 @@ export default function InvoiceModal({ isOpen, onClose, booking }) {
           {/* Header */}
           <div className="flex justify-between items-start border-b border-slate-200 pb-3 mb-3">
             <div>
-              <h2 className="font-extrabold text-base tracking-tight text-slate-950">SARATHI MOBILITY TECHNOLOGIES</h2>
-              <p className="text-[10px] text-slate-500">GSTIN: 07AAACS1948B1ZP • SAC: 996601</p>
-              <p className="text-[10px] text-slate-500">Cyber City, Gurugram, Haryana - 122002</p>
+              <h2 className="font-extrabold text-base tracking-tight text-slate-950">{BRAND.companyLegalName.toUpperCase()}</h2>
+              <p className="text-[10px] text-slate-500">GSTIN: {BRAND.gstin} • SAC: 996601</p>
+              <p className="text-[10px] text-slate-500">{BRAND.registeredAddress}</p>
             </div>
             <div className="text-right">
               <span className="inline-block px-2 py-0.5 bg-emerald-100 text-emerald-800 font-bold text-[9px] rounded uppercase">

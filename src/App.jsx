@@ -18,6 +18,7 @@ import TripQRScannerModal from './components/TripQRScannerModal.jsx';
 import InvoiceModal from './components/InvoiceModal.jsx';
 import ReviewModal from './components/ReviewModal.jsx';
 import NotificationDrawer from './components/NotificationDrawer.jsx';
+import PhotoUploadModal from './components/PhotoUploadModal.jsx';
 
 import CustomerHomeScreen from './screens/CustomerHomeScreen.jsx';
 import DriverSearchResultsScreen from './screens/DriverSearchResultsScreen.jsx';
@@ -60,6 +61,9 @@ export default function App() {
   // Driver Profile Modal
   const [driverDetailsModalOpen, setDriverDetailsModalOpen] = useState(false);
   const [inspectedDriver, setInspectedDriver] = useState(null);
+
+  // Photo & Document Upload Modal
+  const [photoUploadModalOpen, setPhotoUploadModalOpen] = useState(false);
 
   // Auth & Onboarding Modal
   const [authModalOpen, setAuthModalOpen] = useState(false);
@@ -263,6 +267,7 @@ export default function App() {
             }}
             onSearchDrivers={() => setActiveScreen('drivers')}
             onViewDriverDetails={handleViewDriverDetails}
+            onOpenPhotoUpload={() => setPhotoUploadModalOpen(true)}
           />
         )}
 
@@ -511,7 +516,7 @@ export default function App() {
           setSelectedDriver(drv);
           setActiveScreen('booking');
         }}
-        onCallDriver={(drv) => alert(`Masked Virtual Call placed to ${drv.fullName} (+91 800-SARATHI-DRV). Passenger phone number is protected.`)}
+        onCallDriver={(drv) => alert(`Masked Virtual Call placed to ${drv.fullName} (+91 800-SALMAN-DRV). Passenger phone number is protected.`)}
         onChatDriver={(drv) => alert(`In-App Chat conversation opened with ${drv.fullName}.`)}
       />
 
@@ -536,7 +541,15 @@ export default function App() {
         onAuthSuccess={(user) => {
           setCurrentUser(user);
           setCurrentRole(user.role || 'customer');
-          alert(`Welcome to Sarathi, ${user.fullName}!`);
+          alert(`Welcome to Salman Driver, ${user.fullName}!`);
+        }}
+      />
+
+      <PhotoUploadModal
+        isOpen={photoUploadModalOpen}
+        onClose={() => setPhotoUploadModalOpen(false)}
+        onUploadComplete={(newImg) => {
+          console.log('Uploaded image synced:', newImg);
         }}
       />
 

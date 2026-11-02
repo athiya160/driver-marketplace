@@ -1,6 +1,7 @@
-# 🚗 Sarathi (सारथी) – Driver Rental Booking Platform Across India
+# 🚗 Salman Driver – Pan-India Driver Rental Platform
 
-> **"Apni Gaadi, Bharosemand Sarathi"** (Your Car, Trusted Chauffeur)  
+> **"Find. Book. Travel Better."**  
+> Client/Owner: **Salman**  
 > Production-grade driver rental booking platform connecting vehicle owners across India with verified personal drivers for **Hourly, Full-Day, Outstation, One-Way, Round-Trip, Monthly, Airport, and Emergency services**.
 
 ---
@@ -143,7 +144,7 @@ npm run dev
 Open **`http://localhost:5173`** in your browser.
 
 - Toggle between **Mobile Phone Frame (iPhone 16)** and **Desktop View** via the top toolbar.
-- Switch between **Customer (Athiya)**, **Driver (Rajesh)**, and **Admin (Operations)** with 1-click role buttons.
+- Switch between **Customer (Salman)**, **Driver (Rajesh)**, and **Admin (Operations)** with 1-click role buttons.
 - Click **"📱 App Scanner"** in the top bar to display the scannable Expo QR code.
 - Click **"Auth"** in the top bar to test Splash screen, Onboarding walkthrough, Login/Signup, and OTP verification.
 - Click **Bell Icon** in the top bar to inspect in-app alerts and notifications.
@@ -151,4 +152,4 @@ Open **`http://localhost:5173`** in your browser.
 ---
 
 ## 🛡️ License
-MIT License • Developed with Google DeepMind Advanced Agentic Coding for Sarathi Mobility Technologies India.
+MIT License • Developed with Google DeepMind Advanced Agentic Coding for Salman Driver Mobility Technologies India.

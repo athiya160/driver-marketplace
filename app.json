@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Sarathi - Driver Rental India",
-    "slug": "sarathi-driver-rental",
+    "name": "Salman Driver",
+    "slug": "salman-driver",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -9,25 +9,25 @@
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#0F172A"
+      "backgroundColor": "#0F1E36"
     },
     "assetBundlePatterns": [
       "**/*"
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.sarathi.driverrental",
+      "bundleIdentifier": "com.salmandriver.app",
       "infoPlist": {
-        "NSLocationWhenInUseUsageDescription": "Sarathi requires your location to find nearby verified drivers for your vehicle.",
-        "NSLocationAlwaysUsageDescription": "Sarathi needs background location during active trips to track driver arrival and route.",
-        "NSCameraUsageDescription": "Sarathi uses camera access to scan booking QR codes and upload driver documents."
+        "NSLocationWhenInUseUsageDescription": "Salman Driver requires your location to find nearby verified drivers for your vehicle.",
+        "NSLocationAlwaysUsageDescription": "Salman Driver needs background location during active trips to track driver arrival and route.",
+        "NSCameraUsageDescription": "Salman Driver uses camera access to scan booking QR codes and upload driver documents."
       }
     },
     "android": {
-      "package": "com.sarathi.driverrental",
+      "package": "com.salmandriver.app",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#0F172A"
+        "backgroundColor": "#0F1E36"
       },
       "permissions": [
         "ACCESS_COARSE_LOCATION",
@@ -43,7 +43,7 @@
     },
     "extra": {
       "eas": {
-        "projectId": "sarathi-driver-rental-india-prod"
+        "projectId": "salman-driver-india-prod"
       },
       "apiUrl": "http://localhost:5000/api",
       "currency": "INR",

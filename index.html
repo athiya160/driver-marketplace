@@ -3,39 +3,58 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>Sarathi - Driver Rental Booking App (Across India)</title>
-    <meta name="description" content="Hire verified personal vehicle drivers across India for hourly, daily, outstation and monthly rental services." />
-    <!-- Fonts -->
+    <title>Salman Driver – Find. Book. Travel Better.</title>
+    <meta name="description" content="Salman Driver - Premium Pan-India Personal Driver Rentals. Rent verified drivers on demand for hourly, daily, outstation and monthly journeys." />
+    <!-- Fonts: Inter & Manrope -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
-    <!-- Lucide Icons & Tailwind CSS CDN for instant styling -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Manrope:wght@500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
         theme: {
           extend: {
             colors: {
-              brand: {
-                50: '#F0F9FF',
-                100: '#E0F2FE',
-                200: '#BAE6FD',
-                300: '#7DD3FC',
-                400: '#38BDF8',
-                500: '#0EA5E9',
-                600: '#0284C7',
-                700: '#0369A1',
-                800: '#075985',
-                900: '#0C4A6E',
-                950: '#082F49'
+              navy: {
+                50: '#F0F4F9',
+                100: '#D9E2EC',
+                200: '#BCCCDC',
+                300: '#9FB3C8',
+                400: '#627D98',
+                500: '#334E68',
+                600: '#243B53',
+                700: '#1A2F45',
+                800: '#0F1E36',
+                900: '#0A1526',
+                950: '#060D17',
+                DEFAULT: '#0F1E36'
               },
-              indiaGreen: '#138808',
-              indiaSaffron: '#FF9933',
-              indiaNavy: '#000080'
+              accent: {
+                50: '#FFF7ED',
+                100: '#FFEDD5',
+                200: '#FED7AA',
+                300: '#FDBA74',
+                400: '#FB923C',
+                500: '#F97316',
+                600: '#EA580C',
+                700: '#C2410C',
+                DEFAULT: '#F97316'
+              },
+              primaryText: '#172033',
+              secondaryText: '#64748B',
+              bgLight: '#F8FAFC',
+              borderLight: '#E2E8F0'
             },
             fontFamily: {
-              sans: ['Plus Jakarta Sans', 'sans-serif'],
+              sans: ['Inter', 'Manrope', 'system-ui', 'sans-serif'],
+              display: ['Manrope', 'Inter', 'sans-serif'],
               mono: ['JetBrains Mono', 'monospace']
+            },
+            boxShadow: {
+              'card': '0 1px 3px 0 rgba(15, 30, 54, 0.06), 0 1px 2px -1px rgba(15, 30, 54, 0.04)',
+              'card-hover': '0 8px 20px -4px rgba(15, 30, 54, 0.1), 0 4px 6px -2px rgba(15, 30, 54, 0.04)',
+              'floating': '0 20px 25px -5px rgba(15, 30, 54, 0.15), 0 8px 10px -6px rgba(15, 30, 54, 0.1)'
             }
           }
         }
@@ -48,22 +67,22 @@
         height: 6px;
       }
       ::-webkit-scrollbar-track {
-        background: #0F172A;
+        background: #F1F5F9;
       }
       ::-webkit-scrollbar-thumb {
-        background: #334155;
+        background: #CBD5E1;
         border-radius: 4px;
       }
       ::-webkit-scrollbar-thumb:hover {
-        background: #475569;
+        background: #94A3B8;
       }
-      /* Prevent text selection highlight on buttons for native app feel */
+      /* Prevent tap highlight on mobile buttons */
       button, a {
         -webkit-tap-highlight-color: transparent;
       }
     </style>
   </head>
-  <body class="bg-slate-950 text-slate-100 font-sans antialiased overflow-x-hidden selection:bg-brand-500 selection:text-white">
+  <body class="bg-slate-100 text-[#172033] font-sans antialiased overflow-x-hidden selection:bg-accent-500 selection:text-white">
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

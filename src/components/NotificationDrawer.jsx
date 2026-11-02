@@ -89,7 +89,7 @@ export default function NotificationDrawer({
 
         {/* Footer */}
         <div className="pt-3 border-t border-slate-800 text-[10px] text-slate-500 text-center">
-          🔔 Push notifications powered by Sarathi Dispatch Engine • 24x7 Active
+          🔔 Push notifications powered by Salman Driver Dispatch Engine • 24x7 Active
         </div>
 
       </div>

@@ -19,7 +19,7 @@ let driverDocuments = [...DRIVER_DOCUMENTS];
 let bookings = [...INITIAL_BOOKINGS];
 let reviews = [...REVIEWS];
 let supportTickets = [...SUPPORT_TICKETS];
-let currentUser = users[0]; // Default to customer Athiya Tabassum
+let currentUser = users[0]; // Initialized with demo customer profile
 
 // -----------------------------------------------------------------------------
 // 1. AUTHENTICATION & PROFILE APIS

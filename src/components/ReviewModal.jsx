@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Star, CheckCircle2, MessageSquare } from 'lucide-react';
+import { X, Star, CheckCircle2 } from 'lucide-react';
 
 export default function ReviewModal({ isOpen, onClose, booking, onSubmit }) {
   const [rating, setRating] = useState(5);
@@ -27,32 +27,32 @@ export default function ReviewModal({ isOpen, onClose, booking, onSubmit }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-slate-900 border border-slate-700 w-full max-w-sm rounded-3xl p-5 shadow-2xl relative text-center">
+    <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+      <div className="bg-white border border-slate-200 w-full max-w-sm rounded-3xl p-5 shadow-2xl relative text-center text-[#172033]">
         
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-1.5 rounded-full bg-slate-800 text-slate-400 hover:text-white"
+          className="absolute top-4 right-4 p-1.5 rounded-full bg-slate-100 text-slate-500 hover:text-[#0F1E36]"
         >
           <X className="w-5 h-5" />
         </button>
 
         {submitted ? (
           <div className="py-8 flex flex-col items-center">
-            <div className="w-16 h-16 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center mb-3 animate-bounce">
+            <div className="w-16 h-16 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center mb-3 animate-bounce">
               <CheckCircle2 className="w-10 h-10" />
             </div>
-            <h4 className="font-bold text-white text-base">Feedback Submitted!</h4>
-            <p className="text-xs text-slate-400 mt-1">Thank you for rating {booking.driverName}.</p>
+            <h4 className="font-bold text-[#0F1E36] text-base">Feedback Submitted!</h4>
+            <p className="text-xs text-slate-500 mt-1">Thank you for rating {booking.driverName}.</p>
           </div>
         ) : (
           <form onSubmit={handleSubmit}>
-            <div className="w-12 h-12 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center mx-auto mb-2">
-              <Star className="w-6 h-6 fill-current" />
+            <div className="w-12 h-12 rounded-full bg-orange-50 text-orange-600 flex items-center justify-center mx-auto mb-2 border border-orange-200">
+              <Star className="w-6 h-6 fill-current text-amber-500" />
             </div>
-            <h3 className="font-extrabold text-lg text-white">Rate Your Experience</h3>
-            <p className="text-xs text-slate-400 mb-4">
-              How was your trip with <span className="text-white font-semibold">{booking.driverName}</span>?
+            <h3 className="font-extrabold text-lg text-[#0F1E36]">Rate Your Experience</h3>
+            <p className="text-xs text-slate-500 mb-4">
+              How was your trip with <span className="text-[#0F1E36] font-semibold">{booking.driverName}</span>?
             </p>
 
             {/* Overall Star Rating */}
@@ -67,8 +67,8 @@ export default function ReviewModal({ isOpen, onClose, booking, onSubmit }) {
                   <Star
                     className={`w-7 h-7 ${
                       star <= rating
-                        ? 'text-amber-400 fill-amber-400'
-                        : 'text-slate-600'
+                        ? 'text-amber-500 fill-amber-500'
+                        : 'text-slate-300'
                     }`}
                   />
                 </button>
@@ -76,16 +76,16 @@ export default function ReviewModal({ isOpen, onClose, booking, onSubmit }) {
             </div>
 
             {/* Sub-Ratings */}
-            <div className="bg-slate-950 p-3 rounded-2xl border border-slate-800 text-left text-xs space-y-2 mb-3">
+            <div className="bg-slate-50 p-3 rounded-2xl border border-slate-200 text-left text-xs space-y-2 mb-3">
               <div className="flex justify-between items-center">
-                <span className="text-slate-400">Punctuality (On-Time)</span>
+                <span className="text-slate-600">Punctuality (On-Time)</span>
                 <div className="flex gap-1">
                   {[1, 2, 3, 4, 5].map(v => (
                     <span
                       key={v}
                       onClick={() => setPunctuality(v)}
                       className={`cursor-pointer px-1.5 py-0.5 rounded text-[10px] font-bold ${
-                        punctuality === v ? 'bg-brand-600 text-white' : 'text-slate-500 hover:text-white'
+                        punctuality === v ? 'bg-[#0F1E36] text-white' : 'text-slate-400 hover:text-slate-700'
                       }`}
                     >
                       {v}★
@@ -95,14 +95,14 @@ export default function ReviewModal({ isOpen, onClose, booking, onSubmit }) {
               </div>
 
               <div className="flex justify-between items-center">
-                <span className="text-slate-400">Driving Skill & Braking</span>
+                <span className="text-slate-600">Driving Skill & Braking</span>
                 <div className="flex gap-1">
                   {[1, 2, 3, 4, 5].map(v => (
                     <span
                       key={v}
                       onClick={() => setDrivingSkill(v)}
                       className={`cursor-pointer px-1.5 py-0.5 rounded text-[10px] font-bold ${
-                        drivingSkill === v ? 'bg-brand-600 text-white' : 'text-slate-500 hover:text-white'
+                        drivingSkill === v ? 'bg-[#0F1E36] text-white' : 'text-slate-400 hover:text-slate-700'
                       }`}
                     >
                       {v}★
@@ -112,14 +112,14 @@ export default function ReviewModal({ isOpen, onClose, booking, onSubmit }) {
               </div>
 
               <div className="flex justify-between items-center">
-                <span className="text-slate-400">Polite Behavior</span>
+                <span className="text-slate-600">Behavior & Professionalism</span>
                 <div className="flex gap-1">
                   {[1, 2, 3, 4, 5].map(v => (
                     <span
                       key={v}
                       onClick={() => setBehavior(v)}
                       className={`cursor-pointer px-1.5 py-0.5 rounded text-[10px] font-bold ${
-                        behavior === v ? 'bg-brand-600 text-white' : 'text-slate-500 hover:text-white'
+                        behavior === v ? 'bg-[#0F1E36] text-white' : 'text-slate-400 hover:text-slate-700'
                       }`}
                     >
                       {v}★
@@ -129,24 +129,23 @@ export default function ReviewModal({ isOpen, onClose, booking, onSubmit }) {
               </div>
             </div>
 
-            {/* Written comment */}
+            {/* Comment Field */}
             <textarea
               rows={2}
               value={comment}
               onChange={(e) => setComment(e.target.value)}
-              placeholder="Share details (e.g. smooth gear shifts, clean dress, polite attitude)..."
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-brand-500 mb-4 resize-none"
+              placeholder="Leave a short note about the driver's service..."
+              className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-[#172033] focus:outline-none focus:border-orange-500 resize-none mb-3"
             ></textarea>
 
             <button
               type="submit"
-              className="w-full py-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-extrabold text-sm rounded-xl transition shadow-lg shadow-amber-500/20"
+              className="w-full py-3 bg-orange-500 hover:bg-orange-600 text-white font-extrabold text-xs rounded-xl shadow-md transition"
             >
-              Submit Rating & Review
+              Submit Review & Rating
             </button>
           </form>
         )}
-
       </div>
     </div>
   );
