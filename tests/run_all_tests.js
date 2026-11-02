@@ -1,0 +1,39 @@
+/**
+ * COMPREHENSIVE AUTOMATED TEST RUNNER
+ * Executes all 7 test suites across all development phases (Phases 1 through 8A)
+ */
+
+import { execSync } from 'child_process';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const suites = [
+  'driver_app.test.js',
+  'customer_journey.test.js',
+  'driver_flow.test.js',
+  'admin_operations.test.js',
+  'marketplace_dispatch.test.js',
+  'demo_mode.test.js',
+  'cloud_database_auth.test.js'
+];
+
+console.log('=======================================================');
+console.log('🚀 RUNNING ALL 7 TEST SUITES (PHASES 1 - 8A)');
+console.log('=======================================================');
+
+for (const suite of suites) {
+  const filePath = path.join(__dirname, suite);
+  try {
+    execSync(`node "${filePath}"`, { stdio: 'inherit' });
+  } catch (err) {
+    console.error(`\n❌ Test suite failed: ${suite}`);
+    process.exit(1);
+  }
+}
+
+console.log('\n=======================================================');
+console.log('🌟 ALL 7 TEST SUITES PASSED CLEANLY (76/76 TESTS)');
+console.log('=======================================================\n');

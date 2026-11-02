@@ -1,13 +1,14 @@
 /**
  * PERSONAL DRIVER MARKETPLACE - SECURE AUTHENTICATION & ROLE-BASED ACCESS CONTROL
- * Production Token Signer & Role Authorization
- * Uses Node.js native crypto for zero-dependency security
+ * Production Token Signer, Refresh Token Generator & Role Authorization
+ * Uses Node.js native crypto for zero-dependency high security
  */
 
 import crypto from 'crypto';
 
-// Secret key for JWT signing (In production, loaded from JWT_SECRET or SUPABASE_JWT_SECRET)
-const JWT_SECRET = process.env.JWT_SECRET || process.env.SUPABASE_JWT_SECRET || 'salman_driver_production_secret_2026_india';
+// Secret keys for JWT signing & refresh tokens
+const JWT_SECRET = process.env.JWT_SECRET || process.env.SUPABASE_JWT_SECRET || 'driver_marketplace_production_jwt_secret_2026';
+const REFRESH_SECRET = process.env.REFRESH_TOKEN_SECRET || 'driver_marketplace_refresh_token_secret_2026';
 
 /**
  * Creates base64url encoded string
@@ -32,7 +33,7 @@ function base64UrlDecode(str) {
 /**
  * Signs payload creating JWT token
  */
-export function signJwt(payload, expiresInSeconds = 86400) {
+export function signJwt(payload, expiresInSeconds = 86400, secret = JWT_SECRET) {
   const header = { alg: 'HS256', typ: 'JWT' };
   const exp = Math.floor(Date.now() / 1000) + expiresInSeconds;
   const tokenPayload = { ...payload, exp, iat: Math.floor(Date.now() / 1000) };
@@ -41,7 +42,7 @@ export function signJwt(payload, expiresInSeconds = 86400) {
   const encodedPayload = base64UrlEncode(JSON.stringify(tokenPayload));
 
   const signature = crypto
-    .createHmac('sha256', JWT_SECRET)
+    .createHmac('sha256', secret)
     .update(`${encodedHeader}.${encodedPayload}`)
     .digest('base64')
     .replace(/=/g, '')
@@ -54,7 +55,7 @@ export function signJwt(payload, expiresInSeconds = 86400) {
 /**
  * Verifies JWT token and checks expiry
  */
-export function verifyJwt(token) {
+export function verifyJwt(token, secret = JWT_SECRET) {
   if (!token || typeof token !== 'string') {
     return { valid: false, message: 'Missing token' };
   }
@@ -66,7 +67,7 @@ export function verifyJwt(token) {
 
   const [encodedHeader, encodedPayload, signature] = parts;
   const expectedSig = crypto
-    .createHmac('sha256', JWT_SECRET)
+    .createHmac('sha256', secret)
     .update(`${encodedHeader}.${encodedPayload}`)
     .digest('base64')
     .replace(/=/g, '')
@@ -90,13 +91,40 @@ export function verifyJwt(token) {
 }
 
 /**
+ * Generates long-lived refresh token (7 days default)
+ */
+export function generateRefreshToken(payload, expiresInSeconds = 604800) {
+  return signJwt({ ...payload, tokenType: 'refresh' }, expiresInSeconds, REFRESH_SECRET);
+}
+
+/**
+ * Verifies long-lived refresh token
+ */
+export function verifyRefreshToken(token) {
+  const res = verifyJwt(token, REFRESH_SECRET);
+  if (!res.valid) return res;
+  if (res.payload.tokenType !== 'refresh') {
+    return { valid: false, message: 'Invalid token type for refresh' };
+  }
+  return res;
+}
+
+/**
  * Hashes password using cryptographic SHA-256 with salt
  */
-export function hashPassword(plainPassword, salt = 'salman_driver_salt') {
+export function hashPassword(plainPassword, salt = 'driver_marketplace_salt_2026') {
   return crypto
     .createHmac('sha256', salt)
     .update(plainPassword)
     .digest('hex');
+}
+
+/**
+ * Verifies password against expected hash
+ */
+export function verifyPassword(plainPassword, expectedHash, salt = 'driver_marketplace_salt_2026') {
+  const computed = hashPassword(plainPassword, salt);
+  return crypto.timingSafeEqual(Buffer.from(computed), Buffer.from(expectedHash));
 }
 
 /**
@@ -112,7 +140,6 @@ export function authenticateToken(req, res, next) {
     token = req.cookies.token;
   }
 
-  // Allow optional token in local test runner
   if (!token) {
     req.user = null;
     return next();
@@ -130,10 +157,18 @@ export function authenticateToken(req, res, next) {
 /**
  * Express Middleware: Enforces specific role access
  */
-export function requireRole(allowedRoles = []) {
+export function requireRole(allowedRoles = [], { allowDemo = false } = {}) {
   return (req, res, next) => {
     if (!req.user) {
       return res.status(401).json({ success: false, message: 'Authentication required' });
+    }
+
+    // In production mode, reject demo tokens from performing production actions
+    if (req.user.isDemo && !allowDemo && process.env.NODE_ENV === 'production') {
+      return res.status(403).json({
+        success: false,
+        message: 'Forbidden: Demo tokens cannot execute production operations.'
+      });
     }
 
     if (!allowedRoles.includes(req.user.role)) {
@@ -145,4 +180,14 @@ export function requireRole(allowedRoles = []) {
 
     next();
   };
+}
+
+/**
+ * Express Middleware: Resource Ownership Verification
+ * Prevents Customer A from accessing Customer B's booking or driver details
+ */
+export function verifyOwnership(resourceOwnerId, user) {
+  if (!user) return false;
+  if (user.role === 'admin') return true; // Admins have oversight
+  return user.id === resourceOwnerId;
 }

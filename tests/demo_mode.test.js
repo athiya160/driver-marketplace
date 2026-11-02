@@ -45,9 +45,10 @@ it('Decouples customer-facing product brand name from founder identity', () => {
   assert.strictEqual(getBrandTagline(), 'Your Car. Your Journey. Your Driver.', 'Tagline must be correct');
 });
 
-it('Configurable branding maintains neutral support contacts and service title', () => {
-  assert.strictEqual(BRAND.supportPhone, '+91 1800-120-0044');
+it('Configurable branding maintains visibly marked placeholder contacts until founder provides verified details', () => {
+  assert.ok(BRAND.supportPhone.includes('Pending') || BRAND.supportPhone.includes('Placeholder'), 'Support phone must clearly indicate unconfigured placeholder');
   assert.ok(BRAND.supportEmail.includes('placeholder'), 'Support email must be safe placeholder');
+  assert.strictEqual(BRAND.isSupportConfigured, false, 'Must flag that support is unconfigured pending founder setup');
   assert.ok(BRAND.serviceTitle.includes('Chauffeurs for Your Own Vehicle'), 'Must highlight customer vehicle ownership');
 });
 

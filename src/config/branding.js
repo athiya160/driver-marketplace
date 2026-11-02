@@ -17,9 +17,13 @@ export const BRAND = {
   serviceTitle: 'Verified Professional Chauffeurs for Your Own Vehicle',
   description: 'Hire verified, professional personal drivers on-demand for your own car (Hatchback, Sedan, SUV, Luxury) for hourly, daily, outstation, airport, and monthly driving services.',
   
-  // Operational Helpdesk (Neutral placeholders)
-  supportPhone: '+91 1800-120-0044',
-  supportEmail: 'help@drivermarketplace.placeholder',
+  // Operational Helpdesk (Visibly marked unconfigured placeholders awaiting founder setup)
+  supportPhone: '+91 1800-PENDING (Unconfigured Placeholder)',
+  supportPhoneDisplay: '+91 1800-XXX-XXXX (Pending Founder Setup)',
+  supportEmail: 'pending-founder-setup@drivermarketplace.placeholder',
+  supportEmailDisplay: 'support@drivermarketplace (Pending Founder Setup)',
+  isSupportConfigured: false,
+  supportNotice: 'Customer support hotline and email pending official verification from venture founder.',
   currency: '₹',
   countryCode: '+91',
 

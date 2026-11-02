@@ -919,7 +919,7 @@ export const DEMO_COUPONS = [
   { id: 'cpn_1', code: 'FIRST50', discountType: 'flat', discountValue: 50, minBookingAmount: 299, description: 'Flat ₹50 OFF on your first personal chauffeur booking', isActive: true, expiresAt: '2026-12-31' },
   { id: 'cpn_2', code: 'WEEKEND100', discountType: 'flat', discountValue: 100, minBookingAmount: 999, description: 'Flat ₹100 OFF on full-day and weekend outstation road trips', isActive: true, expiresAt: '2026-12-31' },
   { id: 'cpn_3', code: 'WELCOME200', discountType: 'flat', discountValue: 200, minBookingAmount: 1499, description: 'Flat ₹200 OFF on monthly executive driver packages', isActive: true, expiresAt: '2026-12-31' },
-  { id: 'cpn_4', code: 'SALMAN10', discountType: 'percentage', discountValue: 10, maxDiscount: 150, minBookingAmount: 499, description: '10% OFF up to ₹150 for regular platform members', isActive: true, expiresAt: '2026-12-31' }
+  { id: 'cpn_4', code: 'DEMO10', discountType: 'percentage', discountValue: 10, maxDiscount: 150, minBookingAmount: 499, description: '10% OFF up to ₹150 for regular platform members', isActive: true, expiresAt: '2026-12-31' }
 ];
 
 // 7. SAMPLE SUPPORT GRIEVANCES

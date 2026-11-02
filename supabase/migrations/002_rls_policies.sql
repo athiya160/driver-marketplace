@@ -130,3 +130,32 @@ USING (auth.uid() = customer_id OR is_admin());
 CREATE POLICY "Admins only audit trail access" 
 ON admin_audit_logs FOR SELECT 
 USING (is_admin());
+
+-- 9. CUSTOMER-OWNED VEHICLES POLICIES
+ALTER TABLE customer_vehicles ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Customers can manage their own registered vehicles"
+ON customer_vehicles FOR ALL
+USING (auth.uid() = customer_id OR is_admin());
+
+-- 10. PRIVATE STORAGE BUCKET POLICIES (KYC & DRIVING LICENSE PROTECTION)
+-- Direct public reads are blocked; signed time-limited URLs or owner/admin access only
+CREATE POLICY "Chauffeur can read own compliance documents"
+ON storage.objects FOR SELECT
+TO authenticated
+USING (
+    bucket_id = 'driver-documents' AND (
+        (storage.foldername(name))[1] = auth.uid()::text OR
+        is_admin()
+    )
+);
+
+CREATE POLICY "Chauffeur can upload compliance documents to own directory"
+ON storage.objects FOR INSERT
+TO authenticated
+WITH CHECK (
+    bucket_id = 'driver-documents' AND (
+        (storage.foldername(name))[1] = auth.uid()::text OR
+        is_admin()
+    )
+);

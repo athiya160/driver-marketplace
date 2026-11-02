@@ -38,6 +38,24 @@ CREATE TABLE IF NOT EXISTS customer_profiles (
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- 2B. CUSTOMER-OWNED VEHICLES TABLE ("Your Car. Your Journey. Your Driver.")
+CREATE TABLE IF NOT EXISTS customer_vehicles (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    customer_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    make VARCHAR(50) NOT NULL, -- e.g. Hyundai, Honda, BMW, Mercedes-Benz, Toyota, Kia
+    model VARCHAR(50) NOT NULL, -- e.g. Creta, City, 3 Series, GLC 300, Innova Crysta, Seltos
+    year INT NOT NULL DEFAULT 2023,
+    vehicle_type VARCHAR(30) NOT NULL CHECK (vehicle_type IN ('Hatchback', 'Sedan', 'SUV', 'Luxury')),
+    transmission VARCHAR(20) NOT NULL CHECK (transmission IN ('Manual', 'Automatic')),
+    fuel_type VARCHAR(20) DEFAULT 'Petrol',
+    registration_number VARCHAR(30) NOT NULL, -- e.g. 'KA 01 MJ 4821'
+    is_primary BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_customer_vehicles_cust ON customer_vehicles(customer_id);
+
 -- 3. DRIVERS TABLE (CHAUFFEUR QUALIFICATIONS & ATTRIBUTES)
 CREATE TABLE IF NOT EXISTS drivers (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -156,6 +174,11 @@ CREATE INDEX IF NOT EXISTS idx_bookings_driver_id ON bookings(driver_id);
 CREATE INDEX IF NOT EXISTS idx_bookings_status ON bookings(status);
 CREATE INDEX IF NOT EXISTS idx_bookings_date ON bookings(start_date, start_time);
 
+-- Transactional Lock: Prevents double-booking a chauffeur for simultaneous active rides
+CREATE UNIQUE INDEX IF NOT EXISTS idx_active_driver_booking
+ON bookings (driver_id)
+WHERE status IN ('requested', 'dispatched', 'accepted', 'arriving', 'in_progress');
+
 -- 7. BOOKING STATUS HISTORY (AUDIT OF TRANSITIONS)
 CREATE TABLE IF NOT EXISTS booking_status_history (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -263,3 +286,17 @@ CREATE TABLE IF NOT EXISTS reviews (
     moderation_status VARCHAR(20) DEFAULT 'approved' CHECK (moderation_status IN ('approved', 'flagged', 'hidden')),
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- =============================================================================
+-- 15. PRIVATE STORAGE BUCKETS (STRICTLY SECURE DOCUMENT STORAGE)
+-- Direct public reads are blocked; signed time-limited URLs required for DL/KYC
+-- =============================================================================
+INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+VALUES (
+    'driver-documents',
+    'driver-documents',
+    false, -- Private bucket: public URLs prohibited
+    10485760, -- 10MB maximum file size
+    ARRAY['image/jpeg', 'image/png', 'image/webp', 'application/pdf']
+)
+ON CONFLICT (id) DO UPDATE SET public = false;

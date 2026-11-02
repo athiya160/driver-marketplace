@@ -540,12 +540,12 @@ export const PROMO_COUPONS = [
   },
   {
     id: 'cpn_3',
-    code: 'SALMAN10',
+    code: 'DEMO10',
     discountType: 'percentage',
     discountValue: 10,
     maxDiscount: 150,
     minBookingAmount: 499,
-    description: '10% OFF up to ₹150 for loyal customers',
+    description: '10% OFF up to ₹150 for promotional testing',
     isActive: true,
     expiresAt: '2026-12-31'
   }

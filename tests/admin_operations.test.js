@@ -197,11 +197,11 @@ it('Maintains national allowances: Outstation DA ₹350 and Night Allowance ₹2
 // -----------------------------------------------------------------------------
 console.log('--- 6. Promotions & Security Audit Logging ---');
 
-it('Manages active promotional discount coupons (FIRST50, WEEKEND100, SALMAN10)', () => {
+it('Manages active promotional discount coupons (FIRST50, WEEKEND100, DEMO10)', () => {
   const codes = PROMO_COUPONS.map(c => c.code);
   assert.ok(codes.includes('FIRST50'), 'FIRST50 coupon must exist');
   assert.ok(codes.includes('WEEKEND100'), 'WEEKEND100 coupon must exist');
-  assert.ok(codes.includes('SALMAN10'), 'SALMAN10 coupon must exist');
+  assert.ok(codes.includes('DEMO10'), 'DEMO10 coupon must exist');
 });
 
 it('Records immutable administrative audit log entry for sensitive operations', () => {
