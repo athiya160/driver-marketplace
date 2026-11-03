@@ -154,6 +154,10 @@ export class RoutingEngine {
       route.roadDistanceKm || Number((straightLineDistanceKm * 1.3).toFixed(2))
     );
 
+    const isLiveNav = Boolean(this.google.isConfigured || this.mapbox.isConfigured);
+    const trafficSource = isLiveNav ? 'live_provider_traffic' : 'estimated_time_of_day_model';
+    const isLiveTraffic = false; // Modelled traffic curves, not live probe telemetry
+
     const completedRoute = {
       origin: { latitude: originLat, longitude: originLon },
       destination: { latitude: destLat, longitude: destLon },
@@ -164,6 +168,13 @@ export class RoutingEngine {
       durationMinutes: finalDurationMinutes,
       trafficMultiplier: traffic.factor,
       trafficCondition: traffic.condition,
+      isLiveNavigation: isLiveNav,
+      isLiveTraffic,
+      trafficSource,
+      routeConfidence: isLiveNav ? 'high' : 'estimated_offline_simulation',
+      disclaimer: isLiveNav
+        ? 'Live navigation route.'
+        : 'Simulated Indian road network graph with estimated time-of-day traffic model. Approximate ETA only.',
       polylineCoordinates: route.polylineCoordinates || [
         [originLat, originLon],
         [destLat, destLon]
@@ -238,9 +249,21 @@ export class RoutingEngine {
     const activeRoute = recalculatedRoute || currentRoute;
 
     // 3. Arrival Geofence Detection (150 meters)
+    // CRITICAL SECURITY RULE: A dead-reckoned or projected coordinate must NEVER trigger arrival.
+    // Real, fresh (< 3 mins), high-accuracy (< 50m) GPS coordinates are strictly required.
+    const isDeadReckoning = Boolean(
+      driverLocation.isDeadReckoning ||
+      driverLocation.source === 'dead_reckoning' ||
+      driverLocation.isProjected
+    );
+    const isStale = Boolean(driverLocation.recordedAt && (Date.now() - new Date(driverLocation.recordedAt).getTime() > 180000));
+    const isPoorAccuracy = Boolean(driverLocation.accuracy && driverLocation.accuracy > 50);
+
     const distanceToTargetKm = calculateHaversineDistanceKm(dLat, dLon, targetLat, targetLon);
     const distanceToTargetMeters = Math.round(distanceToTargetKm * 1000);
-    const isInsideArrivalGeofence = distanceToTargetMeters <= MAPS_CONFIG.geofence.arrivalRadiusMeters;
+
+    // Only real, accurate GPS is eligible to trigger arrival within 150m
+    const isInsideArrivalGeofence = !isDeadReckoning && !isStale && !isPoorAccuracy && (distanceToTargetMeters <= MAPS_CONFIG.geofence.arrivalRadiusMeters);
 
     // Traffic-aware ETA to target
     const traffic = getCurrentTrafficMultiplier();
@@ -258,6 +281,7 @@ export class RoutingEngine {
       isOffRoute,
       deviationMeters,
       isInsideArrivalGeofence,
+      isDeadReckoningRejected: isDeadReckoning,
       activeRoute: {
         roadDistanceKm: activeRoute.roadDistanceKm,
         durationMinutes: remainingEtaMinutes,

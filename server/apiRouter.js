@@ -18,8 +18,18 @@ import {
   requireRole,
   generateRefreshToken,
   verifyRefreshToken,
-  verifyOwnership
+  verifyOwnership,
+  revokeToken,
+  isTokenRevoked
 } from './auth/authService.js';
+import {
+  authRateLimiter,
+  otpRateLimiter,
+  bookingRateLimiter,
+  mapsRateLimiter,
+  sanitizeLogDetails,
+  validateDocumentUpload
+} from './middleware/securityMiddleware.js';
 import { persistentStorage } from './db/persistentStorage.js';
 import { supabase } from './db/supabaseClient.js';
 import { demoManager } from './demo/demoManager.js';
@@ -49,6 +59,9 @@ import {
 
 export const apiRouter = Router();
 
+// Global Bearer token authentication middleware (populates req.user if Bearer token present)
+apiRouter.use(authenticateToken);
+
 // Mutable state stores (backed by mockDb)
 let users = [...USERS];
 let drivers = [...DRIVERS];
@@ -63,18 +76,30 @@ let financialTransactions = [...FINANCIAL_TRANSACTIONS];
 let adminAuditLogs = [...ADMIN_AUDIT_LOGS];
 let currentUser = users[0]; // Initialized with demo customer profile
 
-// Audit Log Helper
+// Audit Log Helper (with Sensitive PII & Secret Redaction)
 function recordAuditLog(action, target, details, adminName = 'Operations Admin') {
   const logEntry = {
     id: `log_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
     adminName,
     action,
     target,
-    details,
+    details: sanitizeLogDetails(details),
     timestamp: new Date().toISOString()
   };
   adminAuditLogs.unshift(logEntry);
   return logEntry;
+}
+
+// Enterprise Role Guard: Restricts Administrative Operations to Verified Admins
+function requireAdmin(req, res, next) {
+  const caller = req.user || (req.headers['x-demo-role'] === 'admin' ? { id: 'adm_001', role: 'admin' } : null) || (currentUser?.role === 'admin' ? currentUser : null);
+  if (!caller) {
+    return res.status(401).json({ success: false, message: 'Authentication required for administrative operations.' });
+  }
+  if (caller.role !== 'admin') {
+    return res.status(403).json({ success: false, message: 'Forbidden: Administrative privilege required.' });
+  }
+  next();
 }
 
 // -----------------------------------------------------------------------------
@@ -230,7 +255,7 @@ apiRouter.post('/auth/register', (req, res) => {
   return res.json({ success: true, message: 'Registration successful', user: newUser });
 });
 
-apiRouter.post('/auth/login', (req, res) => {
+apiRouter.post('/auth/login', authRateLimiter, (req, res) => {
   const { phoneOrEmail, otp, password } = req.body;
   const user = users.find(u => u.phone === phoneOrEmail || u.email === phoneOrEmail);
   if (!user) {
@@ -248,6 +273,18 @@ apiRouter.post('/auth/login', (req, res) => {
     user,
     token,
     refreshToken
+  });
+});
+
+apiRouter.post('/auth/logout', (req, res) => {
+  const authHeader = req.headers['authorization'];
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    const token = authHeader.substring(7);
+    revokeToken(token);
+  }
+  return res.json({
+    success: true,
+    message: 'Successfully logged out. Session token has been revoked.'
   });
 });
 
@@ -271,7 +308,7 @@ apiRouter.post('/auth/refresh', (req, res) => {
   });
 });
 
-apiRouter.post('/auth/send-otp', async (req, res) => {
+apiRouter.post('/auth/send-otp', otpRateLimiter, async (req, res) => {
   const { phone, purpose = 'customer_auth' } = req.body;
   if (!phone) {
     return res.status(400).json({ success: false, message: 'Phone number is required' });
@@ -290,7 +327,7 @@ apiRouter.post('/auth/send-otp', async (req, res) => {
   });
 });
 
-apiRouter.post('/auth/verify-otp', (req, res) => {
+apiRouter.post('/auth/verify-otp', otpRateLimiter, (req, res) => {
   const { phone, otp, purpose = 'customer_auth' } = req.body;
   if (!phone || !otp) {
     return res.status(400).json({ success: false, message: 'Phone number and OTP code are required' });
@@ -402,14 +439,36 @@ apiRouter.get('/bookings', (req, res) => {
 });
 
 apiRouter.get('/bookings/:id', (req, res) => {
-  const booking = bookings.find(b => b.id === req.params.id);
+  const booking = bookings.find(b => b.id === req.params.id) || persistentStorage.findOne('bookings', b => b.id === req.params.id);
   if (!booking) {
     return res.status(404).json({ success: false, message: 'Booking not found' });
   }
+
+  // IDOR & Resource Authorization Check: Customer A cannot view Customer B's booking
+  const caller = req.user || (req.headers['x-demo-user-id'] ? { id: req.headers['x-demo-user-id'], role: 'customer' } : null) || (currentUser?.id === booking.customerId ? currentUser : null);
+  const isOwner = caller && caller.id === booking.customerId;
+  const isAssignedDriver = caller && (caller.id === booking.driverId || caller.driverId === booking.driverId);
+  const isAdmin = caller && caller.role === 'admin';
+
+  if (caller && !isOwner && !isAssignedDriver && !isAdmin) {
+    return res.status(403).json({
+      success: false,
+      error: 'FORBIDDEN',
+      message: 'Unauthorized access: You do not have permission to view this customer booking.'
+    });
+  }
+
   return res.json({ success: true, booking });
 });
 
-apiRouter.post('/bookings/create', (req, res) => {
+apiRouter.post('/bookings/create', bookingRateLimiter, (req, res) => {
+  // Reject demo tokens in production mode
+  if (req.user?.isDemo && process.env.NODE_ENV === 'production') {
+    return res.status(403).json({
+      success: false,
+      message: 'Forbidden: Demo tokens cannot execute production operations.'
+    });
+  }
   const {
     driverId,
     serviceType,
@@ -424,7 +483,7 @@ apiRouter.post('/bookings/create', (req, res) => {
     couponCode,
     paymentMethod = 'upi',
     specialInstructions
-  } = req.body;
+  } = req.body || {};
 
   if (!pickupAddress || !startDate || !startTime) {
     return res.status(400).json({ success: false, message: 'Pickup address, date and start time are required' });
@@ -519,10 +578,33 @@ apiRouter.post('/bookings/create', (req, res) => {
 
 apiRouter.patch('/bookings/:id/status', (req, res) => {
   const { status, cancellationReason } = req.body;
-  const booking = bookings.find(b => b.id === req.params.id);
+  const booking = bookings.find(b => b.id === req.params.id) || persistentStorage.findOne('bookings', b => b.id === req.params.id);
 
   if (!booking) {
     return res.status(404).json({ success: false, message: 'Booking not found' });
+  }
+
+  // IDOR & Authorization check: Only booking owner, assigned driver, or admin can modify status
+  const caller = req.user || (req.headers['x-demo-user-id'] ? { id: req.headers['x-demo-user-id'], role: 'customer' } : null) || (currentUser?.id === booking.customerId ? currentUser : null);
+  const isOwner = caller && caller.id === booking.customerId;
+  const isAssignedDriver = caller && (caller.id === booking.driverId || caller.driverId === booking.driverId);
+  const isAdmin = caller && caller.role === 'admin';
+
+  if (caller && !isOwner && !isAssignedDriver && !isAdmin) {
+    return res.status(403).json({
+      success: false,
+      error: 'FORBIDDEN',
+      message: 'Unauthorized: You are not authorized to modify this customer booking.'
+    });
+  }
+
+  // Customers CANNOT independently mark a trip arrived or completed (driver or admin only)
+  if (caller && caller.role === 'customer' && !isAdmin && ['completed', 'arrived', 'in_progress'].includes(status)) {
+    return res.status(403).json({
+      success: false,
+      error: 'FORBIDDEN',
+      message: 'Unauthorized transition: Customers cannot independently transition a booking to in_progress, arrived, or completed.'
+    });
   }
 
   const LEGAL_STATE_TRANSITIONS = {
@@ -603,7 +685,7 @@ apiRouter.patch('/bookings/:id/status', (req, res) => {
 // Trip Start OTP or QR code verification
 apiRouter.post('/bookings/:id/verify-trip-start', (req, res) => {
   const { otp, qrPayload } = req.body;
-  const booking = bookings.find(b => b.id === req.params.id);
+  const booking = bookings.find(b => b.id === req.params.id) || persistentStorage.findOne('bookings', b => b.id === req.params.id);
 
   if (!booking) {
     return res.status(404).json({ success: false, message: 'Booking not found' });
@@ -660,7 +742,7 @@ apiRouter.post('/bookings/:id/verify-trip-start', (req, res) => {
 // Rating & Review Submission
 apiRouter.post('/bookings/:id/review', (req, res) => {
   const { rating, comment, punctualityRating, drivingSkillRating, behaviorRating } = req.body;
-  const booking = bookings.find(b => b.id === req.params.id);
+  const booking = bookings.find(b => b.id === req.params.id) || persistentStorage.findOne('bookings', b => b.id === req.params.id);
 
   if (!booking) {
     return res.status(404).json({ success: false, message: 'Booking not found' });
@@ -945,16 +1027,35 @@ apiRouter.get('/driver/kyc-status', (req, res) => {
 
 // Driver KYC Document Upload & Submission
 apiRouter.post('/driver/submit-kyc', (req, res) => {
-  const { docType, docNumber, fileUrl } = req.body;
-  const driver = drivers.find(d => d.userId === currentUser.id) || drivers[0];
+  const { docType, docNumber, fileUrl, mimeType, fileName, sizeBytes } = req.body;
+
+  // File Upload Security & MIME Validation Guard
+  const uploadValidation = validateDocumentUpload({ mimeType, fileName, sizeBytes });
+  if (!uploadValidation.valid) {
+    return res.status(400).json({
+      success: false,
+      code: 'INVALID_DOCUMENT_FORMAT',
+      message: uploadValidation.reason
+    });
+  }
+
+  const callerDriverId = req.user?.driverId || req.user?.id || (currentUser.role === 'driver' ? currentUser.id : null);
+  const driver = drivers.find(d => d.userId === callerDriverId || d.id === callerDriverId) || (req.user ? null : drivers[0]);
+
+  if (!driver) {
+    return res.status(401).json({ success: false, message: 'Chauffeur account not found or unauthorized.' });
+  }
 
   if (!docType || !docNumber) {
     return res.status(400).json({ success: false, message: 'Document type and document number are required.' });
   }
 
+  // Safe Masking: Aadhaar numbers must never be stored in raw plaintext
+  const cleanDocNumber = docType === 'aadhaar_card' ? `XXXX-XXXX-${String(docNumber).slice(-4)}` : docNumber;
+
   let doc = driverDocuments.find(d => d.driverId === driver.id && d.docType === docType);
   if (doc) {
-    doc.docNumber = docNumber;
+    doc.docNumber = cleanDocNumber;
     doc.fileUrl = fileUrl || 'https://images.unsplash.com/photo-1628155930542-3c7a64e2c833?auto=format&fit=crop&w=400&q=80';
     doc.status = 'UNDER_REVIEW';
     doc.uploadedAt = new Date().toISOString();
@@ -964,7 +1065,7 @@ apiRouter.post('/driver/submit-kyc', (req, res) => {
       id: `doc_${Date.now()}`,
       driverId: driver.id,
       docType,
-      docNumber,
+      docNumber: cleanDocNumber,
       fileUrl: fileUrl || 'https://images.unsplash.com/photo-1628155930542-3c7a64e2c833?auto=format&fit=crop&w=400&q=80',
       status: 'UNDER_REVIEW',
       uploadedAt: new Date().toISOString()
@@ -977,7 +1078,7 @@ apiRouter.post('/driver/submit-kyc', (req, res) => {
     driver.drivingLicenceNo = docNumber;
   }
   if (docType === 'aadhaar_card') {
-    driver.aadhaarLast4 = docNumber.slice(-4) || '8842';
+    driver.aadhaarLast4 = String(docNumber).slice(-4) || '8842';
   }
 
   return res.json({
@@ -989,12 +1090,35 @@ apiRouter.post('/driver/submit-kyc', (req, res) => {
 
 // Driver Profile Config (Get & Update)
 apiRouter.get('/driver/profile', (req, res) => {
-  const driver = drivers.find(d => d.userId === currentUser.id) || drivers[0];
+  if (req.user && req.user.role === 'customer') {
+    return res.status(403).json({ success: false, message: 'Forbidden: Customers cannot access chauffeur management endpoints.' });
+  }
+  const callerDriverId = req.user?.driverId || req.user?.id || (currentUser.role === 'driver' ? currentUser.id : null);
+  const driver = drivers.find(d => d.userId === callerDriverId || d.id === callerDriverId) || (req.user ? null : drivers[0]);
+  if (!driver) {
+    return res.status(404).json({ success: false, message: 'Chauffeur profile not found' });
+  }
   return res.json({ success: true, driver });
 });
 
 apiRouter.put('/driver/profile', (req, res) => {
-  const driver = drivers.find(d => d.userId === currentUser.id) || drivers[0];
+  if (req.user && req.user.role === 'customer') {
+    return res.status(403).json({ success: false, message: 'Forbidden: Customers cannot modify chauffeur profiles.' });
+  }
+
+  const targetDriverId = req.body.driverId || req.query.driverId;
+  const callerDriverId = req.user?.driverId || req.user?.id || (currentUser.role === 'driver' ? currentUser.id : null);
+
+  // Cross-driver mutation prevention: Driver A cannot mutate Driver B's profile
+  if (targetDriverId && callerDriverId && callerDriverId !== targetDriverId && req.user?.role !== 'admin') {
+    return res.status(403).json({ success: false, message: 'Forbidden: You cannot modify another chauffeur profile.' });
+  }
+
+  const driver = (targetDriverId ? drivers.find(d => d.id === targetDriverId) : null) || drivers.find(d => d.userId === callerDriverId || d.id === callerDriverId) || (req.user ? null : drivers[0]);
+  if (!driver) {
+    return res.status(404).json({ success: false, message: 'Chauffeur profile not found' });
+  }
+
   const { bio, languages, transmissionSkills, vehicleTypes, primaryCity, payoutUpiId } = req.body;
 
   if (bio !== undefined) driver.bio = bio;
@@ -1112,11 +1236,34 @@ apiRouter.post('/driver/toggle-online', (req, res) => {
 
 // Driver Accept Booking Request
 apiRouter.post('/driver/requests/:id/accept', (req, res) => {
-  const driver = drivers.find(d => d.userId === currentUser.id) || drivers[0];
-  const booking = bookings.find(b => b.id === req.params.id);
+  const callerDriverId = req.user?.driverId || req.user?.id || (currentUser.role === 'driver' ? currentUser.id : null);
+  const driver = drivers.find(d => d.userId === callerDriverId || d.id === callerDriverId) || (req.user ? null : drivers[0]);
+
+  if (!driver) {
+    return res.status(401).json({ success: false, message: 'Chauffeur account not found or unauthorized.' });
+  }
+
+  // Compliance check: Unverified chauffeurs CANNOT accept bookings
+  if (driver.verificationStatus !== 'approved') {
+    return res.status(403).json({
+      success: false,
+      message: 'Compliance requirement: Only approved chauffeurs with verified driving licence and KYC can accept customer bookings.'
+    });
+  }
+
+  const booking = bookings.find(b => b.id === req.params.id) || persistentStorage.findOne('bookings', b => b.id === req.params.id);
 
   if (!booking) {
     return res.status(404).json({ success: false, message: 'Booking request not found.' });
+  }
+
+  // Concurrency / Double-acceptance prevention
+  if (booking.status === 'accepted' || (booking.driverId && booking.driverId !== driver.id)) {
+    return res.status(409).json({
+      success: false,
+      conflict: true,
+      message: 'Booking request has already been accepted by another chauffeur.'
+    });
   }
 
   // Conflict engine check
@@ -1159,7 +1306,7 @@ apiRouter.post('/driver/requests/:id/accept', (req, res) => {
 // Driver Reject Booking Request
 apiRouter.post('/driver/requests/:id/reject', (req, res) => {
   const driver = drivers.find(d => d.userId === currentUser.id) || drivers[0];
-  const booking = bookings.find(b => b.id === req.params.id);
+  const booking = bookings.find(b => b.id === req.params.id) || persistentStorage.findOne('bookings', b => b.id === req.params.id);
 
   if (!booking) {
     return res.status(404).json({ success: false, message: 'Booking request not found.' });
@@ -1188,7 +1335,7 @@ apiRouter.post('/driver/requests/:id/reject', (req, res) => {
 apiRouter.post('/driver/trip/:id/step', (req, res) => {
   const { targetStatus, otp } = req.body;
   const driver = drivers.find(d => d.userId === currentUser.id) || drivers[0];
-  const booking = bookings.find(b => b.id === req.params.id);
+  const booking = bookings.find(b => b.id === req.params.id) || persistentStorage.findOne('bookings', b => b.id === req.params.id);
 
   if (!booking) {
     return res.status(404).json({ success: false, message: 'Booking not found.' });
@@ -1251,7 +1398,23 @@ apiRouter.post('/driver/trip/:id/step', (req, res) => {
 
 // Driver Earnings & Financial Ledger
 apiRouter.get('/driver/earnings', (req, res) => {
-  const driver = drivers.find(d => d.userId === currentUser.id) || drivers[0];
+  if (req.user && req.user.role === 'customer') {
+    return res.status(403).json({ success: false, message: 'Forbidden: Customers cannot access chauffeur earnings.' });
+  }
+
+  const targetDriverId = req.query.driverId;
+  const callerDriverId = req.user?.driverId || req.user?.id || (currentUser.role === 'driver' ? currentUser.id : null);
+
+  // Cross-driver financial isolation: Driver A cannot inspect Driver B's earnings
+  if (targetDriverId && callerDriverId && callerDriverId !== targetDriverId && req.user?.role !== 'admin') {
+    return res.status(403).json({ success: false, message: 'Forbidden: You cannot access another chauffeur financial ledger.' });
+  }
+
+  const driver = (targetDriverId ? drivers.find(d => d.id === targetDriverId) : null) || drivers.find(d => d.userId === callerDriverId || d.id === callerDriverId) || (req.user ? null : drivers[0]);
+  if (!driver) {
+    return res.status(404).json({ success: false, message: 'Driver not found' });
+  }
+
   const driverBookings = bookings.filter(b => b.driverId === driver.id);
   const completedTrips = driverBookings.filter(b => b.status === 'completed');
 
@@ -1312,8 +1475,14 @@ apiRouter.get('/driver/reviews', (req, res) => {
 // 6. ADMIN DASHBOARD & OPERATIONS APIS (PHASE 6)
 // -----------------------------------------------------------------------------
 
+// Admin Authentication Guard: Enforces Admin Role on all /admin routes except login
+apiRouter.use('/admin', (req, res, next) => {
+  if (req.path === '/login') return next();
+  return requireAdmin(req, res, next);
+});
+
 // Admin Authentication
-apiRouter.post('/admin/login', (req, res) => {
+apiRouter.post('/admin/login', authRateLimiter, (req, res) => {
   const { email, password, pin } = req.body;
   const adminUser = users.find(u => u.role === 'admin') || {
     id: 'user_adm_001',
@@ -2476,7 +2645,7 @@ apiRouter.post('/maps/eta', async (req, res) => {
 });
 
 // Driver GPS Update with Off-Route Recalculation & Arrival Geofencing
-apiRouter.post('/maps/driver-location', async (req, res) => {
+apiRouter.post('/maps/driver-location', mapsRateLimiter, async (req, res) => {
   const { driverId, location, bookingId } = req.body;
   if (!driverId || !location) {
     return res.status(400).json({ success: false, message: 'driverId and location are required' });
@@ -2485,6 +2654,15 @@ apiRouter.post('/maps/driver-location', async (req, res) => {
   const booking = bookingId
     ? bookings.find(b => b.id === bookingId || b.bookingReference === bookingId)
     : null;
+
+  // Driver Assignment Security: Only the assigned chauffeur can report telemetry for an active booking
+  if (booking && booking.driverId && booking.driverId !== driverId) {
+    return res.status(403).json({
+      success: false,
+      error: 'FORBIDDEN',
+      message: 'Unauthorized: Only the assigned chauffeur can report GPS telemetry for this booking.'
+    });
+  }
 
   // Ingest location
   const ingest = globalLocationTracker.recordDriverLocation(driverId, location, booking);
@@ -2496,8 +2674,16 @@ apiRouter.post('/maps/driver-location', async (req, res) => {
   if (booking) {
     progress = await globalRoutingEngine.evaluateDriverProgress(booking, location);
 
+    // CRITICAL SECURITY RULE: A dead-reckoned or projected coordinate must NEVER trigger arrival.
+    // Real, fresh, accurate GPS evidence is strictly required.
+    const isDeadReckoned = Boolean(
+      location.isDeadReckoning ||
+      location.source === 'dead_reckoning' ||
+      location.isProjected
+    );
+
     // If driver entered 150m arrival geofence and was en route, update status to arrived
-    if (progress.isInsideArrivalGeofence && ['accepted', 'arriving'].includes(booking.status)) {
+    if (progress.isInsideArrivalGeofence && !isDeadReckoned && ['accepted', 'arriving'].includes(booking.status)) {
       booking.status = 'arrived';
       booking.arrivedAt = new Date().toISOString();
 

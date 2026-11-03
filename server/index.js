@@ -3,6 +3,10 @@ import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { apiRouter } from './apiRouter.js';
+import {
+  getCorsOriginValidator,
+  securityHeadersMiddleware
+} from './middleware/securityMiddleware.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -10,8 +14,22 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-app.use(cors());
-app.use(express.json());
+// Security hardening: Disable Express fingerprinting
+app.disable('x-powered-by');
+
+// Security hardening: Enterprise response headers (HSTS, CSP, X-Frame-Options, X-Content-Type-Options)
+app.use(securityHeadersMiddleware);
+
+// Security hardening: Production CORS allowlist
+app.use(cors({
+  origin: getCorsOriginValidator(),
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
+}));
+
+// Security hardening: Request payload size limits (protects against memory exhaustion and DoS)
+app.use(express.json({ limit: '1mb' }));
+app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 
 // API Endpoints
 app.use('/api', apiRouter);
@@ -38,8 +56,9 @@ app.use((req, res) => {
   res.sendFile(path.join(distPath, 'index.html'));
 });
 
-// Start listening if run directly
-if (process.env.NODE_ENV !== 'test') {
+// Start listening if run directly as process entrypoint
+const isDirectRun = process.argv[1] && (process.argv[1].endsWith('server/index.js') || process.argv[1].endsWith('server\\index.js'));
+if (isDirectRun && process.env.NODE_ENV !== 'test') {
   app.listen(PORT, () => {
     console.log(`=======================================================`);
     console.log(`🚗 SARATHI: DRIVER RENTAL BOOKING PLATFORM (INDIA)`);

@@ -85,8 +85,27 @@ export class SettlementService {
 
   /**
    * Generates or reconciles weekly driver payout settlement
+   * Prevents duplicate settlement generation for the same driver and period
    */
   generateWeeklySettlement(driverId, periodStart, periodEnd) {
+    const pStart = periodStart || '2026-10-26';
+    const pEnd = periodEnd || '2026-11-01';
+
+    // 1. Check for existing settlement for this period to prevent double-payouts
+    const existingSettlements = persistentStorage.getTable('driver_settlements');
+    const existing = existingSettlements.find(
+      s => s.driverId === driverId && s.periodStart === pStart && s.periodEnd === pEnd
+    );
+
+    if (existing) {
+      return {
+        success: true,
+        alreadyGenerated: true,
+        message: `Settlement for chauffeur ${driverId} for period ${pStart} to ${pEnd} has already been generated.`,
+        settlement: existing
+      };
+    }
+
     const bookings = persistentStorage.getTable('bookings');
     const driverBookings = bookings.filter(b =>
       b.driverId === driverId &&

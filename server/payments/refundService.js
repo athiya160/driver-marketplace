@@ -15,6 +15,7 @@ import { globalRealtimeBus } from '../marketplace/realtimeEventBus.js';
 export class RefundService {
   constructor(client = globalRazorpayClient) {
     this.razorpay = client;
+    this.inFlightLocks = new Set(); // Concurrency lock per paymentId
   }
 
   /**
@@ -58,13 +59,24 @@ export class RefundService {
       return { success: false, code: 'PAYMENT_NOT_FOUND', message: 'Original payment record not found' };
     }
 
-    if (!['captured', 'partially_refunded'].includes(payment.status)) {
+    // Concurrency Lock: Prevent simultaneous double-refund submissions on the same payment
+    if (this.inFlightLocks.has(payment.id)) {
       return {
         success: false,
-        code: 'INVALID_PAYMENT_STATE',
-        message: `Cannot refund payment in status '${payment.status}'. Only captured payments can be refunded.`
+        code: 'CONCURRENT_REFUND_IN_PROGRESS',
+        message: 'A refund is currently being processed for this payment. Please wait.'
       };
     }
+    this.inFlightLocks.add(payment.id);
+
+    try {
+      if (!['captured', 'partially_refunded'].includes(payment.status)) {
+        return {
+          success: false,
+          code: 'INVALID_PAYMENT_STATE',
+          message: `Cannot refund payment in status '${payment.status}'. Only captured payments can be refunded.`
+        };
+      }
 
     // 1. Calculate previously refunded total
     const refunds = persistentStorage.getTable('payment_refunds');
@@ -179,7 +191,10 @@ export class RefundService {
       refundableBalancePaise: payment.amountPaise - newTotalRefunded,
       remainingRefundablePaise: payment.amountPaise - newTotalRefunded
     };
+  } finally {
+    this.inFlightLocks.delete(payment.id);
   }
+}
 
   /**
    * Retrieves refund history for a booking or payment

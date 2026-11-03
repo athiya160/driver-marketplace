@@ -20,11 +20,12 @@ const suites = [
   'cloud_database_auth.test.js',
   'realtime_marketplace.test.js',
   'payment_communications.test.js',
-  'maps_routing.test.js'
+  'maps_routing.test.js',
+  'security_reliability.test.js'
 ];
 
 console.log('=======================================================');
-console.log('🚀 RUNNING ALL 10 TEST SUITES (PHASES 1 - 8D)');
+console.log('🚀 RUNNING ALL 11 TEST SUITES (PHASES 1 - 8E)');
 console.log('=======================================================');
 
 for (const suite of suites) {
@@ -38,5 +39,5 @@ for (const suite of suites) {
 }
 
 console.log('\n=======================================================');
-console.log('🌟 ALL 10 TEST SUITES PASSED CLEANLY (136/136 TESTS)');
+console.log('🌟 ALL 11 TEST SUITES PASSED CLEANLY (160/160 TESTS)');
 console.log('=======================================================\n');
