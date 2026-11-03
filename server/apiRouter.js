@@ -9,6 +9,7 @@ import {
   calculateEstimatedEtaMinutes
 } from './marketplace/dispatchEngine.js';
 import { globalLocationTracker } from './marketplace/locationTracker.js';
+import { globalRealtimeBus } from './marketplace/realtimeEventBus.js';
 import {
   signJwt,
   verifyJwt,
@@ -76,6 +77,65 @@ apiRouter.get('/health/db', async (req, res) => {
     success: true,
     platform: 'Personal Driver Marketplace Backend',
     database: health
+  });
+});
+
+// -----------------------------------------------------------------------------
+// 0B. REAL-TIME MOBILITY EVENT STREAM (SSE) (PHASE 8B)
+// -----------------------------------------------------------------------------
+
+// High-Throughput Authenticated Server-Sent Events (SSE) Stream
+apiRouter.get('/realtime/events', (req, res) => {
+  const token = req.query.token || (req.headers.authorization && req.headers.authorization.replace('Bearer ', ''));
+  const rawChannels = req.query.channels ? req.query.channels.split(',') : [];
+
+  let user = null;
+  if (token) {
+    const verified = verifyJwt(token);
+    if (verified.valid) {
+      user = verified.payload;
+    }
+  }
+
+  // Fallback to demo profile in local sandbox/demo mode if unauthenticated
+  if (!user) {
+    if (process.env.NODE_ENV === 'production') {
+      return res.status(401).json({ success: false, message: 'Authentication required for real-time subscription' });
+    }
+    user = currentUser;
+  }
+
+  const clientId = `client_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`;
+  globalRealtimeBus.registerClient(clientId, res, user, rawChannels, user.isDemo);
+});
+
+// Subscribe to additional channel dynamically
+apiRouter.post('/realtime/subscribe', (req, res) => {
+  const { clientId, channel } = req.body;
+  if (!clientId || !channel) {
+    return res.status(400).json({ success: false, message: 'Missing clientId or channel' });
+  }
+
+  const result = globalRealtimeBus.subscribeChannel(clientId, channel);
+  if (!result.success) {
+    return res.status(403).json(result);
+  }
+
+  return res.json({ success: true, channel });
+});
+
+// Unsubscribe from channel
+apiRouter.post('/realtime/unsubscribe', (req, res) => {
+  const { clientId, channel } = req.body;
+  globalRealtimeBus.unsubscribeChannel(clientId, channel);
+  return res.json({ success: true });
+});
+
+// Real-Time Bus Operations Metrics
+apiRouter.get('/realtime/metrics', requireRole(['admin'], { allowDemo: true }), (req, res) => {
+  return res.json({
+    success: true,
+    metrics: globalRealtimeBus.getMetrics()
   });
 });
 
@@ -421,17 +481,43 @@ apiRouter.patch('/bookings/:id/status', (req, res) => {
     return res.status(404).json({ success: false, message: 'Booking not found' });
   }
 
-  const validStatuses = ['pending', 'accepted', 'driver_en_route', 'arrived', 'in_progress', 'completed', 'cancelled', 'rejected'];
-  if (!validStatuses.includes(status)) {
-    return res.status(400).json({ success: false, message: 'Invalid status transition' });
+  const LEGAL_STATE_TRANSITIONS = {
+    requested: ['searching', 'dispatched', 'cancelled'],
+    pending: ['accepted', 'rejected', 'cancelled', 'dispatched'],
+    searching: ['dispatched', 'cancelled', 'exhausted'],
+    dispatched: ['accepted', 'expired', 'cancelled', 'searching'],
+    accepted: ['arriving', 'driver_en_route', 'replacement_requested', 'cancelled'],
+    driver_en_route: ['arrived', 'cancelled', 'replacement_requested'],
+    arriving: ['arrived', 'cancelled', 'replacement_requested'],
+    arrived: ['in_progress', 'cancelled'],
+    in_progress: ['completed'],
+    replacement_requested: ['searching', 'dispatched', 'cancelled'],
+    completed: [],
+    cancelled: [],
+    rejected: ['searching', 'cancelled']
+  };
+
+  const allowedNext = LEGAL_STATE_TRANSITIONS[booking.status] || [];
+  if (!allowedNext.includes(status) && booking.status !== status) {
+    return res.status(400).json({
+      success: false,
+      message: `Invalid state transition: Cannot transition booking from '${booking.status}' to '${status}'. Allowed transitions: [${allowedNext.join(', ')}]`
+    });
   }
 
+  const prevStatus = booking.status;
   booking.status = status;
   if (!booking.statusHistory) booking.statusHistory = [];
+  
+  const actor = req.user || currentUser;
   booking.statusHistory.push({
-    status,
+    from: prevStatus,
+    to: status,
     time: new Date().toISOString(),
-    note: cancellationReason || `Status updated to ${status}`
+    actorId: actor?.id,
+    actorRole: actor?.role,
+    reason: cancellationReason || null,
+    note: cancellationReason || `Status transitioned from ${prevStatus} to ${status}`
   });
 
   if (status === 'in_progress') {
@@ -439,10 +525,33 @@ apiRouter.patch('/bookings/:id/status', (req, res) => {
   } else if (status === 'completed') {
     booking.completedAt = new Date().toISOString();
     booking.paymentStatus = 'captured';
+    if (booking.driverId) {
+      globalDispatchManager.clearSession(booking.id);
+    }
   } else if (status === 'cancelled') {
     booking.cancelledAt = new Date().toISOString();
     booking.cancellationReason = cancellationReason || 'Cancelled by user';
+    if (booking.driverId) {
+      globalDispatchManager.clearSession(booking.id);
+    }
   }
+
+  // Broadcast Authoritative Booking Status via Realtime Event Bus
+  globalRealtimeBus.publish(`customer:booking:${booking.id}`, 'TRIP_STATUS_UPDATED', {
+    bookingId: booking.id,
+    bookingReference: booking.bookingReference,
+    previousStatus: prevStatus,
+    currentStatus: status,
+    timestamp: new Date().toISOString(),
+    cancellationReason: booking.cancellationReason || null
+  }, booking.isDemo);
+
+  globalRealtimeBus.publish('admin:operations', 'TRIP_STATUS_UPDATED', {
+    bookingId: booking.id,
+    bookingReference: booking.bookingReference,
+    status,
+    timestamp: new Date().toISOString()
+  }, booking.isDemo);
 
   return res.json({ success: true, message: `Booking status updated to ${status}`, booking });
 });
@@ -481,6 +590,21 @@ apiRouter.post('/bookings/:id/verify-trip-start', (req, res) => {
     time: new Date().toISOString(),
     note: isQrValid ? 'Trip started via QR Code Scan' : 'Trip started via 4-digit OTP verification'
   });
+
+  // Broadcast trip start via Realtime Event Bus
+  globalRealtimeBus.publish(`customer:booking:${booking.id}`, 'TRIP_STATUS_UPDATED', {
+    bookingId: booking.id,
+    bookingReference: booking.bookingReference,
+    status: 'in_progress',
+    startedAt: booking.startedAt,
+    verifiedVia: isQrValid ? 'QR_SCAN' : 'OTP'
+  }, booking.isDemo);
+
+  globalRealtimeBus.publish('admin:operations', 'TRIP_STATUS_UPDATED', {
+    bookingReference: booking.bookingReference,
+    status: 'in_progress',
+    startedAt: booking.startedAt
+  }, booking.isDemo);
 
   return res.json({
     success: true,
@@ -952,6 +1076,20 @@ apiRouter.post('/driver/trip/:id/step', (req, res) => {
     time: new Date().toISOString(),
     note: `Chauffeur updated status to ${targetStatus}`
   });
+
+  // Broadcast step transition via Realtime Event Bus
+  globalRealtimeBus.publish(`customer:booking:${booking.id}`, 'TRIP_STATUS_UPDATED', {
+    bookingId: booking.id,
+    bookingReference: booking.bookingReference,
+    status: targetStatus,
+    timestamp: new Date().toISOString()
+  }, booking.isDemo);
+
+  globalRealtimeBus.publish('admin:operations', 'TRIP_STATUS_UPDATED', {
+    bookingReference: booking.bookingReference,
+    status: targetStatus,
+    timestamp: new Date().toISOString()
+  }, booking.isDemo);
 
   return res.json({
     success: true,
@@ -1534,6 +1672,14 @@ apiRouter.get('/admin/audit-logs', (req, res) => {
 
 // Customer Initiates Chauffeur Dispatch
 apiRouter.post('/dispatch/request', (req, res) => {
+  // Production Fail-Safe: Require active cloud database in production mode
+  if (process.env.NODE_ENV === 'production' && !supabase.isLiveSupabase) {
+    return res.status(503).json({
+      success: false,
+      message: 'Service Unavailable: Hosted database connection required for production transactions. Fail-safe triggered.'
+    });
+  }
+
   const {
     bookingId,
     pickupLatitude = 28.4595,
@@ -1617,6 +1763,10 @@ apiRouter.post('/dispatch/request', (req, res) => {
   // 4. Create cascade dispatch session
   const dispatchResult = globalDispatchManager.createDispatchSession(targetBooking, rankedCandidates, 45);
 
+  if (!dispatchResult.success) {
+    return res.status(409).json(dispatchResult);
+  }
+
   return res.json({
     success: true,
     message: `Dispatched to top ranked chauffeur ${rankedCandidates[0].fullName}`,
@@ -1680,6 +1830,55 @@ apiRouter.post('/dispatch/respond', (req, res) => {
   }
 });
 
+// Chauffeur Cancellation After Acceptance & Immediate Replacement Workflow
+apiRouter.post('/dispatch/cancel-and-replace', (req, res) => {
+  const { bookingId, driverId, reason = 'Emergency cancellation by chauffeur' } = req.body;
+  const booking = bookings.find(b => b.id === bookingId || b.bookingReference === bookingId);
+
+  if (!booking) {
+    return res.status(404).json({ success: false, message: 'Booking not found' });
+  }
+
+  booking.status = 'replacement_requested';
+  booking.previousDriverId = driverId;
+  booking.driverId = null;
+  booking.driverName = null;
+
+  const replaceResult = globalDispatchManager.requestReplacementDispatch(booking, driverId, reason);
+
+  // Auto-trigger replacement search with remaining eligible candidates
+  const eligibleReplacements = findEligibleDrivers(
+    {
+      pickupLatitude: booking.pickupLatitude,
+      pickupLongitude: booking.pickupLongitude,
+      transmissionType: booking.transmissionType,
+      serviceCity: booking.pickupCity,
+      startDate: booking.startDate,
+      startTime: booking.startTime,
+      durationHours: booking.durationHours,
+      maxRadiusKm: 20
+    },
+    drivers.filter(d => d.id !== driverId), // Exclude the cancelling driver
+    bookings,
+    { currentBookingId: booking.id }
+  );
+
+  let replacementOffer = null;
+  if (eligibleReplacements.length > 0) {
+    const ranked = rankDrivers(eligibleReplacements, booking.pickupLatitude, booking.pickupLongitude);
+    replacementOffer = globalDispatchManager.createDispatchSession(booking, ranked, 45);
+  }
+
+  recordAuditLog('REPLACEMENT_DISPATCHED', booking.bookingReference, `Replacement chauffeur search initiated following cancellation by driver ${driverId}.`);
+
+  return res.json({
+    success: true,
+    message: 'Replacement chauffeur search initiated successfully',
+    booking,
+    replacementOffer
+  });
+});
+
 // Get Current Dispatch Status
 apiRouter.get('/dispatch/:bookingId/status', (req, res) => {
   const session = globalDispatchManager.getSession(req.params.bookingId);
@@ -1696,9 +1895,37 @@ apiRouter.get('/dispatch/:bookingId/status', (req, res) => {
   });
 });
 
+// Driver Online Heartbeat
+apiRouter.post('/driver/heartbeat', (req, res) => {
+  const { driverId, isOnline = true } = req.body;
+  if (!driverId) {
+    return res.status(400).json({ success: false, message: 'Driver ID required for heartbeat' });
+  }
+
+  const driver = drivers.find(d => d.id === driverId || d.userId === driverId);
+  if (driver) {
+    driver.isOnline = isOnline;
+    driver.lastHeartbeat = new Date().toISOString();
+  }
+
+  globalLocationTracker.recordDriverHeartbeat(driverId);
+
+  globalRealtimeBus.publish('admin:operations', 'DRIVER_HEARTBEAT', {
+    driverId,
+    isOnline,
+    lastHeartbeat: new Date().toISOString()
+  });
+
+  return res.json({
+    success: true,
+    message: 'Heartbeat acknowledged',
+    isOnline
+  });
+});
+
 // High-Frequency Driver GPS Location Update
 apiRouter.post('/driver/location', (req, res) => {
-  const { driverId, latitude, longitude, heading = 0, speed = 0, accuracy = 5.0 } = req.body;
+  const { driverId, latitude, longitude, heading = 0, speed = 0, accuracy = 5.0, recordedAt } = req.body;
 
   if (!driverId) {
     return res.status(400).json({ success: false, message: 'Driver ID is required' });
@@ -1709,13 +1936,20 @@ apiRouter.post('/driver/location', (req, res) => {
     return res.status(404).json({ success: false, message: 'Driver not found' });
   }
 
+  // Find active booking for telemetry streaming
+  const activeBooking = bookings.find(b =>
+    b.driverId === driverId &&
+    ['accepted', 'arriving', 'arrived', 'in_progress'].includes(b.status)
+  );
+
   const trackResult = globalLocationTracker.recordDriverLocation(driverId, {
     latitude: Number(latitude),
     longitude: Number(longitude),
     heading: Number(heading),
     speed: Number(speed),
-    accuracy: Number(accuracy)
-  });
+    accuracy: Number(accuracy),
+    recordedAt
+  }, activeBooking);
 
   if (!trackResult.success) {
     return res.status(400).json(trackResult);

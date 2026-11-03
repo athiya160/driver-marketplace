@@ -789,5 +789,368 @@
       "timestamp": "2026-10-23T14:15:00Z"
     }
   ],
-  "customer_vehicles": []
+  "customer_vehicles": [],
+  "dispatch_sessions": [
+    {
+      "bookingId": "bk_cascade_01",
+      "bookingReference": "SRT-CASCADE-101",
+      "candidates": [
+        {
+          "id": "drv_cand_1",
+          "fullName": "Chauffeur Rajesh"
+        },
+        {
+          "id": "drv_cand_2",
+          "fullName": "Chauffeur Harpreet"
+        }
+      ],
+      "currentIndex": 1,
+      "currentCandidate": {
+        "id": "drv_cand_2",
+        "fullName": "Chauffeur Harpreet"
+      },
+      "dispatchedAt": "2026-11-03T07:13:13.940Z",
+      "expiresAt": "2026-11-03T07:13:58.940Z",
+      "status": "accepted",
+      "history": [
+        {
+          "driverId": "drv_cand_1",
+          "driverName": "Chauffeur Rajesh",
+          "action": "declined",
+          "timestamp": "2026-11-03T07:13:13.940Z"
+        }
+      ],
+      "acceptedDriver": {
+        "id": "drv_cand_2",
+        "fullName": "Chauffeur Harpreet"
+      },
+      "respondedAt": "2026-11-03T07:13:13.942Z",
+      "updatedAt": "2026-11-03T07:13:13.942Z"
+    },
+    {
+      "bookingId": "bk_first",
+      "candidates": [
+        {
+          "id": "drv_mutex_01",
+          "fullName": "Exclusive Driver"
+        }
+      ],
+      "currentIndex": 1,
+      "currentCandidate": {
+        "id": "drv_mutex_01",
+        "fullName": "Exclusive Driver"
+      },
+      "dispatchedAt": "2026-11-03T07:13:13.943Z",
+      "expiresAt": "2026-11-03T07:13:58.943Z",
+      "status": "exhausted",
+      "history": [
+        {
+          "driverId": "drv_mutex_01",
+          "driverName": "Exclusive Driver",
+          "action": "timeout",
+          "timestamp": "2026-11-03T07:13:59.978Z"
+        }
+      ],
+      "updatedAt": "2026-11-03T07:13:59.980Z"
+    },
+    {
+      "bookingId": "bk_cas_1793689690034",
+      "bookingReference": "SRT-CAS-99",
+      "candidates": [
+        {
+          "id": "drv_cand_a",
+          "fullName": "Chauffeur Rajesh"
+        },
+        {
+          "id": "drv_cand_b",
+          "fullName": "Chauffeur Suresh"
+        }
+      ],
+      "currentIndex": 1,
+      "currentCandidate": {
+        "id": "drv_cand_b",
+        "fullName": "Chauffeur Suresh"
+      },
+      "dispatchedAt": "2026-11-03T07:08:10.042Z",
+      "expiresAt": "2026-11-03T07:08:55.042Z",
+      "status": "timed_out_during_restart",
+      "history": [
+        {
+          "driverId": "drv_cand_a",
+          "driverName": "Chauffeur Rajesh",
+          "action": "declined",
+          "timestamp": "2026-11-03T07:08:10.042Z"
+        }
+      ],
+      "updatedAt": "2026-11-03T07:08:10.042Z"
+    },
+    {
+      "bookingId": "bk_cust_1",
+      "candidates": [
+        {
+          "id": "drv_atomic_busy_1",
+          "fullName": "Chauffeur Exclusive"
+        }
+      ],
+      "currentIndex": 1,
+      "currentCandidate": {
+        "id": "drv_atomic_busy_1",
+        "fullName": "Chauffeur Exclusive"
+      },
+      "dispatchedAt": "2026-11-03T07:13:14.577Z",
+      "expiresAt": "2026-11-03T07:13:59.577Z",
+      "status": "exhausted",
+      "history": [
+        {
+          "driverId": "drv_atomic_busy_1",
+          "driverName": "Chauffeur Exclusive",
+          "action": "timeout",
+          "timestamp": "2026-11-03T07:13:59.982Z"
+        }
+      ],
+      "updatedAt": "2026-11-03T07:13:59.982Z"
+    },
+    {
+      "bookingId": "bk_idem_1793689690050",
+      "bookingReference": "SRT-IDEM-01",
+      "candidates": [
+        {
+          "id": "drv_idempotent_1",
+          "fullName": "Vikram Singh"
+        }
+      ],
+      "currentIndex": 0,
+      "currentCandidate": {
+        "id": "drv_idempotent_1",
+        "fullName": "Vikram Singh"
+      },
+      "dispatchedAt": "2026-11-03T07:08:10.050Z",
+      "expiresAt": "2026-11-03T07:08:55.050Z",
+      "status": "accepted",
+      "history": [],
+      "acceptedDriver": {
+        "id": "drv_idempotent_1",
+        "fullName": "Vikram Singh"
+      },
+      "respondedAt": "2026-11-03T07:08:10.052Z",
+      "updatedAt": "2026-11-03T07:08:10.052Z"
+    },
+    {
+      "bookingId": "bk_timeout_1793689690056",
+      "bookingReference": "SRT-TO-01",
+      "candidates": [
+        {
+          "id": "drv_to_1",
+          "fullName": "Driver Slow"
+        },
+        {
+          "id": "drv_to_2",
+          "fullName": "Driver Next"
+        }
+      ],
+      "currentIndex": 1,
+      "currentCandidate": {
+        "id": "drv_to_2",
+        "fullName": "Driver Next"
+      },
+      "dispatchedAt": "2026-11-03T07:08:10.058Z",
+      "expiresAt": "2026-11-03T07:08:55.058Z",
+      "status": "timed_out_during_restart",
+      "history": [
+        {
+          "driverId": "drv_to_1",
+          "driverName": "Driver Slow",
+          "action": "timeout",
+          "timestamp": "2026-11-03T07:08:10.058Z"
+        }
+      ],
+      "updatedAt": "2026-11-03T07:08:10.058Z"
+    },
+    {
+      "bookingId": "bk_cas_1793689882420",
+      "bookingReference": "SRT-CAS-99",
+      "candidates": [
+        {
+          "id": "drv_cand_a",
+          "fullName": "Chauffeur Rajesh"
+        },
+        {
+          "id": "drv_cand_b",
+          "fullName": "Chauffeur Suresh"
+        }
+      ],
+      "currentIndex": 1,
+      "currentCandidate": {
+        "id": "drv_cand_b",
+        "fullName": "Chauffeur Suresh"
+      },
+      "dispatchedAt": "2026-11-03T07:11:22.423Z",
+      "expiresAt": "2026-11-03T07:12:07.423Z",
+      "status": "timed_out_during_restart",
+      "history": [
+        {
+          "driverId": "drv_cand_a",
+          "driverName": "Chauffeur Rajesh",
+          "action": "declined",
+          "timestamp": "2026-11-03T07:11:22.423Z"
+        }
+      ],
+      "updatedAt": "2026-11-03T07:11:22.423Z"
+    },
+    {
+      "bookingId": "bk_idem_1793689882426",
+      "bookingReference": "SRT-IDEM-01",
+      "candidates": [
+        {
+          "id": "drv_idempotent_1",
+          "fullName": "Vikram Singh"
+        }
+      ],
+      "currentIndex": 0,
+      "currentCandidate": {
+        "id": "drv_idempotent_1",
+        "fullName": "Vikram Singh"
+      },
+      "dispatchedAt": "2026-11-03T07:11:22.426Z",
+      "expiresAt": "2026-11-03T07:12:07.426Z",
+      "status": "accepted",
+      "history": [],
+      "acceptedDriver": {
+        "id": "drv_idempotent_1",
+        "fullName": "Vikram Singh"
+      },
+      "respondedAt": "2026-11-03T07:11:22.427Z",
+      "updatedAt": "2026-11-03T07:11:22.427Z"
+    },
+    {
+      "bookingId": "bk_timeout_1793689882428",
+      "bookingReference": "SRT-TO-01",
+      "candidates": [
+        {
+          "id": "drv_to_1",
+          "fullName": "Driver Slow"
+        },
+        {
+          "id": "drv_to_2",
+          "fullName": "Driver Next"
+        }
+      ],
+      "currentIndex": 1,
+      "currentCandidate": {
+        "id": "drv_to_2",
+        "fullName": "Driver Next"
+      },
+      "dispatchedAt": "2026-11-03T07:11:22.430Z",
+      "expiresAt": "2026-11-03T07:12:07.430Z",
+      "status": "timed_out_during_restart",
+      "history": [
+        {
+          "driverId": "drv_to_1",
+          "driverName": "Driver Slow",
+          "action": "timeout",
+          "timestamp": "2026-11-03T07:11:22.430Z"
+        }
+      ],
+      "updatedAt": "2026-11-03T07:11:22.430Z"
+    },
+    {
+      "bookingId": "bk_cas_1793689994569",
+      "bookingReference": "SRT-CAS-99",
+      "candidates": [
+        {
+          "id": "drv_cand_a",
+          "fullName": "Chauffeur Rajesh"
+        },
+        {
+          "id": "drv_cand_b",
+          "fullName": "Chauffeur Suresh"
+        }
+      ],
+      "currentIndex": 2,
+      "currentCandidate": {
+        "id": "drv_cand_b",
+        "fullName": "Chauffeur Suresh"
+      },
+      "dispatchedAt": "2026-11-03T07:13:14.572Z",
+      "expiresAt": "2026-11-03T07:13:59.572Z",
+      "status": "exhausted",
+      "history": [
+        {
+          "driverId": "drv_cand_a",
+          "driverName": "Chauffeur Rajesh",
+          "action": "declined",
+          "timestamp": "2026-11-03T07:13:14.572Z"
+        },
+        {
+          "driverId": "drv_cand_b",
+          "driverName": "Chauffeur Suresh",
+          "action": "timeout",
+          "timestamp": "2026-11-03T07:13:59.986Z"
+        }
+      ],
+      "updatedAt": "2026-11-03T07:13:59.986Z"
+    },
+    {
+      "bookingId": "bk_idem_1793689994578",
+      "bookingReference": "SRT-IDEM-01",
+      "candidates": [
+        {
+          "id": "drv_idempotent_1",
+          "fullName": "Vikram Singh"
+        }
+      ],
+      "currentIndex": 0,
+      "currentCandidate": {
+        "id": "drv_idempotent_1",
+        "fullName": "Vikram Singh"
+      },
+      "dispatchedAt": "2026-11-03T07:13:14.578Z",
+      "expiresAt": "2026-11-03T07:13:59.578Z",
+      "status": "accepted",
+      "history": [],
+      "acceptedDriver": {
+        "id": "drv_idempotent_1",
+        "fullName": "Vikram Singh"
+      },
+      "respondedAt": "2026-11-03T07:13:14.579Z",
+      "updatedAt": "2026-11-03T07:13:14.580Z"
+    },
+    {
+      "bookingId": "bk_timeout_1793689994580",
+      "bookingReference": "SRT-TO-01",
+      "candidates": [
+        {
+          "id": "drv_to_1",
+          "fullName": "Driver Slow"
+        },
+        {
+          "id": "drv_to_2",
+          "fullName": "Driver Next"
+        }
+      ],
+      "currentIndex": 2,
+      "currentCandidate": {
+        "id": "drv_to_2",
+        "fullName": "Driver Next"
+      },
+      "dispatchedAt": "2026-11-03T07:13:14.581Z",
+      "expiresAt": "2026-11-03T07:13:59.581Z",
+      "status": "exhausted",
+      "history": [
+        {
+          "driverId": "drv_to_1",
+          "driverName": "Driver Slow",
+          "action": "timeout",
+          "timestamp": "2026-11-03T07:13:14.581Z"
+        },
+        {
+          "driverId": "drv_to_2",
+          "driverName": "Driver Next",
+          "action": "timeout",
+          "timestamp": "2026-11-03T07:13:59.989Z"
+        }
+      ],
+      "updatedAt": "2026-11-03T07:13:59.989Z"
+    }
+  ]
 }
