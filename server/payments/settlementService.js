@@ -12,18 +12,40 @@ import { persistentStorage } from '../db/persistentStorage.js';
 
 export class SettlementService {
   constructor() {
-    this.platformCommissionPercent = 15; // 15% platform commission
-    this.driverSharePercent = 85;        // 85% chauffeur base earnings
-    this.platformConvenienceFeePaise = 4900; // ₹49 platform fee
-    this.gstTaxPercent = 5.0;            // 5% Aggregator GST (estimated statutory rate)
+    this.platformCommissionPercent = 15; // Default 15% platform commission
+    this.driverSharePercent = 85;        // Default 85% chauffeur base earnings
+    this.platformConvenienceFeePaise = 4900; // Default ₹49 platform fee
+    this.gstTaxPercent = 5.0;            // 5% Aggregator GST (provisional estimate)
+  }
+
+  /**
+   * Retrieves active dynamic pricing configuration from persistent storage
+   * Note: GST treatment requires qualified Indian tax professional review before live launch.
+   */
+  getPricingConfig() {
+    const pricingTable = persistentStorage.getTable('pricing_rules');
+    const customConfig = (Array.isArray(pricingTable) ? pricingTable[0] : pricingTable) || {};
+    const commPercent = Number(customConfig.platformCommissionPercent ?? this.platformCommissionPercent);
+
+    return {
+      platformCommissionPercent: commPercent,
+      driverSharePercent: 100 - commPercent,
+      platformConvenienceFeePaise: rupeesToPaise(Number(customConfig.platformConvenienceFee ?? 49)),
+      gstTaxPercent: Number(customConfig.transportGstPercent ?? 5.0),
+      outstationDriverDA: Number(customConfig.outstationDriverDA ?? 350),
+      nightAllowance: Number(customConfig.nightAllowance ?? 250),
+      gstDisclaimer: 'Provisional 5% GST rate. Legal liability under Section 9(5) CGST Act must be verified by a certified Indian GST professional.'
+    };
   }
 
   /**
    * Computes exact mathematical split for a completed trip
    */
   calculateTripFinancialSplit(booking) {
+    const config = this.getPricingConfig();
+    const convenienceFeeRs = paiseToRupees(config.platformConvenienceFeePaise);
     const totalFareRupees = Number(booking.totalFare) || 599;
-    const baseFareRupees = Number(booking.baseFare) || (totalFareRupees - 49);
+    const baseFareRupees = Number(booking.baseFare) || (totalFareRupees - convenienceFeeRs);
     const extraHoursRupees = Number(booking.extraHoursCharge) || 0;
     const nightChargeRupees = Number(booking.nightCharge) || 0;
     const outstationDARupees = Number(booking.outstationDA) || 0;
@@ -33,15 +55,15 @@ export class SettlementService {
     const nightAllowancePaise = rupeesToPaise(nightChargeRupees);
     const outstationDAPaise = rupeesToPaise(outstationDARupees);
 
-    // Platform commission is 15% of gross driving base
-    const platformCommissionPaise = Math.round(grossBasePaise * (this.platformCommissionPercent / 100));
+    // Platform commission is dynamically calculated from configured percentage
+    const platformCommissionPaise = Math.round(grossBasePaise * (config.platformCommissionPercent / 100));
     
-    // Driver gets 85% of driving base + 100% of night allowance + 100% of outstation DA
+    // Driver gets remaining driver share of driving base + 100% of night allowance + 100% of outstation DA
     const driverBasePaise = grossBasePaise - platformCommissionPaise;
     const driverNetPayablePaise = driverBasePaise + nightAllowancePaise + outstationDAPaise;
 
-    // Platform net revenue: Commission + Platform convenience fee (₹49)
-    const platformNetRevenuePaise = platformCommissionPaise + this.platformConvenienceFeePaise;
+    // Platform net revenue: Commission + Platform convenience fee
+    const platformNetRevenuePaise = platformCommissionPaise + config.platformConvenienceFeePaise;
 
     return {
       totalFarePaise,

@@ -30,6 +30,9 @@ import { globalSettlementService } from './payments/settlementService.js';
 import { rupeesToPaise, paiseToRupees } from './payments/paymentValidation.js';
 import { globalOtpService } from './communications/otpService.js';
 import { globalNotificationService } from './communications/notificationService.js';
+import { globalRoutingEngine } from './maps/routingEngine.js';
+import { globalGeocodingService } from './maps/geocodingService.js';
+import { MAPS_CONFIG, getCurrentTrafficMultiplier } from './maps/mapsConfig.js';
 import {
   USERS,
   DRIVERS,
@@ -2397,4 +2400,133 @@ apiRouter.delete('/customer/vehicles/:id', authenticateToken, (req, res) => {
 
   persistentStorage.delete('customer_vehicles', v => v.id === id);
   return res.json({ success: true, message: 'Vehicle removed from your garage' });
+});
+
+// -----------------------------------------------------------------------------
+// 10. MAPS, GEOLOCATION, REAL ROUTES & ETA APIS (PHASE 8D)
+// -----------------------------------------------------------------------------
+
+// Address Search & Autocomplete Proxy
+apiRouter.get('/maps/places/autocomplete', async (req, res) => {
+  const { query, sessionToken } = req.query;
+  const result = await globalGeocodingService.searchAddresses(query, sessionToken);
+  return res.json(result);
+});
+
+// Forward Geocoding Proxy
+apiRouter.get('/maps/geocode', async (req, res) => {
+  const { address } = req.query;
+  if (!address) {
+    return res.status(400).json({ success: false, message: 'Address query parameter is required' });
+  }
+  try {
+    const result = await globalGeocodingService.geocode(address);
+    return res.json({ success: true, ...result });
+  } catch (err) {
+    return res.status(400).json({ success: false, message: err.message });
+  }
+});
+
+// Reverse Geocoding for Map Pin Drops
+apiRouter.get('/maps/reverse-geocode', async (req, res) => {
+  const { lat, lon } = req.query;
+  if (!lat || !lon) {
+    return res.status(400).json({ success: false, message: 'lat and lon parameters are required' });
+  }
+  const result = await globalGeocodingService.reverseGeocode(Number(lat), Number(lon));
+  if (!result.success) {
+    return res.status(400).json(result);
+  }
+  return res.json(result);
+});
+
+// Authoritative Road Directions & Route Calculation
+apiRouter.post('/maps/directions', async (req, res) => {
+  const { origin, destination, options = {} } = req.body;
+  if (!origin || !destination) {
+    return res.status(400).json({ success: false, message: 'origin and destination are required' });
+  }
+  try {
+    const route = await globalRoutingEngine.computeRoadRoute(origin, destination, options);
+    return res.json({ success: true, route });
+  } catch (err) {
+    return res.status(400).json({ success: false, message: err.message });
+  }
+});
+
+// Dynamic Traffic-Aware ETA Query
+apiRouter.post('/maps/eta', async (req, res) => {
+  const { origin, destination } = req.body;
+  if (!origin || !destination) {
+    return res.status(400).json({ success: false, message: 'origin and destination are required' });
+  }
+  try {
+    const route = await globalRoutingEngine.computeRoadRoute(origin, destination);
+    return res.json({
+      success: true,
+      roadDistanceKm: route.roadDistanceKm,
+      straightLineDistanceKm: route.straightLineDistanceKm,
+      durationMinutes: route.durationMinutes,
+      trafficMultiplier: route.trafficMultiplier,
+      trafficCondition: route.trafficCondition
+    });
+  } catch (err) {
+    return res.status(400).json({ success: false, message: err.message });
+  }
+});
+
+// Driver GPS Update with Off-Route Recalculation & Arrival Geofencing
+apiRouter.post('/maps/driver-location', async (req, res) => {
+  const { driverId, location, bookingId } = req.body;
+  if (!driverId || !location) {
+    return res.status(400).json({ success: false, message: 'driverId and location are required' });
+  }
+
+  const booking = bookingId
+    ? bookings.find(b => b.id === bookingId || b.bookingReference === bookingId)
+    : null;
+
+  // Ingest location
+  const ingest = globalLocationTracker.recordDriverLocation(driverId, location, booking);
+  if (!ingest.success) {
+    return res.status(400).json(ingest);
+  }
+
+  let progress = null;
+  if (booking) {
+    progress = await globalRoutingEngine.evaluateDriverProgress(booking, location);
+
+    // If driver entered 150m arrival geofence and was en route, update status to arrived
+    if (progress.isInsideArrivalGeofence && ['accepted', 'arriving'].includes(booking.status)) {
+      booking.status = 'arrived';
+      booking.arrivedAt = new Date().toISOString();
+
+      recordAuditLog('CHAUFFEUR_ARRIVED', booking.bookingReference, `Chauffeur reached customer pickup geofence (within 150m).`);
+
+      globalRealtimeBus.publish(`customer:booking:${booking.id}`, 'CHAUFFEUR_ARRIVED', {
+        bookingId: booking.id,
+        bookingReference: booking.bookingReference,
+        status: 'arrived',
+        arrivedAt: booking.arrivedAt,
+        message: 'Your chauffeur has arrived at the pickup location. Please share your 4-digit OTP to start the journey.'
+      }, booking.isDemo);
+    }
+  }
+
+  return res.json({
+    success: true,
+    driverId,
+    location: ingest.location,
+    progress
+  });
+});
+
+// Client Map Public Config
+apiRouter.get('/maps/config', (req, res) => {
+  return res.json({
+    success: true,
+    provider: MAPS_CONFIG.defaultProvider,
+    geofence: MAPS_CONFIG.geofence,
+    traffic: getCurrentTrafficMultiplier()
+  });
 });
