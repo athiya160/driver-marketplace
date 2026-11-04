@@ -22,9 +22,14 @@ const DEFAULT_ALLOWED_ORIGINS = [
 ];
 
 export function getCorsOriginValidator() {
-  const customOrigins = (process.env.CORS_ORIGIN || '')
-    .split(',')
-    .map(o => o.trim())
+  const customOrigins = [
+    process.env.CORS_ORIGIN,
+    process.env.RENDER_EXTERNAL_URL,
+    process.env.RENDER_EXTERNAL_HOSTNAME ? `https://${process.env.RENDER_EXTERNAL_HOSTNAME}` : null
+  ]
+    .filter(Boolean)
+    .flatMap(o => o.split(','))
+    .map(o => o.trim().replace(/\/$/, ''))
     .filter(Boolean);
 
   const allowedOrigins = new Set([...DEFAULT_ALLOWED_ORIGINS, ...customOrigins]);
@@ -35,8 +40,21 @@ export function getCorsOriginValidator() {
       return callback(null, true);
     }
 
-    if (allowedOrigins.has(origin)) {
+    const cleanOrigin = origin.trim().replace(/\/$/, '');
+
+    // Allow explicitly whitelisted origins
+    if (allowedOrigins.has(cleanOrigin)) {
       return callback(null, true);
+    }
+
+    // Allow Render deployments and previews (*.onrender.com)
+    try {
+      const parsedUrl = new URL(cleanOrigin);
+      if (parsedUrl.hostname.endsWith('.onrender.com') || parsedUrl.hostname === 'localhost' || parsedUrl.hostname === '127.0.0.1') {
+        return callback(null, true);
+      }
+    } catch {
+      // Invalid origin URL format
     }
 
     // In production mode, reject unauthorized foreign origins

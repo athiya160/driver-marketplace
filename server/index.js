@@ -40,6 +40,7 @@ app.use('/public', express.static(path.join(__dirname, '../public')));
 // Serve production built frontend from dist
 const distPath = path.join(__dirname, '../dist');
 app.use(express.static(distPath));
+app.use('/assets', express.static(path.join(distPath, 'assets')));
 
 // Root healthcheck
 app.get('/health', (req, res) => {
@@ -52,8 +53,29 @@ app.get('/health', (req, res) => {
 });
 
 // Fallback to index.html for client-side routing (Express 5 compatible)
-app.use((req, res) => {
+app.use((req, res, next) => {
+  // If request is for an asset or API that was not found, avoid sending index.html as JS/CSS
+  if (req.path.startsWith('/api') || req.path.startsWith('/assets') || req.path.startsWith('/public')) {
+    return next();
+  }
   res.sendFile(path.join(distPath, 'index.html'));
+});
+
+// Express error-handling middleware (prevents unhandled crashes and returns clean responses)
+app.use((err, req, res, next) => {
+  if (err.message && err.message.includes('CORS Policy Violation')) {
+    return res.status(403).json({
+      success: false,
+      error: 'CORS_POLICY_VIOLATION',
+      message: err.message
+    });
+  }
+  console.error('Unhandled server error:', err);
+  res.status(500).json({
+    success: false,
+    error: 'INTERNAL_SERVER_ERROR',
+    message: err.message || 'An unexpected error occurred'
+  });
 });
 
 // Start listening if run directly as process entrypoint
