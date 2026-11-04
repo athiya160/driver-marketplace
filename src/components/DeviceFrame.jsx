@@ -48,15 +48,15 @@ export default function DeviceFrame({
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col items-center">
       
-      {/* 1. TOP GLOBAL DEMO ENVIRONMENT BANNER */}
+      {/* 1. TOP GLOBAL STAGING / DEMONSTRATION BANNER */}
       <div className="w-full bg-amber-500 text-slate-950 px-4 py-1.5 text-xs font-bold flex flex-wrap items-center justify-between gap-2 shadow-xs z-50">
         <div className="flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-slate-900 animate-ping"></span>
           <span className="uppercase tracking-wider font-extrabold text-[11px]">
-            Demo Environment • Simulated Data
+            STAGING PREVIEW • TEST ENVIRONMENT
           </span>
           <span className="hidden md:inline font-normal text-slate-900/80 text-[11px]">
-            — Synthetic Indian Chauffeur Marketplace for founder, investor & partner walkthroughs
+            — Private Demonstration for Salman & Operations Team (Simulated Payments & Test Drivers)
           </span>
         </div>
 
