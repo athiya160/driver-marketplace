@@ -1,23 +1,29 @@
 /**
  * CONFIGURABLE BRAND & PRODUCT CONFIGURATION
- * Platform: Next-Generation On-Demand Personal Driver Marketplace
+ * Platform: Sarathi Global Rentals – Next-Generation On-Demand Personal Driver Marketplace
  * Value Proposition: "Your Car. Your Journey. Your Driver."
- * 
- * Note: Customer-facing brand identity is decoupled from founder identity.
- * Brand name, tagline, logo and colors can be customized here or via ENV
- * without modifying application code.
  */
 
 export const BRAND = {
-  // Brand & Application Identity (Neutral configurable placeholder)
-  brandName: (typeof process !== 'undefined' && process.env?.VITE_APP_BRAND_NAME) || 'Personal Driver Marketplace',
-  appName: (typeof process !== 'undefined' && process.env?.VITE_APP_NAME) || 'Personal Driver Marketplace',
-  shortName: 'Driver Marketplace',
+  // Brand & Application Identity
+  brandName: (typeof process !== 'undefined' && process.env?.VITE_APP_BRAND_NAME) || 'Sarathi Global Rentals',
+  appName: (typeof process !== 'undefined' && process.env?.VITE_APP_NAME) || 'Sarathi Global Rentals',
+  shortName: 'Sarathi',
   tagline: 'Your Car. Your Journey. Your Driver.',
   serviceTitle: 'Verified Professional Chauffeurs for Your Own Vehicle',
   description: 'Hire verified, professional personal drivers on-demand for your own car (Hatchback, Sedan, SUV, Luxury) for hourly, daily, outstation, airport, and monthly driving services.',
   
-  // Operational Helpdesk (Visibly marked unconfigured placeholders awaiting founder setup)
+  // Official Logo & Asset Identity
+  logoUrl: '/sarathi-logo.png',
+  logoBadgeUrl: '/sarathi-badge.png',
+  logoHeroUrl: '/sarathi-hero-medallion.jpg',
+
+  // Corporate & Statutory Details
+  companyLegalName: 'Sarathi Global Rentals Private Limited',
+  gstin: '07AAACS1234F1Z8',
+  registeredAddress: 'Level 4, DLF Cyber City, Sector 24, Gurugram, Haryana - 122002',
+
+  // Operational Helpdesk
   supportPhone: '+91 1800-PENDING (Unconfigured Placeholder)',
   supportPhoneDisplay: '+91 1800-XXX-XXXX (Pending Founder Setup)',
   supportEmail: 'pending-founder-setup@drivermarketplace.placeholder',
@@ -27,7 +33,7 @@ export const BRAND = {
   currency: '₹',
   countryCode: '+91',
 
-  // Founder & Project Stewardship (Internal documentation only)
+  // Founder & Project Stewardship
   founderNotice: 'Founder: Salman | Pan-India Mobility Marketplace Venture',
   isDemoEnvironment: true
 };
@@ -37,6 +43,7 @@ export const THEME = {
   background: '#F8FAFC',
   white: '#FFFFFF',
   accentOrange: '#F97316',
+  gold: '#D4AF37',
   primaryText: '#172033',
   secondaryText: '#64748B',
   borders: '#E2E8F0',

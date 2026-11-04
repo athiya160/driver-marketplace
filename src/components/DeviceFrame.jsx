@@ -87,15 +87,19 @@ export default function DeviceFrame({
           <div className="flex items-center gap-3">
             <div
               onClick={() => onOpenAuth('splash')}
-              className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-orange-500 to-amber-500 flex items-center justify-center shadow-md font-black text-white text-base cursor-pointer hover:scale-105 transition"
+              className="w-10 h-10 rounded-2xl bg-[#091426] border border-[#D4AF37]/50 flex items-center justify-center shadow-md cursor-pointer hover:scale-105 transition overflow-hidden p-0.5"
               title="Click to view Splash Screen"
             >
-              DM
+              <img
+                src={BRAND.logoBadgeUrl || "/sarathi-badge.png"}
+                alt={BRAND.appName}
+                className="w-full h-full object-contain drop-shadow"
+              />
             </div>
             <div>
               <div className="flex items-center gap-2">
                 <span className="font-extrabold text-lg tracking-tight text-white">{BRAND.appName}</span>
-                <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-orange-500/20 text-orange-300 border border-orange-500/30">
+                <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">
                   Across India 🇮🇳
                 </span>
               </div>

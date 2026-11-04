@@ -138,15 +138,19 @@ export default function AuthModal({
 
         {/* 1. SPLASH SCREEN VIEW */}
         {view === 'splash' && (
-          <div className="text-center py-6">
-            <div className="w-20 h-20 rounded-3xl bg-gradient-to-tr from-orange-500 to-amber-500 flex items-center justify-center mx-auto mb-4 shadow-xl font-black text-white text-3xl">
-              SD
+          <div className="text-center py-4">
+            <div className="relative w-28 h-28 mx-auto mb-4 p-1 rounded-3xl bg-[#091426] border-2 border-[#D4AF37]/60 shadow-2xl flex items-center justify-center overflow-hidden hover:scale-105 transition">
+              <img
+                src={BRAND.logoBadgeUrl || "/sarathi-badge.png"}
+                alt={BRAND.appName}
+                className="w-full h-full object-contain drop-shadow-xl"
+              />
             </div>
-            <div className="inline-block px-3 py-1 rounded-full bg-orange-100 text-orange-700 border border-orange-200 text-[10px] font-extrabold uppercase mb-2">
-              Across India 🇮🇳
+            <div className="inline-block px-3 py-1 rounded-full bg-amber-50 text-amber-900 border border-amber-300 text-[10px] font-extrabold uppercase mb-2">
+              Across India 🇮🇳 • Premium Chauffeurs
             </div>
             <h2 className="text-2xl font-black tracking-tight text-[#0F1E36]">{BRAND.appName}</h2>
-            <p className="text-xs font-bold text-orange-600 mt-0.5">{BRAND.tagline}</p>
+            <p className="text-xs font-bold text-amber-700 mt-0.5">{BRAND.tagline}</p>
             <p className="text-xs text-slate-500 mt-2 px-4">
               Connecting personal vehicle owners with verified drivers across 14+ Indian cities.
             </p>
@@ -227,9 +231,14 @@ export default function AuthModal({
         {/* 3. LOGIN VIEW */}
         {view === 'login' && (
           <div>
-            <div className="text-center mb-5">
+            <div className="text-center mb-4">
+              <img
+                src={BRAND.logoBadgeUrl || "/sarathi-badge.png"}
+                alt={BRAND.appName}
+                className="w-12 h-12 mx-auto mb-2 object-contain drop-shadow"
+              />
               <h3 className="font-extrabold text-lg text-white">Welcome Back</h3>
-              <p className="text-xs text-slate-500 mt-0.5">Sign in to your {BRAND.appName} account</p>
+              <p className="text-xs text-slate-400 mt-0.5">Sign in to your {BRAND.appName} account</p>
             </div>
 
             {errorMsg && (
@@ -303,6 +312,11 @@ export default function AuthModal({
         {view === 'signup' && (
           <div>
             <div className="text-center mb-4">
+              <img
+                src={BRAND.logoBadgeUrl || "/sarathi-badge.png"}
+                alt={BRAND.appName}
+                className="w-12 h-12 mx-auto mb-2 object-contain drop-shadow"
+              />
               <h3 className="font-extrabold text-lg text-white">Create Account</h3>
               <p className="text-xs text-slate-400 mt-0.5">Register as Customer or Driver</p>
             </div>

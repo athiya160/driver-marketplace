@@ -1,19 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Home,
-  Users,
-  Compass,
-  Clock,
-  User,
-  Car,
-  Shield,
-  QrCode,
-  FileText,
-  Star,
-  Bell
-} from 'lucide-react';
-
-import DeviceFrame from './components/DeviceFrame.jsx';
+import AppLayout from './components/AppLayout.jsx';
 import TripQRScannerModal from './components/TripQRScannerModal.jsx';
 import InvoiceModal from './components/InvoiceModal.jsx';
 import ReviewModal from './components/ReviewModal.jsx';
@@ -41,12 +27,32 @@ import {
 } from './api.js';
 
 export default function App() {
-  const [viewMode, setViewMode] = useState('mobile'); // 'mobile' or 'desktop'
-  const [currentRole, setCurrentRole] = useState('customer'); // 'customer', 'driver', 'admin'
-  const [activeScreen, setActiveScreen] = useState('home'); // 'home', 'drivers', 'booking', 'live_trip', 'profile', 'driver_dash', 'admin_dash', 'app_scanner'
+  const getInitialRole = () => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const role = params.get('role');
+      if (['customer', 'driver', 'admin'].includes(role)) return role;
+    }
+    return 'customer';
+  };
+
+  const getInitialScreen = () => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const screen = params.get('screen');
+      if (screen) return screen;
+      const role = params.get('role');
+      if (role === 'driver') return 'driver_dash';
+      if (role === 'admin') return 'admin_dash';
+    }
+    return 'home';
+  };
+
+  const [currentRole, setCurrentRole] = useState(getInitialRole);
+  const [activeScreen, setActiveScreen] = useState(getInitialScreen);
   
   const [currentUser, setCurrentUser] = useState(null);
-  const [selectedCity, setSelectedCity] = useState('Delhi NCR');
+  const [selectedCity, setSelectedCity] = useState('Bengaluru');
   const [allDrivers, setAllDrivers] = useState([]);
   const [allBookings, setAllBookings] = useState([]);
   const [selectedDriver, setSelectedDriver] = useState(null);
@@ -74,8 +80,8 @@ export default function App() {
   const [notifications, setNotifications] = useState([
     {
       id: 'notif_1',
-      title: 'Chauffeur Arrived at DLF The Crest',
-      message: 'Rajesh Kumar Sharma is waiting near Tower 4 gate in uniform. Please verify Trip OTP 4821.',
+      title: 'Chauffeur Arrived at Pickup Location',
+      message: 'Rajesh Kumar Sharma is waiting near the main gate. Please verify Trip OTP 4821.',
       time: '2 mins ago',
       read: false,
       type: 'driver'
@@ -83,15 +89,15 @@ export default function App() {
     {
       id: 'notif_2',
       title: 'Booking Confirmed • SRT-2026-8821',
-      message: 'Hourly rental driver booked for 14:30. Car: Honda City ZX (Automatic).',
+      message: 'Hourly rental chauffeur booked for today. Vehicle: Honda City ZX (Automatic).',
       time: '15 mins ago',
       read: false,
       type: 'booking'
     },
     {
       id: 'notif_3',
-      title: 'Razorpay UPI Payment Successful',
-      message: 'Received ₹567 via Google Pay. Download your GST tax invoice anytime from My Trips.',
+      title: 'Direct Driver Settlement Confirmed',
+      message: 'Founding Launch Policy: ₹0 platform fee applied. Direct UPI/cash payout to chauffeur.',
       time: '1 hour ago',
       read: true,
       type: 'payment'
@@ -109,8 +115,8 @@ export default function App() {
   // Customer booking form state
   const [bookingForm, setBookingForm] = useState({
     pickupAddress: 'Tower 4, DLF The Crest, Sector 54, Golf Course Road, Gurugram',
-    pickupCity: 'Delhi NCR',
-    dropAddress: 'Ambience Mall, NH-8, Gurugram',
+    pickupCity: 'Bengaluru',
+    dropAddress: 'Kempegowda International Airport, Terminal 2',
     startDate: new Date().toISOString().split('T')[0],
     startTime: '14:30',
     durationHours: 4,
@@ -127,7 +133,7 @@ export default function App() {
       .then(res => {
         if (isMounted && res.success) {
           setCurrentUser(res.user);
-          setCurrentRole(res.user.role);
+          setCurrentRole(res.user.role || 'customer');
         }
       })
       .catch(err => console.error(err));
@@ -180,7 +186,6 @@ export default function App() {
     setAllBookings(prev => [newBooking, ...prev]);
     setActiveBooking(newBooking);
     setActiveScreen('live_trip');
-    // Add in-app notification
     setNotifications(prev => [
       {
         id: `notif_${Date.now()}`,
@@ -250,18 +255,22 @@ export default function App() {
   const unreadNotifsCount = notifications.filter(n => !n.read).length;
 
   return (
-    <DeviceFrame
-      viewMode={viewMode}
-      setViewMode={setViewMode}
+    <AppLayout
       currentRole={currentRole}
       onSwitchRole={handleSwitchRole}
+      activeScreen={activeScreen}
+      onNavigateScreen={(screen) => setActiveScreen(screen)}
+      selectedCity={selectedCity}
+      onSelectCity={(city) => setSelectedCity(city)}
       onOpenScanner={() => setActiveScreen('app_scanner')}
       onOpenNotifications={() => setNotificationsOpen(true)}
       unreadCount={unreadNotifsCount}
       onOpenAuth={handleOpenAuth}
+      currentUser={currentUser}
+      activeBooking={activeBooking}
       onResetDemo={handleReloadAll}
     >
-      <div className="flex-1 flex flex-col h-full relative">
+      <div className="w-full">
         
         {/* 1. Customer Home Screen */}
         {activeScreen === 'home' && (
@@ -385,116 +394,6 @@ export default function App() {
           />
         )}
 
-        {/* Bottom Navigation Bar */}
-        {currentRole === 'customer' && (
-          <nav className="absolute bottom-0 inset-x-0 bg-slate-900/95 backdrop-blur-md border-t border-slate-800 px-4 py-2 flex items-center justify-around z-30">
-            <button
-              onClick={() => setActiveScreen('home')}
-              className={`flex flex-col items-center gap-1 text-[10px] font-bold transition ${
-                activeScreen === 'home' ? 'text-brand-400' : 'text-slate-400 hover:text-slate-200'
-              }`}
-            >
-              <Home className="w-5 h-5" />
-              <span>Book</span>
-            </button>
-            <button
-              onClick={() => setActiveScreen('drivers')}
-              className={`flex flex-col items-center gap-1 text-[10px] font-bold transition ${
-                activeScreen === 'drivers' ? 'text-brand-400' : 'text-slate-400 hover:text-slate-200'
-              }`}
-            >
-              <Users className="w-5 h-5" />
-              <span>Drivers</span>
-            </button>
-            <button
-              onClick={() => setActiveScreen('live_trip')}
-              className={`flex flex-col items-center gap-1 text-[10px] font-bold transition relative ${
-                activeScreen === 'live_trip' ? 'text-brand-400' : 'text-slate-400 hover:text-slate-200'
-              }`}
-            >
-              <Clock className="w-5 h-5" />
-              <span>Active Ride</span>
-              {activeBooking?.status === 'in_progress' && (
-                <span className="w-2 h-2 rounded-full bg-emerald-400 absolute top-0 right-3 animate-ping"></span>
-              )}
-            </button>
-            <button
-              onClick={() => setActiveScreen('profile')}
-              className={`flex flex-col items-center gap-1 text-[10px] font-bold transition ${
-                activeScreen === 'profile' ? 'text-brand-400' : 'text-slate-400 hover:text-slate-200'
-              }`}
-            >
-              <User className="w-5 h-5" />
-              <span>Profile</span>
-            </button>
-          </nav>
-        )}
-
-        {currentRole === 'driver' && (
-          <nav className="absolute bottom-0 inset-x-0 bg-slate-900/95 backdrop-blur-md border-t border-slate-800 px-4 py-2 flex items-center justify-around z-30">
-            <button
-              onClick={() => setActiveScreen('driver_dash')}
-              className={`flex flex-col items-center gap-1 text-[10px] font-bold transition ${
-                activeScreen === 'driver_dash' ? 'text-amber-400' : 'text-slate-400 hover:text-slate-200'
-              }`}
-            >
-              <Car className="w-5 h-5" />
-              <span>Dashboard</span>
-            </button>
-            <button
-              onClick={() => setActiveScreen('live_trip')}
-              className={`flex flex-col items-center gap-1 text-[10px] font-bold transition ${
-                activeScreen === 'live_trip' ? 'text-amber-400' : 'text-slate-400 hover:text-slate-200'
-              }`}
-            >
-              <Clock className="w-5 h-5" />
-              <span>Active Ride</span>
-            </button>
-            <button
-              onClick={() => {
-                setModalBooking(activeBooking);
-                setScannerModalOpen(true);
-              }}
-              className="flex flex-col items-center gap-1 text-[10px] font-bold text-slate-400 hover:text-amber-400 transition"
-            >
-              <QrCode className="w-5 h-5 text-amber-400" />
-              <span>Scan QR</span>
-            </button>
-            <button
-              onClick={() => setActiveScreen('app_scanner')}
-              className={`flex flex-col items-center gap-1 text-[10px] font-bold transition ${
-                activeScreen === 'app_scanner' ? 'text-amber-400' : 'text-slate-400 hover:text-slate-200'
-              }`}
-            >
-              <QrCode className="w-5 h-5" />
-              <span>Expo QR</span>
-            </button>
-          </nav>
-        )}
-
-        {currentRole === 'admin' && (
-          <nav className="absolute bottom-0 inset-x-0 bg-slate-900/95 backdrop-blur-md border-t border-slate-800 px-4 py-2 flex items-center justify-around z-30">
-            <button
-              onClick={() => setActiveScreen('admin_dash')}
-              className={`flex flex-col items-center gap-1 text-[10px] font-bold transition ${
-                activeScreen === 'admin_dash' ? 'text-purple-400' : 'text-slate-400 hover:text-slate-200'
-              }`}
-            >
-              <Shield className="w-5 h-5" />
-              <span>Admin Center</span>
-            </button>
-            <button
-              onClick={() => setActiveScreen('app_scanner')}
-              className={`flex flex-col items-center gap-1 text-[10px] font-bold transition ${
-                activeScreen === 'app_scanner' ? 'text-purple-400' : 'text-slate-400 hover:text-slate-200'
-              }`}
-            >
-              <QrCode className="w-5 h-5" />
-              <span>Expo QR</span>
-            </button>
-          </nav>
-        )}
-
       </div>
 
       {/* Global Modals */}
@@ -526,7 +425,7 @@ export default function App() {
           setSelectedDriver(drv);
           setActiveScreen('booking');
         }}
-        onCallDriver={(drv) => alert(`Masked Virtual Call placed to ${drv.fullName} (+91 1800-120-0044). Passenger phone number is protected.`)}
+        onCallDriver={(drv) => alert(`Masked Virtual Call placed to ${drv.fullName} (+91 1800-200-8821). Passenger phone number is protected.`)}
         onChatDriver={(drv) => alert(`In-App Chat conversation opened with ${drv.fullName}.`)}
       />
 
@@ -551,7 +450,7 @@ export default function App() {
         onAuthSuccess={(user) => {
           setCurrentUser(user);
           setCurrentRole(user.role || 'customer');
-          alert(`Welcome to Chauffeur Marketplace, ${user.fullName}!`);
+          alert(`Welcome to Sarathi, ${user.fullName}!`);
         }}
       />
 
@@ -563,6 +462,6 @@ export default function App() {
         }}
       />
 
-    </DeviceFrame>
+    </AppLayout>
   );
 }

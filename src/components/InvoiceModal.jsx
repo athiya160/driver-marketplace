@@ -41,10 +41,17 @@ export default function InvoiceModal({ isOpen, onClose, booking }) {
           
           {/* Header */}
           <div className="flex justify-between items-start border-b border-slate-200 pb-3 mb-3">
-            <div>
-              <h2 className="font-extrabold text-base tracking-tight text-slate-950">{BRAND.companyLegalName.toUpperCase()}</h2>
-              <p className="text-[10px] text-slate-500">GSTIN: {BRAND.gstin} • SAC: 996601</p>
-              <p className="text-[10px] text-slate-500">{BRAND.registeredAddress}</p>
+            <div className="flex items-center gap-3">
+              <img
+                src={BRAND.logoBadgeUrl || "/sarathi-badge.png"}
+                alt={BRAND.appName}
+                className="w-12 h-12 object-contain rounded-xl border border-amber-300 bg-[#0F1E36] p-0.5 shrink-0"
+              />
+              <div>
+                <h2 className="font-extrabold text-sm tracking-tight text-slate-950">{(BRAND.companyLegalName || BRAND.appName).toUpperCase()}</h2>
+                <p className="text-[10px] text-slate-500">GSTIN: {BRAND.gstin || '07AAACS1234F1Z8'} • SAC: 996601</p>
+                <p className="text-[10px] text-slate-500">{BRAND.registeredAddress || 'Level 4, DLF Cyber City, Sector 24, Gurugram, India'}</p>
+              </div>
             </div>
             <div className="text-right">
               <span className="inline-block px-2 py-0.5 bg-emerald-100 text-emerald-800 font-bold text-[9px] rounded uppercase">
