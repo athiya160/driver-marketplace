@@ -441,6 +441,19 @@ export default function DriverDashboardScreen({
 
                   {activeTrip.status === 'arrived' && (
                     <div className="space-y-2 pt-1">
+                      {/* Vehicle Handover Inspection Button (Phase 9B) */}
+                      <button
+                        type="button"
+                        onClick={() => setShowHandoverModal(true)}
+                        className="w-full py-2 px-3 rounded-xl bg-orange-50 border border-orange-200 text-orange-950 text-xs font-bold flex items-center justify-between shadow-xs hover:bg-orange-100 transition"
+                      >
+                        <div className="flex items-center gap-1.5">
+                          <FileCheck2 className="w-4 h-4 text-orange-600" />
+                          <span>Customer Vehicle Handover Checklist</span>
+                        </div>
+                        <span className="text-[10px] text-orange-700 font-bold uppercase">Inspect & Sign →</span>
+                      </button>
+
                       <p className="text-[11px] text-slate-600 font-semibold">
                         Enter 4-digit OTP provided by customer upon car key handover:
                       </p>
@@ -926,6 +939,16 @@ export default function DriverDashboardScreen({
             </form>
           </div>
         </div>
+      )}
+
+      {/* Digital Vehicle Handover Inspection Modal (Phase 9B) */}
+      {activeTrip && (
+        <DigitalVehicleHandoverModal
+          isOpen={showHandoverModal}
+          onClose={() => setShowHandoverModal(false)}
+          booking={activeTrip}
+          handoverType={activeTrip.status === 'completed' ? 'post_trip_return' : 'pre_trip_handover'}
+        />
       )}
 
     </div>

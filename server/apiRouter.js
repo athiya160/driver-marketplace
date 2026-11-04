@@ -265,7 +265,7 @@ apiRouter.post('/auth/switch-role', (req, res) => {
 });
 
 apiRouter.post('/auth/register', (req, res) => {
-  const { fullName, phone, email, password, role = 'customer' } = req.body;
+  const { fullName, phone, email, password, role = 'customer' } = req.body || {};
 
   if (!fullName || !phone || !email) {
     return res.status(400).json({ success: false, message: 'Please provide name, phone and email' });
