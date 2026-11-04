@@ -613,3 +613,141 @@ export const ADMIN_AUDIT_LOGS = [
     timestamp: '2026-10-23T14:15:00Z'
   }
 ];
+
+// ==============================================================================
+// ADDITIONAL PREMIUM FEATURES SEEDS (PHASE 9B)
+// ==============================================================================
+
+export const DRIVER_PASSPORTS = [
+  {
+    id: 'pass_drv_delhi_1',
+    driverId: 'drv_delhi_1',
+    driverName: 'Rajesh Kumar Sharma',
+    passportNumber: 'DSP-DEL-2026-0891',
+    policeVerificationStatus: 'verified',
+    policeClearanceNumber: 'PCC-DL-NORTH-2026-44910',
+    commercialLicenseType: 'LMV-TR (Transport Chauffeur)',
+    licenseNumber: 'DL-0420150089211',
+    licenseExpiryDate: '2031-08-15',
+    totalSafeKms: 184500,
+    zeroAccidentStreakMonths: 54,
+    punctualityScorePercent: 99.4,
+    luxuryCertifications: [
+      'Mercedes-Benz 9G-Tronic Specialist',
+      'BMW Steptronic & xDrive Certified',
+      'Audi S-Tronic Executive Chauffeur',
+      'EV Regenerative Smooth Braking'
+    ],
+    highwayAccreditation: true,
+    languagesSpoken: ['Hindi', 'English', 'Punjabi'],
+    vipClientCommendations: [
+      'Corporate Managing Director Commendation (Golf Course Road, 2025)',
+      'Diplomatic Embassy Chauffeur Certificate of Appreciation (2024)'
+    ],
+    createdAt: '2026-10-20T09:00:00Z'
+  },
+  {
+    id: 'pass_drv_mumbai_1',
+    driverId: 'drv_mumbai_1',
+    driverName: 'Vikram Singh Rathore',
+    passportNumber: 'DSP-MUM-2026-1142',
+    policeVerificationStatus: 'verified',
+    policeClearanceNumber: 'PCC-MH-MUM-2026-98112',
+    commercialLicenseType: 'LMV-TR',
+    licenseNumber: 'MH-0220160012398',
+    licenseExpiryDate: '2032-04-10',
+    totalSafeKms: 142000,
+    zeroAccidentStreakMonths: 42,
+    punctualityScorePercent: 98.9,
+    luxuryCertifications: [
+      'Jaguar Land Rover Drive System',
+      'High-Speed Sea Link & Expressway Safety'
+    ],
+    highwayAccreditation: true,
+    languagesSpoken: ['Hindi', 'Marathi', 'English', 'Gujarati'],
+    vipClientCommendations: [
+      'Bandra-Kurla Complex Executive Protocol Commendation'
+    ],
+    createdAt: '2026-10-20T09:00:00Z'
+  }
+];
+
+export const VEHICLE_HANDOVERS = [
+  {
+    id: 'hnd_bk_001_pre',
+    bookingId: 'bk_001',
+    customerId: 'user_cust_demo_01',
+    driverId: 'drv_delhi_1',
+    vehicleModel: 'Honda City ZX (Automatic)',
+    vehicleRegNumber: 'DL 03 CA 8821',
+    handoverType: 'pre_trip_handover',
+    odometerReadingKm: 42180,
+    fuelLevelPercent: 85,
+    existingDamages: [
+      { id: 'dmg_1', location: 'Left Rear Bumper', description: 'Pre-existing minor scratch (approx 2 inches)', severity: 'minor' }
+    ],
+    photoUrls: [
+      'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=600&q=80'
+    ],
+    cleanlinessRating: 5,
+    customerSignatureToken: 'sig_token_cust_8821_demo',
+    handoverNotes: 'Clean interior, valet parking tags handed over with ignition key fob.',
+    status: 'confirmed',
+    confirmedAt: '2026-10-28T14:25:00Z',
+    createdAt: '2026-10-28T14:20:00Z'
+  }
+];
+
+export const FAMILY_CIRCLES = [
+  {
+    id: 'fam_01',
+    customerId: 'user_cust_demo_01',
+    memberName: 'Ananya Verma',
+    phone: '+91 98765 11111',
+    relationship: 'Spouse',
+    permissions: {
+      liveTracking: true,
+      tripAlerts: true,
+      sosEmergency: true
+    },
+    isEmergencyContact: true,
+    status: 'active',
+    createdAt: '2026-10-20T09:00:00Z'
+  },
+  {
+    id: 'fam_02',
+    customerId: 'user_cust_demo_01',
+    memberName: 'Col. S.K. Verma (Retd)',
+    phone: '+91 98765 22222',
+    relationship: 'Parent',
+    permissions: {
+      liveTracking: true,
+      tripAlerts: true,
+      sosEmergency: true
+    },
+    isEmergencyContact: true,
+    status: 'active',
+    createdAt: '2026-10-20T09:00:00Z'
+  }
+];
+
+export const PREFERRED_CHAUFFEURS = [
+  {
+    id: 'pref_01',
+    customerId: 'user_cust_demo_01',
+    driverId: 'drv_delhi_1',
+    notes: 'Exceptional smoothness on highway and German automatic transmission handling.',
+    priorityTier: 1,
+    tripsCompletedTogether: 6,
+    addedAt: '2026-10-22T10:00:00Z'
+  },
+  {
+    id: 'pref_02',
+    customerId: 'user_cust_demo_01',
+    driverId: 'drv_mumbai_1',
+    notes: 'Punctual, polite, non-smoker. Excellent for outstation weekend trips.',
+    priorityTier: 2,
+    tripsCompletedTogether: 2,
+    addedAt: '2026-10-24T12:00:00Z'
+  }
+];

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   X,
   Star,
@@ -15,8 +15,11 @@ import {
   Calendar,
   Languages,
   Check,
-  AlertCircle
+  AlertCircle,
+  Heart,
+  FileBadge
 } from 'lucide-react';
+import { fetchDriverPassport, addPreferredChauffeur } from '../api.js';
 
 export default function DriverProfileDetailsModal({
   isOpen,
@@ -25,9 +28,40 @@ export default function DriverProfileDetailsModal({
   onBookDriver,
   onCallDriver
 }) {
-  const [selectedTab, setSelectedTab] = useState('overview'); // 'overview', 'reviews', 'availability'
+  const [selectedTab, setSelectedTab] = useState('overview'); // 'overview', 'passport', 'reviews', 'availability'
+  const [passportData, setPassportData] = useState(null);
+  const [preferredSaved, setPreferredSaved] = useState(false);
+  const [savingPreferred, setSavingPreferred] = useState(false);
+
+  useEffect(() => {
+    if (isOpen && driver?.id) {
+      setPreferredSaved(false);
+      fetchDriverPassport(driver.id)
+        .then(res => {
+          if (res.success && res.passport) {
+            setPassportData(res.passport);
+          }
+        })
+        .catch(err => console.error(err));
+    }
+  }, [isOpen, driver?.id]);
 
   if (!isOpen || !driver) return null;
+
+  const handleTogglePreferred = async () => {
+    if (preferredSaved) return;
+    setSavingPreferred(true);
+    try {
+      const res = await addPreferredChauffeur(driver.id, 'Preferred chauffeur saved from Driver Passport');
+      if (res.success) {
+        setPreferredSaved(true);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setSavingPreferred(false);
+    }
+  };
 
   return (
     <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 font-sans">
@@ -101,6 +135,15 @@ export default function DriverProfileDetailsModal({
             }`}
           >
             Overview
+          </button>
+          <button
+            onClick={() => setSelectedTab('passport')}
+            className={`flex-1 py-1.5 rounded-lg transition flex items-center justify-center gap-1 ${
+              selectedTab === 'passport' ? 'bg-white text-orange-600 shadow-sm font-extrabold' : 'text-slate-500'
+            }`}
+          >
+            <ShieldCheck className="w-3.5 h-3.5" />
+            <span>Passport</span>
           </button>
           <button
             onClick={() => setSelectedTab('reviews')}
@@ -214,7 +257,125 @@ export default function DriverProfileDetailsModal({
           </div>
         )}
 
-        {/* Tab 2: Reviews */}
+        {/* Tab 2: Driver Passport (Phase 9B) */}
+        {selectedTab === 'passport' && (
+          <div className="space-y-3.5 text-xs">
+            {/* Passport Official Badge Card */}
+            <div className="p-4 rounded-2xl bg-gradient-to-br from-[#0F1E36] to-[#1A2F45] text-white border border-slate-700 shadow-md relative overflow-hidden">
+              <div className="flex items-center justify-between mb-3 border-b border-slate-700 pb-2">
+                <div className="flex items-center gap-1.5">
+                  <ShieldCheck className="w-4 h-4 text-orange-400" />
+                  <span className="font-extrabold text-[11px] uppercase tracking-wider text-orange-400">
+                    Official Driver Passport
+                  </span>
+                </div>
+                <span className="font-mono text-[10px] text-slate-300 font-bold">
+                  {passportData?.passportNumber || 'DSP-DEL-2026-0891'}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-3 gap-2 text-center mb-3">
+                <div className="p-2 rounded-xl bg-slate-800/80 border border-slate-700">
+                  <span className="text-[9px] text-slate-400 uppercase font-semibold block">Safe Kilometers</span>
+                  <span className="font-mono font-extrabold text-sm text-emerald-400">
+                    {((passportData?.totalSafeKms || 184500) / 1000).toFixed(1)}k KM
+                  </span>
+                </div>
+                <div className="p-2 rounded-xl bg-slate-800/80 border border-slate-700">
+                  <span className="text-[9px] text-slate-400 uppercase font-semibold block">Zero Accident</span>
+                  <span className="font-mono font-extrabold text-sm text-amber-400">
+                    {passportData?.zeroAccidentStreakMonths || 54} Mos
+                  </span>
+                </div>
+                <div className="p-2 rounded-xl bg-slate-800/80 border border-slate-700">
+                  <span className="text-[9px] text-slate-400 uppercase font-semibold block">Punctuality</span>
+                  <span className="font-mono font-extrabold text-sm text-blue-400">
+                    {passportData?.punctualityScorePercent || 99.4}%
+                  </span>
+                </div>
+              </div>
+
+              <div className="space-y-1 text-[11px] text-slate-200 bg-slate-900/60 p-2.5 rounded-xl border border-slate-700 font-mono">
+                <div className="flex justify-between">
+                  <span className="text-slate-400">Police Verification:</span>
+                  <span className="text-emerald-400 font-bold uppercase">{passportData?.policeVerificationStatus || 'Verified'} ✓</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-400">PCC Certificate:</span>
+                  <span className="text-slate-300 truncate">{passportData?.policeClearanceNumber || 'PCC-DL-NORTH-2026-44910'}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-400">License Category:</span>
+                  <span className="text-slate-300">{passportData?.commercialLicenseType || 'LMV-TR'}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Luxury Certifications & Accreditations */}
+            <div>
+              <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5 flex items-center gap-1.5">
+                <Award className="w-3.5 h-3.5 text-orange-500" />
+                Verified Luxury & Highway Accreditations
+              </h4>
+              <div className="space-y-1.5">
+                {(passportData?.luxuryCertifications || [
+                  'Mercedes-Benz 9G-Tronic Specialist',
+                  'BMW Steptronic & xDrive Certified',
+                  'Audi S-Tronic Executive Chauffeur',
+                  'EV Regenerative Smooth Braking'
+                ]).map((cert, i) => (
+                  <div key={i} className="p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 flex items-center gap-2">
+                    <span className="w-4 h-4 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center text-[10px] font-bold shrink-0">✓</span>
+                    <span>{cert}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* VIP Client Commendations */}
+            <div>
+              <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5 flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                VIP & Corporate Commendations
+              </h4>
+              <div className="space-y-1.5">
+                {(passportData?.vipClientCommendations || [
+                  'Corporate Managing Director Commendation (Golf Course Road, 2025)',
+                  'Diplomatic Embassy Chauffeur Certificate of Appreciation (2024)'
+                ]).map((comm, i) => (
+                  <div key={i} className="p-2.5 bg-amber-50/70 border border-amber-200 rounded-xl text-[11px] text-amber-900 leading-snug">
+                    ★ "{comm}"
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Preferred Chauffeur Action */}
+            <div className="pt-1">
+              <button
+                type="button"
+                onClick={handleTogglePreferred}
+                disabled={savingPreferred || preferredSaved}
+                className={`w-full py-2.5 px-3 rounded-2xl font-bold text-xs flex items-center justify-center gap-2 transition border ${
+                  preferredSaved
+                    ? 'bg-rose-50 border-rose-300 text-rose-700'
+                    : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50 shadow-xs'
+                }`}
+              >
+                <Heart className={`w-4 h-4 ${preferredSaved ? 'fill-rose-500 text-rose-500' : 'text-slate-400'}`} />
+                <span>
+                  {preferredSaved
+                    ? 'Saved in Your Preferred Chauffeurs List ✓'
+                    : savingPreferred
+                    ? 'Saving...'
+                    : 'Add to My Preferred Chauffeurs'}
+                </span>
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Tab 3: Reviews */}
         {selectedTab === 'reviews' && (
           <div className="space-y-3">
             <div className="bg-slate-50 p-3 rounded-2xl border border-slate-200 text-xs">

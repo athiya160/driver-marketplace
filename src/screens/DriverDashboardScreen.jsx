@@ -20,8 +20,10 @@ import {
   MessageSquare,
   X,
   Camera,
-  RefreshCw
+  RefreshCw,
+  FileCheck2
 } from 'lucide-react';
+import DigitalVehicleHandoverModal from '../components/DigitalVehicleHandoverModal.jsx';
 import {
   fetchDriverDashboard,
   toggleDriverOnline,
@@ -51,6 +53,7 @@ export default function DriverDashboardScreen({
   // Incoming Dispatch Request state
   const [incomingRequest, setIncomingRequest] = useState(null);
   const [countdown, setCountdown] = useState(45);
+  const [showHandoverModal, setShowHandoverModal] = useState(false);
 
   // KYC State
   const [kycDocs, setKycDocs] = useState([]);

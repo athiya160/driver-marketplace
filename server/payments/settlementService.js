@@ -9,6 +9,7 @@
 
 import { rupeesToPaise, paiseToRupees, formatINR } from './paymentValidation.js';
 import { persistentStorage } from '../db/persistentStorage.js';
+import { globalFoundingLaunchPolicy } from './foundingLaunchPolicy.js';
 
 export class SettlementService {
   constructor() {
@@ -40,8 +41,15 @@ export class SettlementService {
 
   /**
    * Computes exact mathematical split for a completed trip
+   * Supports both standard 85/15 commission model and Founding Launch 0% commission waiver
    */
-  calculateTripFinancialSplit(booking) {
+  calculateTripFinancialSplit(booking, options = {}) {
+    const isFounding = options.applyFoundingLaunch || booking?.isFoundingLaunch || false;
+
+    if (isFounding) {
+      return globalFoundingLaunchPolicy.calculateFoundingSplit(booking);
+    }
+
     const config = this.getPricingConfig();
     const convenienceFeeRs = paiseToRupees(config.platformConvenienceFeePaise);
     const totalFareRupees = Number(booking.totalFare) || 599;
@@ -66,6 +74,7 @@ export class SettlementService {
     const platformNetRevenuePaise = platformCommissionPaise + config.platformConvenienceFeePaise;
 
     return {
+      isFoundingLaunch: false,
       totalFarePaise,
       totalFareFormatted: formatINR(totalFarePaise),
       grossBasePaise,
@@ -81,6 +90,13 @@ export class SettlementService {
       commissionSplit: '85% Chauffeur / 15% Platform',
       allowancePolicy: '100% Night & Outstation Allowances pass through directly to Chauffeur'
     };
+  }
+
+  /**
+   * Explicit Founding Launch Split (0% Commission, ₹0 Convenience Fee, 100% Chauffeur Retained)
+   */
+  calculateFoundingSplit(booking) {
+    return globalFoundingLaunchPolicy.calculateFoundingSplit(booking);
   }
 
   /**

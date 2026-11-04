@@ -17,7 +17,11 @@ import {
   PLATFORM_PRICING_CONFIG,
   PROMO_COUPONS,
   FINANCIAL_TRANSACTIONS,
-  ADMIN_AUDIT_LOGS
+  ADMIN_AUDIT_LOGS,
+  DRIVER_PASSPORTS,
+  VEHICLE_HANDOVERS,
+  FAMILY_CIRCLES,
+  PREFERRED_CHAUFFEURS
 } from '../mockDb.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -36,7 +40,14 @@ export class PersistentDataStore {
     try {
       if (fs.existsSync(DATA_FILE_PATH)) {
         const raw = fs.readFileSync(DATA_FILE_PATH, 'utf-8');
-        return JSON.parse(raw);
+        const loaded = JSON.parse(raw);
+        let changed = false;
+        if (!loaded.driver_passports) { loaded.driver_passports = [...DRIVER_PASSPORTS]; changed = true; }
+        if (!loaded.vehicle_handovers) { loaded.vehicle_handovers = [...VEHICLE_HANDOVERS]; changed = true; }
+        if (!loaded.family_circles) { loaded.family_circles = [...FAMILY_CIRCLES]; changed = true; }
+        if (!loaded.preferred_chauffeurs) { loaded.preferred_chauffeurs = [...PREFERRED_CHAUFFEURS]; changed = true; }
+        if (changed) this.persist(loaded);
+        return loaded;
       }
     } catch (err) {
       console.warn('Could not read persistentData.json, seeding baseline store:', err.message);
@@ -53,7 +64,11 @@ export class PersistentDataStore {
       pricing_rules: { ...PLATFORM_PRICING_CONFIG },
       promo_coupons: [...PROMO_COUPONS],
       financial_transactions: [...FINANCIAL_TRANSACTIONS],
-      admin_audit_logs: [...ADMIN_AUDIT_LOGS]
+      admin_audit_logs: [...ADMIN_AUDIT_LOGS],
+      driver_passports: [...DRIVER_PASSPORTS],
+      vehicle_handovers: [...VEHICLE_HANDOVERS],
+      family_circles: [...FAMILY_CIRCLES],
+      preferred_chauffeurs: [...PREFERRED_CHAUFFEURS]
     };
 
     this.persist(baseline);

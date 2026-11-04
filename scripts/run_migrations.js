@@ -33,7 +33,8 @@ export async function runMigrations() {
   const migrationFiles = [
     '001_initial_schema.sql',
     '002_rls_policies.sql',
-    '003_payments_and_communications.sql'
+    '003_payments_and_communications.sql',
+    '004_premium_features.sql'
   ];
 
   const report = {
@@ -86,7 +87,11 @@ export async function runMigrations() {
     'payment_refunds',
     'driver_settlements',
     'otp_verifications',
-    'processed_webhook_events'
+    'processed_webhook_events',
+    'driver_passports',
+    'vehicle_handovers',
+    'family_circles',
+    'preferred_chauffeurs'
   ];
 
   console.log('\n--- Auditing Schema Tables & RLS Policies ---');
@@ -110,7 +115,11 @@ export async function runMigrations() {
     'driver_documents_private_owner_and_admin',
     'bookings_customer_and_assigned_driver_only',
     'admin_audit_logs_superadmin_only',
-    'payments_customer_and_admin_only'
+    'payments_customer_and_admin_only',
+    'driver_passports_public_read',
+    'vehicle_handovers_parties_access',
+    'family_circles_owner_access',
+    'preferred_chauffeurs_owner_access'
   ];
 
   for (const policy of expectedRlsPolicies) {

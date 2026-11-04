@@ -9,11 +9,15 @@ import {
   KeyRound,
   CheckCircle2,
   FileText,
-  Star
+  Star,
+  FileCheck2,
+  Users
 } from 'lucide-react';
 import { BRAND } from '../config/branding.js';
 import { updateBookingStatus } from '../api.js';
 import InteractiveMap from '../components/InteractiveMap.jsx';
+import DigitalVehicleHandoverModal from '../components/DigitalVehicleHandoverModal.jsx';
+import FamilyCircleModal from '../components/FamilyCircleModal.jsx';
 
 export default function LiveTripStatusScreen({
   booking,
@@ -25,6 +29,8 @@ export default function LiveTripStatusScreen({
 }) {
   const [elapsedSeconds, setElapsedSeconds] = useState(1450);
   const [showQrModal, setShowQrModal] = useState(false);
+  const [showHandoverModal, setShowHandoverModal] = useState(false);
+  const [showFamilyCircleModal, setShowFamilyCircleModal] = useState(false);
   const [updating, setUpdating] = useState(false);
 
   // Live timer tick when trip is in_progress
@@ -190,9 +196,9 @@ export default function LiveTripStatusScreen({
                 <Phone className="w-4 h-4" />
               </a>
               <button
-                onClick={() => alert(`📲 Sharing Trip with Family: "I am traveling in my car with verified ${BRAND.appName} driver ${booking.driverName}. Booking Ref: ${booking.bookingReference}. Emergency Support: ${BRAND.supportPhone}"`)}
-                className="p-2 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 flex items-center justify-center"
-                title="Share Trip details on WhatsApp"
+                onClick={() => setShowFamilyCircleModal(true)}
+                className="p-2 rounded-xl bg-purple-50 text-purple-700 hover:bg-purple-100 border border-purple-200 flex items-center justify-center transition"
+                title="Share Trip & Live Location with Family Circle"
               >
                 <Share2 className="w-4 h-4" />
               </button>
@@ -208,6 +214,20 @@ export default function LiveTripStatusScreen({
               <span className="text-slate-400">Destination:</span>
               <p className="text-slate-700 font-semibold truncate">{booking.dropAddress}</p>
             </div>
+          </div>
+
+          {/* Digital Vehicle Handover Inspection Button (Phase 9B) */}
+          <div className="pt-2 border-t border-slate-100">
+            <button
+              onClick={() => setShowHandoverModal(true)}
+              className="w-full py-2 px-3 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 text-xs font-bold flex items-center justify-between transition"
+            >
+              <div className="flex items-center gap-2">
+                <FileCheck2 className="w-4 h-4 text-orange-500" />
+                <span>Digital Vehicle Handover Checklist</span>
+              </div>
+              <span className="text-[10px] text-orange-600 uppercase font-semibold">Inspect & Sign →</span>
+            </button>
           </div>
         </div>
 
@@ -379,6 +399,21 @@ export default function LiveTripStatusScreen({
           </div>
         </div>
       )}
+
+      {/* Digital Vehicle Handover Inspection Modal (Phase 9B) */}
+      <DigitalVehicleHandoverModal
+        isOpen={showHandoverModal}
+        onClose={() => setShowHandoverModal(false)}
+        booking={booking}
+        handoverType={booking.status === 'completed' ? 'post_trip_return' : 'pre_trip_handover'}
+      />
+
+      {/* Family Circle Live Sharing & Safety Hub Modal (Phase 9B) */}
+      <FamilyCircleModal
+        isOpen={showFamilyCircleModal}
+        onClose={() => setShowFamilyCircleModal(false)}
+        booking={booking}
+      />
 
     </div>
   );

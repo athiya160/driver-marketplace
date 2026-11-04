@@ -115,6 +115,7 @@ export const TRANSMISSION_TYPES = [
 ];
 
 export const PAYMENT_METHODS = [
+  { id: 'direct_chauffeur_upi_cash', name: 'Direct to Chauffeur (UPI QR / Cash)', desc: '100% direct settlement upon completion • ₹0 platform cut • Founding Launch' },
   { id: 'upi', name: 'UPI (Instant Pay)', desc: 'Google Pay, PhonePe, Paytm, BHIM UPI' },
   { id: 'card', name: 'Credit / Debit Card', desc: 'Visa, MasterCard, RuPay' },
   { id: 'netbanking', name: 'Net Banking', desc: 'HDFC, SBI, ICICI, Axis, Kotak' },

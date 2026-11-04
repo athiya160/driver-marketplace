@@ -137,7 +137,8 @@ export function calculateFare({
   startTime = '10:00',
   couponCode = null,
   luxuryCar = false,
-  gstRatePercent = null
+  gstRatePercent = null,
+  applyFoundingLaunch = false
 }) {
   const config = SERVICE_CATEGORIES[serviceType] || SERVICE_CATEGORIES.hourly;
   const hours = Math.max(Number(durationHours) || config.minHours, config.minHours);
@@ -162,8 +163,8 @@ export function calculateFare({
   // 5. Outstation Driver Daily Allowance (Food & stay)
   const outstationDA = config.outstationDA || 0;
 
-  // 6. Platform fee
-  const platformFee = 49;
+  // 6. Platform fee: ₹0 during Founding Launch Pilot (waived from ₹49)
+  const platformFee = applyFoundingLaunch ? 0 : 49;
 
   // Subtotal before tax and discount
   const subTotal = baseFare + extraHoursCharge + luxurySurcharge + nightCharge + outstationDA + platformFee;
@@ -193,9 +194,11 @@ export function calculateFare({
   const totalFare = taxableAmount + gstTax;
 
   // Driver Earnings vs Platform Earnings
-  // Driver gets: Base + extra hours + night allowance + outstation DA minus 15% platform commission
+  // Standard: Driver gets Base + extra hours + night allowance + outstation DA minus 15% platform commission
+  // Founding Launch: 0% Platform Commission, Chauffeur keeps 100% of base and 100% of allowances
   const driverGross = baseFare + extraHoursCharge + luxurySurcharge;
-  const platformCommission = Math.round(driverGross * 0.15);
+  const platformCommissionPercent = applyFoundingLaunch ? 0 : 15;
+  const platformCommission = Math.round(driverGross * (platformCommissionPercent / 100));
   const driverEarnings = (driverGross - platformCommission) + nightCharge + outstationDA;
   const platformEarnings = platformCommission + platformFee;
 
@@ -221,6 +224,10 @@ export function calculateFare({
     totalFare,
     driverEarnings,
     platformEarnings,
-    currency: '₹'
+    currency: '₹',
+    isFoundingLaunch: Boolean(applyFoundingLaunch),
+    platformCommissionPercent,
+    waivedCommissionAmount: applyFoundingLaunch ? Math.round(driverGross * 0.15) : 0,
+    waivedConvenienceFee: applyFoundingLaunch ? 49 : 0
   };
 }

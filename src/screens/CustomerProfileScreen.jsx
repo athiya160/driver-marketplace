@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   User,
   Phone,
@@ -14,9 +14,17 @@ import {
   Plus,
   ChevronRight,
   Download,
-  AlertCircle
+  AlertCircle,
+  Users
 } from 'lucide-react';
-import { submitSupportTicket } from '../api.js';
+import {
+  submitSupportTicket,
+  fetchPreferredChauffeurs,
+  removePreferredChauffeur,
+  fetchFamilyCircle,
+  addFamilyMember,
+  removeFamilyMember
+} from '../api.js';
 import { BRAND } from '../config/branding.js';
 
 export default function CustomerProfileScreen({
@@ -27,11 +35,42 @@ export default function CustomerProfileScreen({
   onOpenReview,
   onRebookDriver
 }) {
-  const [activeTab, setActiveTab] = useState('bookings'); // 'bookings', 'addresses', 'favorites', 'support', 'privacy'
+  const [activeTab, setActiveTab] = useState('bookings'); // 'bookings', 'addresses', 'favorites', 'family', 'support', 'privacy'
+  const [preferredDrivers, setPreferredDrivers] = useState([]);
+  const [familyMembers, setFamilyMembers] = useState([]);
+  const [showAddFamily, setShowAddFamily] = useState(false);
+  const [famName, setFamName] = useState('');
+  const [famPhone, setFamPhone] = useState('');
+  const [famRel, setFamRel] = useState('Spouse');
   const [ticketSubject, setTicketSubject] = useState('');
   const [ticketCategory, setTicketCategory] = useState('billing');
   const [ticketMsg, setTicketMsg] = useState('');
   const [ticketSuccess, setTicketSuccess] = useState('');
+
+  const loadPreferred = () => {
+    fetchPreferredChauffeurs()
+      .then(res => {
+        if (res.success && res.preferredDrivers) {
+          setPreferredDrivers(res.preferredDrivers);
+        }
+      })
+      .catch(err => console.error(err));
+  };
+
+  const loadFamily = () => {
+    fetchFamilyCircle()
+      .then(res => {
+        if (res.success && res.familyMembers) {
+          setFamilyMembers(res.familyMembers);
+        }
+      })
+      .catch(err => console.error(err));
+  };
+
+  useEffect(() => {
+    loadPreferred();
+    loadFamily();
+  }, []);
 
   const [savedAddresses, setSavedAddresses] = useState(currentUser?.savedAddresses || [
     { id: 'addr_1', title: 'Home', address: 'Tower 4, DLF The Crest, Sector 54, Golf Course Road', city: 'Delhi NCR', pinCode: '122002' },
@@ -132,7 +171,16 @@ export default function CustomerProfileScreen({
               activeTab === 'favorites' ? 'bg-[#0F1E36] text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
             }`}
           >
-            Favorite Drivers
+            Preferred Chauffeurs ({preferredDrivers.length})
+          </button>
+          <button
+            onClick={() => setActiveTab('family')}
+            className={`px-3 py-1.5 rounded-xl whitespace-nowrap transition flex items-center gap-1 ${
+              activeTab === 'family' ? 'bg-[#0F1E36] text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+            }`}
+          >
+            <Users className="w-3.5 h-3.5" />
+            <span>Family Circle ({familyMembers.length})</span>
           </button>
           <button
             onClick={() => setActiveTab('support')}
@@ -289,32 +337,190 @@ export default function CustomerProfileScreen({
           </div>
         )}
 
-        {/* 3. Favorite Drivers Tab */}
+        {/* 3. Preferred Chauffeurs Tab (Phase 9B) */}
         {activeTab === 'favorites' && (
           <div className="space-y-3">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">
-              Your Preferred Chauffeurs
-            </h3>
-            <div className="bg-white border border-slate-200 rounded-2xl p-4 flex items-center justify-between gap-3 shadow-sm">
-              <div className="flex items-center gap-3">
-                <img
-                  src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=160&q=80"
-                  alt="Rajesh"
-                  className="w-12 h-12 rounded-2xl object-cover border border-slate-200"
-                />
-                <div>
-                  <h4 className="font-extrabold text-xs text-[#0F1E36]">Rajesh Kumar Sharma</h4>
-                  <p className="text-[11px] text-slate-500">★ 4.9 • 1,420 Trips • German Car Specialist</p>
-                  <span className="text-[10px] text-emerald-600 font-semibold">Available for Rehire</span>
-                </div>
-              </div>
-              <button
-                onClick={() => onRebookDriver('drv_delhi_1')}
-                className="px-3 py-1.5 rounded-xl bg-[#0F1E36] hover:bg-[#1A2F45] text-white font-bold text-xs shadow-sm"
-              >
-                Book Again
-              </button>
+            <div className="flex items-center justify-between">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                Your Preferred Chauffeurs ({preferredDrivers.length})
+              </h3>
             </div>
+
+            {preferredDrivers.length === 0 ? (
+              <div className="p-6 bg-white border border-slate-200 rounded-2xl text-center text-xs text-slate-500">
+                <Heart className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+                <p className="font-bold text-[#0F1E36]">No Preferred Chauffeurs Saved Yet</p>
+                <p className="text-[11px] mt-1">Open any driver's profile and tap "Add to Preferred" to save them for priority rebooking.</p>
+              </div>
+            ) : (
+              preferredDrivers.map(pref => {
+                const drv = pref.driver || {};
+                return (
+                  <div key={pref.id} className="bg-white border border-slate-200 rounded-2xl p-4 flex items-center justify-between gap-3 shadow-xs">
+                    <div className="flex items-center gap-3">
+                      <img
+                        src={drv.photoUrl || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=160&q=80"}
+                        alt={drv.fullName || 'Chauffeur'}
+                        className="w-12 h-12 rounded-2xl object-cover border border-slate-200"
+                      />
+                      <div>
+                        <div className="flex items-center gap-1.5">
+                          <h4 className="font-extrabold text-xs text-[#0F1E36]">{drv.fullName || 'Chauffeur'}</h4>
+                          <span className="text-[9px] px-1.5 py-0.2 rounded-full bg-rose-50 text-rose-700 font-bold">Preferred</span>
+                        </div>
+                        <p className="text-[11px] text-slate-500">★ {drv.rating || 4.9} • {drv.experienceYears || 5} yrs exp • {drv.primaryCity || 'Delhi NCR'}</p>
+                        {pref.notes && <p className="text-[10px] text-slate-400 italic">"{pref.notes}"</p>}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        onClick={() => onRebookDriver(pref.driverId)}
+                        className="px-3 py-1.5 rounded-xl bg-[#0F1E36] hover:bg-[#1A2F45] text-white font-bold text-xs shadow-xs"
+                      >
+                        Book
+                      </button>
+                      <button
+                        onClick={async () => {
+                          await removePreferredChauffeur(pref.driverId);
+                          loadPreferred();
+                        }}
+                        className="p-1.5 text-slate-400 hover:text-rose-600 transition"
+                        title="Remove from Preferred"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+        )}
+
+        {/* 4. Family Circle Tab (Phase 9B) */}
+        {activeTab === 'family' && (
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                  Family Circle & Emergency SOS ({familyMembers.length})
+                </h3>
+                <p className="text-[11px] text-slate-500">Family members get live route visibility and automatic safety notifications.</p>
+              </div>
+              {!showAddFamily && (
+                <button
+                  onClick={() => setShowAddFamily(true)}
+                  className="px-2.5 py-1 rounded-xl bg-[#0F1E36] text-white font-bold text-xs flex items-center gap-1 shadow-xs"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>Add</span>
+                </button>
+              )}
+            </div>
+
+            {showAddFamily && (
+              <form
+                onSubmit={async (e) => {
+                  e.preventDefault();
+                  if (!famName || !famPhone) return;
+                  await addFamilyMember({
+                    memberName: famName,
+                    phone: famPhone,
+                    relationship: famRel,
+                    isEmergencyContact: true
+                  });
+                  setFamName('');
+                  setFamPhone('');
+                  setShowAddFamily(false);
+                  loadFamily();
+                }}
+                className="p-3.5 bg-white border border-slate-200 rounded-2xl shadow-sm space-y-2.5 text-xs"
+              >
+                <div className="flex justify-between items-center font-bold text-[#0F1E36]">
+                  <span>Add Family Member</span>
+                  <button type="button" onClick={() => setShowAddFamily(false)} className="text-slate-400 text-xs">Cancel</button>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-[10px] text-slate-500 block mb-0.5">Name</label>
+                    <input
+                      type="text"
+                      value={famName}
+                      onChange={(e) => setFamName(e.target.value)}
+                      placeholder="e.g. Ananya Verma"
+                      required
+                      className="w-full p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[10px] text-slate-500 block mb-0.5">Phone (+91)</label>
+                    <input
+                      type="tel"
+                      value={famPhone}
+                      onChange={(e) => setFamPhone(e.target.value)}
+                      placeholder="+91 98765 11111"
+                      required
+                      className="w-full p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="text-[10px] text-slate-500 block mb-0.5">Relationship</label>
+                  <select
+                    value={famRel}
+                    onChange={(e) => setFamRel(e.target.value)}
+                    className="w-full p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs"
+                  >
+                    <option value="Spouse">Spouse</option>
+                    <option value="Parent">Parent</option>
+                    <option value="Child">Child</option>
+                    <option value="Sibling">Sibling</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+                <button
+                  type="submit"
+                  className="w-full py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl shadow-xs"
+                >
+                  Save to Family Circle
+                </button>
+              </form>
+            )}
+
+            {familyMembers.length === 0 ? (
+              <div className="p-6 bg-white border border-slate-200 rounded-2xl text-center text-xs text-slate-500">
+                <Users className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+                <p className="font-bold text-[#0F1E36]">Your Family Circle is Empty</p>
+                <p className="text-[11px] mt-1">Add trusted family members to share live trip tracking and enable instant emergency SOS alerts.</p>
+              </div>
+            ) : (
+              familyMembers.map(member => (
+                <div key={member.id} className="bg-white border border-slate-200 rounded-2xl p-3.5 flex items-center justify-between shadow-xs">
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-full bg-purple-100 text-purple-700 font-bold text-xs flex items-center justify-center">
+                      {member.memberName.slice(0, 2).toUpperCase()}
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-extrabold text-xs text-[#0F1E36]">{member.memberName}</span>
+                        <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-purple-50 text-purple-700 font-semibold">{member.relationship}</span>
+                      </div>
+                      <span className="text-[11px] font-mono text-slate-500">{member.phone}</span>
+                      {member.isEmergencyContact && <span className="text-[9px] text-rose-600 font-bold ml-2">● SOS Alert Active</span>}
+                    </div>
+                  </div>
+                  <button
+                    onClick={async () => {
+                      await removeFamilyMember(member.id);
+                      loadFamily();
+                    }}
+                    className="p-1.5 text-slate-400 hover:text-rose-600 transition"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              ))
+            )}
           </div>
         )}
 

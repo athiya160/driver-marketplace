@@ -22,7 +22,11 @@ import {
   Compass,
   Repeat,
   Plane,
-  Briefcase
+  Briefcase,
+  Heart,
+  Users,
+  Camera,
+  Bot
 } from 'lucide-react';
 import { INDIAN_CITIES, SERVICE_CATEGORIES, VEHICLE_TYPES, TRANSMISSION_TYPES } from '../constants.js';
 import { BRAND, THEME } from '../config/branding.js';
@@ -132,6 +136,43 @@ export default function CustomerHomeScreen({
 
       {/* Main Booking Controls Container */}
       <div className="p-4 space-y-4">
+
+        {/* Founding Launch Zero-Commission Showcase Banner */}
+        <div className="relative overflow-hidden rounded-3xl bg-[#0B1329] border border-[#D4AF37]/50 p-4 text-white shadow-lg">
+          <div className="absolute top-0 right-0 -mr-6 -mt-6 w-32 h-32 rounded-full bg-[#D4AF37]/15 blur-2xl pointer-events-none"></div>
+          
+          <div className="flex items-center justify-between gap-2 mb-2">
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#D4AF37]/20 border border-[#D4AF37]/50 text-[11px] font-extrabold text-[#D4AF37]">
+              <Sparkles className="w-3.5 h-3.5 text-[#D4AF37]" />
+              <span>FOUNDING LAUNCH • ₹0 PLATFORM COMMISSION</span>
+            </div>
+            <span className="text-[10px] font-bold text-slate-300 bg-white/10 px-2.5 py-0.5 rounded-full border border-white/10">
+              90 Days / 1,000 Trips
+            </span>
+          </div>
+
+          <h3 className="text-sm font-extrabold text-white tracking-wide">
+            Your Car. Your Journey. 100% Direct to Chauffeur.
+          </h3>
+          <p className="text-xs text-slate-300 mt-1 leading-relaxed">
+            During Salman's Founding Launch across India, we waive the ₹49 booking fee and 15% platform commission. You pay your verified chauffeur directly via UPI or cash. Zero middleman markup, transparent pricing, verified peace of mind.
+          </p>
+
+          <div className="grid grid-cols-3 gap-2 mt-3 pt-3 border-t border-white/10 text-center">
+            <div className="bg-white/5 rounded-2xl p-2 border border-white/5">
+              <div className="text-base font-mono font-extrabold text-[#D4AF37]">₹0</div>
+              <div className="text-[10px] text-slate-300 font-semibold">Booking Fee</div>
+            </div>
+            <div className="bg-white/5 rounded-2xl p-2 border border-white/5">
+              <div className="text-base font-mono font-extrabold text-[#10B981]">0%</div>
+              <div className="text-[10px] text-slate-300 font-semibold">Commission</div>
+            </div>
+            <div className="bg-white/5 rounded-2xl p-2 border border-white/5">
+              <div className="text-base font-mono font-extrabold text-white">100%</div>
+              <div className="text-[10px] text-slate-300 font-semibold">To Chauffeur</div>
+            </div>
+          </div>
+        </div>
         
         {/* Booking Card: Immediate vs Scheduled + Location Inputs */}
         <div className="bg-white border border-slate-200 rounded-3xl p-4 shadow-sm space-y-3">
@@ -328,11 +369,11 @@ export default function CustomerHomeScreen({
           {/* Search CTA */}
           <button
             onClick={onSearchDrivers}
-            className="w-full py-3.5 bg-[#0F1E36] hover:bg-[#1A2F45] text-white font-extrabold text-sm rounded-2xl shadow-md flex items-center justify-center gap-2 transition hover:scale-[1.01]"
+            className="w-full min-h-[48px] py-3.5 bg-[#0B1329] hover:bg-[#152347] text-white font-extrabold text-sm rounded-2xl shadow-md flex items-center justify-center gap-2 transition hover:scale-[1.01] active:scale-[0.99] border border-[#D4AF37]/30"
           >
-            <Search className="w-4 h-4 text-orange-400" />
+            <Search className="w-4 h-4 text-[#D4AF37]" />
             <span>Search Verified Drivers in {selectedCity}</span>
-            <ArrowRight className="w-4 h-4 text-orange-400" />
+            <ArrowRight className="w-4 h-4 text-[#D4AF37]" />
           </button>
         </div>
 
@@ -463,6 +504,98 @@ export default function CustomerHomeScreen({
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+
+        {/* Core Startup Differentiators Preview */}
+        <div className="bg-white border border-slate-200 rounded-3xl p-4 shadow-sm space-y-3">
+          <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+            <div>
+              <span className="text-[10px] uppercase font-extrabold tracking-wider text-[#D4AF37]">
+                Executive Chauffeur Hospitality
+              </span>
+              <h3 className="font-extrabold text-sm text-[#0B1329]">5 Core Platform Differentiators</h3>
+            </div>
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+              Active
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 gap-2.5">
+            <div className="flex items-start gap-3 p-2.5 rounded-2xl bg-[#FAF9F6] border border-slate-100">
+              <div className="w-8 h-8 rounded-xl bg-[#0B1329] text-[#D4AF37] flex items-center justify-center shrink-0">
+                <ShieldCheck className="w-4 h-4" />
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-xs font-extrabold text-[#0B1329]">1. Digital Driver Passport</h4>
+                  <span className="text-[9px] text-emerald-600 font-bold">100% Verified</span>
+                </div>
+                <p className="text-[11px] text-slate-500 mt-0.5">
+                  Complete transparency: Aadhaar biometric KYC, Commercial DL authenticity stamp & PCC police clearance.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3 p-2.5 rounded-2xl bg-[#FAF9F6] border border-slate-100">
+              <div className="w-8 h-8 rounded-xl bg-[#0B1329] text-[#D4AF37] flex items-center justify-center shrink-0">
+                <Heart className="w-4 h-4" />
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-xs font-extrabold text-[#D4AF37]">2. My Preferred Chauffeur</h4>
+                  <span className="text-[9px] text-[#D4AF37] font-bold">VIP Feature</span>
+                </div>
+                <p className="text-[11px] text-slate-500 mt-0.5">
+                  Loved a chauffeur's driving and punctuality? Save to your favorites to re-book with priority dispatch.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3 p-2.5 rounded-2xl bg-[#FAF9F6] border border-slate-100">
+              <div className="w-8 h-8 rounded-xl bg-[#0B1329] text-[#D4AF37] flex items-center justify-center shrink-0">
+                <Users className="w-4 h-4" />
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-xs font-extrabold text-[#0B1329]">3. Family Circle Telemetry</h4>
+                  <span className="text-[9px] text-indigo-600 font-bold">Live Sharing</span>
+                </div>
+                <p className="text-[11px] text-slate-500 mt-0.5">
+                  Share live GPS, chauffeur credentials and trip progress automatically with family members or spouses.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3 p-2.5 rounded-2xl bg-[#FAF9F6] border border-slate-100">
+              <div className="w-8 h-8 rounded-xl bg-[#0B1329] text-[#D4AF37] flex items-center justify-center shrink-0">
+                <Camera className="w-4 h-4" />
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-xs font-extrabold text-[#0B1329]">4. Smart Car Handover Inspection</h4>
+                  <span className="text-[9px] text-slate-600 font-bold">Pre & Post Photos</span>
+                </div>
+                <p className="text-[11px] text-slate-500 mt-0.5">
+                  Digital vehicle check before departure: timestamped odometer, fuel level, and scratch inspection.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3 p-2.5 rounded-2xl bg-[#FAF9F6] border border-slate-100">
+              <div className="w-8 h-8 rounded-xl bg-[#0B1329] text-[#D4AF37] flex items-center justify-center shrink-0">
+                <Bot className="w-4 h-4" />
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-xs font-extrabold text-[#0B1329]">5. Multilingual AI Concierge</h4>
+                  <span className="text-[9px] text-emerald-600 font-bold">Kannada • English • Hindi</span>
+                </div>
+                <p className="text-[11px] text-slate-500 mt-0.5">
+                  Instant conversational assistance for Bengaluru traffic estimates, toll rates, and booking guidance.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
 

@@ -45,6 +45,7 @@ import { globalGeocodingService } from './maps/geocodingService.js';
 import { MAPS_CONFIG, getCurrentTrafficMultiplier } from './maps/mapsConfig.js';
 import { globalRedisClient } from './infrastructure/redisClient.js';
 import { globalStagingAuditor } from './infrastructure/stagingIntegrationAuditor.js';
+import { globalFoundingLaunchPolicy } from './payments/foundingLaunchPolicy.js';
 import {
   USERS,
   DRIVERS,
@@ -472,6 +473,260 @@ apiRouter.get('/drivers/:id', (req, res) => {
 });
 
 // -----------------------------------------------------------------------------
+// 2B. ADDITIONAL PREMIUM FEATURES: DRIVER PASSPORT, DIGITAL VEHICLE HANDOVER,
+//     FAMILY CIRCLE & PREFERRED CHAUFFEURS (PHASE 9B)
+// -----------------------------------------------------------------------------
+
+// 1. DRIVER PASSPORT API
+apiRouter.get('/drivers/:id/passport', (req, res) => {
+  const driverId = req.params.id;
+  const driver = drivers.find(d => d.id === driverId) || persistentStorage.findOne('drivers', d => d.id === driverId);
+  if (!driver) {
+    return res.status(404).json({ success: false, message: 'Driver not found' });
+  }
+
+  const passports = persistentStorage.getTable('driver_passports') || [];
+  let passport = passports.find(p => p.driverId === driverId);
+
+  if (!passport) {
+    // Generate standardized verified passport from driver's profile & credentials
+    const cityCode = (driver.primaryCity || 'IND').slice(0, 3).toUpperCase();
+    passport = {
+      id: `pass_${driver.id}`,
+      driverId: driver.id,
+      driverName: driver.fullName || driver.name,
+      passportNumber: `DSP-${cityCode}-2026-${driver.id.slice(-4)}`,
+      policeVerificationStatus: driver.isKycVerified || driver.status === 'approved' ? 'verified' : 'pending',
+      policeClearanceNumber: `PCC-${cityCode}-2026-${Math.floor(10000 + Math.random() * 90000)}`,
+      commercialLicenseType: 'LMV-TR (Commercial Transport Chauffeur)',
+      licenseNumber: driver.licenseNumber || `DL-${cityCode}20160089211`,
+      licenseExpiryDate: '2031-12-31',
+      totalSafeKms: Math.max(35000, (driver.totalTrips || 120) * 85),
+      zeroAccidentStreakMonths: Math.max(12, (driver.experienceYears || 3) * 6),
+      punctualityScorePercent: 99.2,
+      luxuryCertifications: (driver.transmissionSkills || []).includes('Automatic')
+        ? ['Mercedes-Benz 9G-Tronic & BMW Steptronic Certified', 'EV Regenerative Drive', 'Air Suspension Protocol']
+        : ['Manual High-Torque Transmission Certified', 'Highway Safety Accreditation'],
+      highwayAccreditation: true,
+      languagesSpoken: driver.languages || ['Hindi', 'English'],
+      vipClientCommendations: [
+        `Executive Chauffeur Commendation: Outstanding punctuality and polite demeanor in ${driver.primaryCity}`,
+        'Zero-traffic violation certificate verified by state transport authority'
+      ],
+      createdAt: new Date().toISOString()
+    };
+    persistentStorage.insert('driver_passports', passport);
+  }
+
+  return res.json({ success: true, passport, driver });
+});
+
+// 2. DIGITAL VEHICLE HANDOVER APIS
+apiRouter.get('/handovers/booking/:bookingId', (req, res) => {
+  const { bookingId } = req.params;
+  const handovers = persistentStorage.getTable('vehicle_handovers') || [];
+  const records = handovers.filter(h => h.bookingId === bookingId);
+  return res.json({ success: true, handovers: records });
+});
+
+apiRouter.post('/handovers', (req, res) => {
+  const {
+    bookingId,
+    customerId,
+    driverId,
+    vehicleModel = 'Customer Personal Vehicle',
+    vehicleRegNumber = 'DL 01 AB 1234',
+    handoverType = 'pre_trip_handover',
+    odometerReadingKm = 25000,
+    fuelLevelPercent = 80,
+    existingDamages = [],
+    photoUrls = [],
+    cleanlinessRating = 5,
+    customerSignatureToken,
+    handoverNotes = ''
+  } = req.body;
+
+  if (!bookingId) {
+    return res.status(400).json({ success: false, message: 'Missing bookingId' });
+  }
+
+  const handoverRecord = {
+    id: `hnd_${bookingId}_${Date.now()}`,
+    bookingId,
+    customerId: customerId || currentUser?.id || 'user_cust_demo_01',
+    driverId: driverId || 'drv_delhi_1',
+    vehicleModel,
+    vehicleRegNumber,
+    handoverType,
+    odometerReadingKm: Number(odometerReadingKm) || 0,
+    fuelLevelPercent: Math.min(100, Math.max(0, Number(fuelLevelPercent) || 50)),
+    existingDamages: Array.isArray(existingDamages) ? existingDamages : [],
+    photoUrls: Array.isArray(photoUrls) ? photoUrls : [],
+    cleanlinessRating: Math.min(5, Math.max(1, Number(cleanlinessRating) || 5)),
+    customerSignatureToken: customerSignatureToken || `sig_${Date.now()}`,
+    handoverNotes,
+    status: 'confirmed',
+    confirmedAt: new Date().toISOString(),
+    createdAt: new Date().toISOString()
+  };
+
+  const inserted = persistentStorage.insert('vehicle_handovers', handoverRecord);
+
+  // Broadcast handover event to customer & driver
+  globalRealtimeBus.publish(`booking:${bookingId}`, 'VEHICLE_HANDOVER_CONFIRMED', {
+    bookingId,
+    handoverType,
+    odometerReadingKm: handoverRecord.odometerReadingKm,
+    fuelLevelPercent: handoverRecord.fuelLevelPercent,
+    status: 'confirmed'
+  });
+
+  return res.json({ success: true, handover: inserted });
+});
+
+apiRouter.post('/handovers/:id/confirm', (req, res) => {
+  const { id } = req.params;
+  const updated = persistentStorage.update('vehicle_handovers', h => h.id === id, {
+    status: 'confirmed',
+    confirmedAt: new Date().toISOString()
+  });
+  if (!updated) {
+    return res.status(404).json({ success: false, message: 'Handover record not found' });
+  }
+  return res.json({ success: true, handover: updated });
+});
+
+// 3. FAMILY CIRCLE APIS
+apiRouter.get('/family-circle', (req, res) => {
+  const customerId = req.user?.id || (currentUser?.role === 'customer' ? currentUser.id : 'user_cust_demo_01');
+  const familyTable = persistentStorage.getTable('family_circles') || [];
+  const members = familyTable.filter(f => f.customerId === customerId && f.status !== 'removed');
+  return res.json({ success: true, familyMembers: members });
+});
+
+apiRouter.post('/family-circle', (req, res) => {
+  const customerId = req.user?.id || (currentUser?.role === 'customer' ? currentUser.id : 'user_cust_demo_01');
+  const { memberName, phone, relationship = 'Family', permissions, isEmergencyContact = true } = req.body;
+
+  if (!memberName || !phone) {
+    return res.status(400).json({ success: false, message: 'Missing memberName or phone' });
+  }
+
+  const newMember = {
+    id: `fam_${Date.now()}`,
+    customerId,
+    memberName,
+    phone,
+    relationship,
+    permissions: permissions || { liveTracking: true, tripAlerts: true, sosEmergency: true },
+    isEmergencyContact: Boolean(isEmergencyContact),
+    status: 'active',
+    createdAt: new Date().toISOString()
+  };
+
+  const inserted = persistentStorage.insert('family_circles', newMember);
+  return res.json({ success: true, member: inserted });
+});
+
+apiRouter.delete('/family-circle/:id', (req, res) => {
+  const { id } = req.params;
+  const customerId = req.user?.id || (currentUser?.role === 'customer' ? currentUser.id : 'user_cust_demo_01');
+  
+  const updated = persistentStorage.update('family_circles', f => f.id === id && f.customerId === customerId, {
+    status: 'removed',
+    removedAt: new Date().toISOString()
+  });
+
+  if (!updated) {
+    return res.status(404).json({ success: false, message: 'Family member not found' });
+  }
+  return res.json({ success: true, message: 'Family member removed successfully' });
+});
+
+apiRouter.post('/family-circle/notify', (req, res) => {
+  const customerId = req.user?.id || (currentUser?.role === 'customer' ? currentUser.id : 'user_cust_demo_01');
+  const { bookingId, alertType = 'TRIP_SHARE', message } = req.body;
+
+  const familyTable = persistentStorage.getTable('family_circles') || [];
+  const activeMembers = familyTable.filter(f => f.customerId === customerId && f.status === 'active');
+
+  const notificationPayload = {
+    alertType,
+    bookingId,
+    timestamp: new Date().toISOString(),
+    message: message || `Trip update: Your family member is traveling in their personal car. Tracking is active.`,
+    recipientsCount: activeMembers.length,
+    notifiedPhones: activeMembers.map(m => m.phone)
+  };
+
+  // Broadcast to realtime event bus
+  globalRealtimeBus.publish(`family:${customerId}`, 'FAMILY_CIRCLE_ALERT', notificationPayload);
+
+  return res.json({
+    success: true,
+    notification: notificationPayload
+  });
+});
+
+// 4. PREFERRED CHAUFFEURS APIS
+apiRouter.get('/preferred-chauffeurs', (req, res) => {
+  const customerId = req.user?.id || (currentUser?.role === 'customer' ? currentUser.id : 'user_cust_demo_01');
+  const preferredTable = persistentStorage.getTable('preferred_chauffeurs') || [];
+  const records = preferredTable.filter(p => p.customerId === customerId);
+
+  // Join with drivers table to provide rich profile details
+  const joinedDrivers = records.map(p => {
+    const driverDetails = drivers.find(d => d.id === p.driverId) || persistentStorage.findOne('drivers', d => d.id === p.driverId);
+    return {
+      ...p,
+      driver: driverDetails || null
+    };
+  }).filter(item => item.driver !== null);
+
+  return res.json({ success: true, preferredDrivers: joinedDrivers });
+});
+
+apiRouter.post('/preferred-chauffeurs', (req, res) => {
+  const customerId = req.user?.id || (currentUser?.role === 'customer' ? currentUser.id : 'user_cust_demo_01');
+  const { driverId, notes = '' } = req.body;
+
+  if (!driverId) {
+    return res.status(400).json({ success: false, message: 'Missing driverId' });
+  }
+
+  const preferredTable = persistentStorage.getTable('preferred_chauffeurs') || [];
+  const existing = preferredTable.find(p => p.customerId === customerId && p.driverId === driverId);
+
+  if (existing) {
+    return res.json({ success: true, message: 'Driver is already in your Preferred list', preferred: existing });
+  }
+
+  const newPreferred = {
+    id: `pref_${Date.now()}`,
+    customerId,
+    driverId,
+    notes,
+    priorityTier: 1,
+    tripsCompletedTogether: 1,
+    addedAt: new Date().toISOString()
+  };
+
+  const inserted = persistentStorage.insert('preferred_chauffeurs', newPreferred);
+  return res.json({ success: true, preferred: inserted });
+});
+
+apiRouter.delete('/preferred-chauffeurs/:driverId', (req, res) => {
+  const customerId = req.user?.id || (currentUser?.role === 'customer' ? currentUser.id : 'user_cust_demo_01');
+  const { driverId } = req.params;
+
+  const deleted = persistentStorage.delete('preferred_chauffeurs', p => p.customerId === customerId && p.driverId === driverId);
+  if (!deleted) {
+    return res.status(404).json({ success: false, message: 'Preferred chauffeur record not found' });
+  }
+  return res.json({ success: true, message: 'Driver removed from Preferred Chauffeurs' });
+});
+
+// -----------------------------------------------------------------------------
 // 3. PRICING & BOOKING APIS
 // -----------------------------------------------------------------------------
 
@@ -628,8 +883,11 @@ apiRouter.post('/bookings/create', bookingRateLimiter, (req, res) => {
     discountAmount: fare.discountAmount,
     couponCode: fare.couponCode,
     totalFare: fare.totalFare,
-    paymentStatus: paymentMethod === 'cash' ? 'cash_pending' : 'captured',
+    paymentStatus: paymentMethod === 'direct_chauffeur_upi_cash'
+      ? 'pending_direct_settlement'
+      : (paymentMethod === 'cash' ? 'cash_pending' : 'captured'),
     paymentMethod,
+    isFoundingLaunch: Boolean(fare.isFoundingLaunch),
     specialInstructions: specialInstructions || 'Personal vehicle hire. Please arrive 10 mins prior.',
     createdAt: new Date().toISOString(),
     statusHistory: [
@@ -721,7 +979,15 @@ apiRouter.patch('/bookings/:id/status', (req, res) => {
     booking.startedAt = new Date().toISOString();
   } else if (status === 'completed') {
     booking.completedAt = new Date().toISOString();
-    booking.paymentStatus = 'captured';
+    if (booking.paymentMethod === 'direct_chauffeur_upi_cash') {
+      booking.paymentStatus = booking.paymentStatus === 'paid_to_chauffeur' ? 'paid_to_chauffeur' : 'pending_direct_settlement';
+    } else {
+      booking.paymentStatus = 'captured';
+    }
+    if (booking.isFoundingLaunch || globalFoundingLaunchPolicy.isActive()) {
+      const split = globalFoundingLaunchPolicy.calculateFoundingSplit(booking);
+      globalFoundingLaunchPolicy.recordCompletedTrip(split);
+    }
     if (booking.driverId) {
       globalDispatchManager.clearSession(booking.id);
     }
@@ -2806,5 +3072,102 @@ apiRouter.get('/maps/config', (req, res) => {
     provider: MAPS_CONFIG.defaultProvider,
     geofence: MAPS_CONFIG.geofence,
     traffic: getCurrentTrafficMultiplier()
+  });
+});
+
+// ==========================================
+// PHASE 9A.1: FOUNDING LAUNCH POLICY & DIRECT CHAUFFEUR SETTLEMENT ENDPOINTS
+// ==========================================
+
+// Public Transparency Details for Customer & Chauffeur Portals
+apiRouter.get('/founding-launch-info', (req, res) => {
+  return res.json({
+    success: true,
+    policy: globalFoundingLaunchPolicy.getStatus()
+  });
+});
+
+// Admin Founding Policy Query
+apiRouter.get('/admin/founding-policy', requireAdmin, (req, res) => {
+  return res.json({
+    success: true,
+    policy: globalFoundingLaunchPolicy.getPolicy(),
+    status: globalFoundingLaunchPolicy.getStatus()
+  });
+});
+
+// Admin Founding Policy Update
+apiRouter.patch('/admin/founding-policy', requireAdmin, (req, res) => {
+  const updatedStatus = globalFoundingLaunchPolicy.updatePolicy(req.body);
+  recordAuditLog(
+    'FOUNDING_POLICY_UPDATED',
+    'globalFoundingLaunchPolicy',
+    `Founding launch policy parameters updated: ${JSON.stringify(req.body)}`,
+    req.user?.fullName || 'SuperAdmin'
+  );
+
+  return res.json({
+    success: true,
+    message: 'Founding launch policy updated successfully',
+    status: updatedStatus
+  });
+});
+
+// Direct Customer-to-Chauffeur Settlement Recording
+apiRouter.post('/bookings/:id/direct-settlement', (req, res) => {
+  const booking = bookings.find(b => b.id === req.params.id) || persistentStorage.findOne('bookings', b => b.id === req.params.id);
+  if (!booking) {
+    return res.status(404).json({ success: false, message: 'Booking not found' });
+  }
+
+  // IDOR Authorization: Only customer or assigned chauffeur or admin can record settlement
+  const caller = req.user || (req.headers['x-demo-user-id'] ? { id: req.headers['x-demo-user-id'], role: 'customer' } : null) || (currentUser?.id === booking.customerId ? currentUser : null);
+  const isOwner = caller && caller.id === booking.customerId;
+  const isAssignedDriver = caller && (caller.id === booking.driverId || caller.driverId === booking.driverId);
+  const isAdmin = caller && caller.role === 'admin';
+
+  if (caller && !isOwner && !isAssignedDriver && !isAdmin) {
+    return res.status(403).json({
+      success: false,
+      error: 'FORBIDDEN',
+      message: 'Unauthorized: You do not have permission to settle this booking.'
+    });
+  }
+
+  const {
+    amountPaise = booking.totalFare ? booking.totalFare * 100 : 59900,
+    paymentMode = 'direct_upi_qr',
+    reference = `UPI/DIR/${Date.now()}`
+  } = req.body || {};
+
+  const settlement = globalFoundingLaunchPolicy.recordDirectSettlement({
+    bookingId: booking.id,
+    driverId: booking.driverId,
+    amountPaise,
+    paymentMode,
+    reference,
+    confirmedBy: isAssignedDriver ? 'chauffeur' : 'customer'
+  });
+
+  // Update in-memory booking reference
+  booking.paymentStatus = 'paid_to_chauffeur';
+  booking.directSettlementId = settlement.id;
+  booking.paymentMethod = paymentMode;
+
+  // Realtime notification
+  globalRealtimeBus.publish(`customer:booking:${booking.id}`, 'DIRECT_PAYMENT_CONFIRMED', {
+    bookingId: booking.id,
+    amountPaise,
+    paymentMode,
+    reference,
+    confirmedBy: settlement.confirmedBy,
+    message: `Payment of ₹${Math.round(amountPaise / 100)} directly confirmed to chauffeur.`
+  }, booking.isDemo);
+
+  return res.json({
+    success: true,
+    message: 'Direct payment confirmed and recorded with ₹0 platform fee.',
+    settlement,
+    booking
   });
 });

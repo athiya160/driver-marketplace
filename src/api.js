@@ -506,3 +506,118 @@ export async function fetchDemoAnalytics() {
   return res.json();
 }
 
+// -----------------------------------------------------------------------------
+// PHASE 9B: ADDITIONAL PREMIUM FEATURES CLIENT APIS
+// -----------------------------------------------------------------------------
+
+export async function fetchDriverPassport(driverId) {
+  const res = await fetch(`${BASE_URL}/drivers/${driverId}/passport`);
+  return res.json();
+}
+
+export async function fetchVehicleHandovers(bookingId) {
+  const res = await fetch(`${BASE_URL}/handovers/booking/${bookingId}`);
+  return res.json();
+}
+
+export async function recordVehicleHandover(handoverData) {
+  const res = await fetch(`${BASE_URL}/handovers`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(handoverData)
+  });
+  return res.json();
+}
+
+export async function confirmVehicleHandover(handoverId) {
+  const res = await fetch(`${BASE_URL}/handovers/${handoverId}/confirm`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' }
+  });
+  return res.json();
+}
+
+export async function fetchFamilyCircle() {
+  const res = await fetch(`${BASE_URL}/family-circle`);
+  return res.json();
+}
+
+export async function addFamilyMember(memberData) {
+  const res = await fetch(`${BASE_URL}/family-circle`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(memberData)
+  });
+  return res.json();
+}
+
+export async function removeFamilyMember(memberId) {
+  const res = await fetch(`${BASE_URL}/family-circle/${memberId}`, {
+    method: 'DELETE'
+  });
+  return res.json();
+}
+
+export async function notifyFamilyCircle(payload) {
+  const res = await fetch(`${BASE_URL}/family-circle/notify`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+  return res.json();
+}
+
+export async function fetchPreferredChauffeurs() {
+  const res = await fetch(`${BASE_URL}/preferred-chauffeurs`);
+  return res.json();
+}
+
+export async function addPreferredChauffeur(driverId, notes = '') {
+  const res = await fetch(`${BASE_URL}/preferred-chauffeurs`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ driverId, notes })
+  });
+  return res.json();
+}
+
+export async function removePreferredChauffeur(driverId) {
+  const res = await fetch(`${BASE_URL}/preferred-chauffeurs/${driverId}`, {
+    method: 'DELETE'
+  });
+  return res.json();
+}
+
+export async function fetchFoundingLaunchInfo() {
+  const res = await fetch(`${BASE_URL}/founding-launch-info`);
+  return res.json();
+}
+
+export async function fetchAdminFoundingPolicy(adminToken = null) {
+  const headers = {};
+  if (adminToken) headers['Authorization'] = `Bearer ${adminToken}`;
+  const res = await fetch(`${BASE_URL}/admin/founding-policy`, { headers });
+  return res.json();
+}
+
+export async function updateAdminFoundingPolicy(updates, adminToken = null) {
+  const headers = { 'Content-Type': 'application/json' };
+  if (adminToken) headers['Authorization'] = `Bearer ${adminToken}`;
+  const res = await fetch(`${BASE_URL}/admin/founding-policy`, {
+    method: 'PATCH',
+    headers,
+    body: JSON.stringify(updates)
+  });
+  return res.json();
+}
+
+export async function recordDirectSettlement(bookingId, settlementData = {}) {
+  const res = await fetch(`${BASE_URL}/bookings/${bookingId}/direct-settlement`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(settlementData)
+  });
+  return res.json();
+}
+
+

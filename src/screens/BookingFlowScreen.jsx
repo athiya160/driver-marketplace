@@ -25,7 +25,7 @@ export default function BookingFlowScreen({
   const [fare, setFare] = useState(null);
   const [loadingFare, setLoadingFare] = useState(true);
   const [couponInput, setCouponInput] = useState(bookingForm.couponCode || '');
-  const [selectedPayment, setSelectedPayment] = useState('upi');
+  const [selectedPayment, setSelectedPayment] = useState('direct_chauffeur_upi_cash');
   const [specialNote, setSpecialNote] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [conflictError, setConflictError] = useState(null);
@@ -61,8 +61,8 @@ export default function BookingFlowScreen({
 
   const handleProceedToPayment = () => {
     setConflictError(null);
-    if (selectedPayment === 'cash') {
-      executeFinalBooking('cash');
+    if (selectedPayment === 'cash' || selectedPayment === 'direct_chauffeur_upi_cash') {
+      executeFinalBooking(selectedPayment);
     } else {
       setRazorpayModal(true);
     }
@@ -268,7 +268,11 @@ export default function BookingFlowScreen({
 
               <div className="flex justify-between">
                 <span className="text-slate-600">Platform Convenience Fee</span>
-                <span className="font-mono text-[#0F1E36] font-semibold">₹{fare.platformFee}</span>
+                {fare.platformFee === 0 ? (
+                  <span className="font-mono text-emerald-600 font-bold">₹0 (Founding Launch Waiver)</span>
+                ) : (
+                  <span className="font-mono text-[#0F1E36] font-semibold">₹{fare.platformFee}</span>
+                )}
               </div>
 
               {fare.discountAmount > 0 && (
@@ -335,15 +339,21 @@ export default function BookingFlowScreen({
           />
         </div>
 
-        {/* Big Action Button */}
+        {/* Primary Booking / Payment CTA */}
         <button
           onClick={handleProceedToPayment}
           disabled={submitting || loadingFare}
-          className="w-full py-4 bg-[#F97316] hover:bg-[#EA580C] text-white font-extrabold text-sm rounded-2xl shadow-lg shadow-orange-500/25 flex items-center justify-center gap-2 transition disabled:opacity-50"
+          className="w-full min-h-[48px] py-4 bg-[#0B1329] hover:bg-[#152347] text-white font-extrabold text-sm rounded-2xl shadow-lg border border-[#D4AF37]/40 flex items-center justify-center gap-2 transition disabled:opacity-50 active:scale-[0.99]"
         >
-          <Sparkles className="w-4 h-4" />
+          <Sparkles className="w-4 h-4 text-[#D4AF37]" />
           <span>
-            {submitting ? 'Confirming with Chauffeur...' : `Pay ₹${fare?.totalFare || 0} & Book Driver`}
+            {submitting ? 'Confirming with Chauffeur...' : (
+              selectedPayment === 'direct_chauffeur_upi_cash'
+                ? `Confirm Booking • Pay ₹${fare?.totalFare || 0} Directly to Chauffeur`
+                : (selectedPayment === 'cash'
+                    ? `Book Driver • Pay ₹${fare?.totalFare || 0} Cash`
+                    : `Pay ₹${fare?.totalFare || 0} & Book Driver`)
+            )}
           </span>
         </button>
 
