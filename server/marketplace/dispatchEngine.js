@@ -15,6 +15,7 @@
 import { checkDriverBookingConflict } from '../conflictEngine.js';
 import { persistentStorage } from '../db/persistentStorage.js';
 import { globalRealtimeBus } from './realtimeEventBus.js';
+import { globalRedisClient } from '../infrastructure/redisClient.js';
 
 // Earth radius in kilometers
 const EARTH_RADIUS_KM = 6371;
@@ -168,6 +169,11 @@ export class DispatchSessionManager {
         sessions.push({ ...session, createdAt: new Date().toISOString() });
       }
       persistentStorage.persist();
+
+      // Mirror to distributed Redis state store
+      if (session && session.bookingId) {
+        globalRedisClient.saveDispatchSession(session.bookingId, session).catch(() => {});
+      }
     } catch (err) {
       console.error('Failed to persist dispatch session:', err.message);
     }

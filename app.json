@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Salman Driver",
-    "slug": "salman-driver",
+    "name": "Personal Driver Marketplace",
+    "slug": "personal-driver-marketplace",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -16,15 +16,15 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.salmandriver.app",
+      "bundleIdentifier": "in.personaldriver.app",
       "infoPlist": {
-        "NSLocationWhenInUseUsageDescription": "Salman Driver requires your location to find nearby verified drivers for your vehicle.",
-        "NSLocationAlwaysUsageDescription": "Salman Driver needs background location during active trips to track driver arrival and route.",
-        "NSCameraUsageDescription": "Salman Driver uses camera access to scan booking QR codes and upload driver documents."
+        "NSLocationWhenInUseUsageDescription": "Personal Driver Marketplace requires your location to find nearby verified drivers for your vehicle.",
+        "NSLocationAlwaysUsageDescription": "Personal Driver Marketplace needs background location during active trips to track driver arrival and route.",
+        "NSCameraUsageDescription": "Personal Driver Marketplace uses camera access to scan booking QR codes and upload driver documents."
       }
     },
     "android": {
-      "package": "com.salmandriver.app",
+      "package": "in.personaldriver.app",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#0F1E36"
@@ -32,6 +32,8 @@
       "permissions": [
         "ACCESS_COARSE_LOCATION",
         "ACCESS_FINE_LOCATION",
+        "ACCESS_BACKGROUND_LOCATION",
+        "FOREGROUND_SERVICE",
         "CAMERA",
         "READ_EXTERNAL_STORAGE",
         "WRITE_EXTERNAL_STORAGE"
@@ -43,7 +45,7 @@
     },
     "extra": {
       "eas": {
-        "projectId": "salman-driver-india-prod"
+        "projectId": "personal-driver-marketplace-india"
       },
       "apiUrl": "http://localhost:5000/api",
       "currency": "INR",

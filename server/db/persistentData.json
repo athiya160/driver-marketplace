@@ -443,6 +443,168 @@
   ],
   "bookings": [
     {
+      "id": "bk_status_test_1793773970866",
+      "customerId": "cust_status_test",
+      "driverId": "drv_assigned_01",
+      "status": "in_progress",
+      "totalFare": 599,
+      "createdAt": "2026-11-04T06:32:50.866Z"
+    },
+    {
+      "id": "bk_concurr_1793773970851",
+      "bookingReference": "SRT-CONC-ACCEPT",
+      "status": "accepted",
+      "startDate": "2026-11-10",
+      "startTime": "10:00",
+      "durationHours": 4,
+      "totalFare": 899,
+      "createdAt": "2026-11-04T06:32:50.851Z",
+      "driverId": "drv_delhi_1",
+      "driverName": "Rajesh Kumar Sharma",
+      "driverPhone": "+91 98111 22334",
+      "driverPhoto": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80",
+      "statusHistory": [
+        {
+          "status": "accepted",
+          "time": "2026-11-04T06:32:50.855Z",
+          "note": "Chauffeur Rajesh Kumar Sharma accepted booking request."
+        }
+      ]
+    },
+    {
+      "id": "bk_wh_1793773970809",
+      "totalFare": 699,
+      "paymentStatus": "captured",
+      "createdAt": "2026-11-04T06:32:50.809Z",
+      "capturedAt": "2026-11-04T06:32:50.816Z"
+    },
+    {
+      "id": "bk_idor_1793773970762",
+      "bookingReference": "SRT-IDOR-TEST",
+      "customerId": "cust_alpha_001",
+      "driverId": "drv_delhi_01",
+      "status": "accepted",
+      "totalFare": 799,
+      "createdAt": "2026-11-04T06:32:50.762Z"
+    },
+    {
+      "id": "bk_st1_1793773968977",
+      "driverId": "drv_settle_test",
+      "totalFare": 1000,
+      "baseFare": 1000,
+      "status": "completed",
+      "paymentStatus": "captured",
+      "createdAt": "2026-11-04T06:32:48.977Z"
+    },
+    {
+      "id": "bk_status_test_1793773219015",
+      "customerId": "cust_status_test",
+      "driverId": "drv_assigned_01",
+      "status": "in_progress",
+      "totalFare": 599,
+      "createdAt": "2026-11-04T06:20:19.015Z"
+    },
+    {
+      "id": "bk_concurr_1793773219005",
+      "bookingReference": "SRT-CONC-ACCEPT",
+      "status": "accepted",
+      "startDate": "2026-11-10",
+      "startTime": "10:00",
+      "durationHours": 4,
+      "totalFare": 899,
+      "createdAt": "2026-11-04T06:20:19.005Z",
+      "driverId": "drv_delhi_1",
+      "driverName": "Rajesh Kumar Sharma",
+      "driverPhone": "+91 98111 22334",
+      "driverPhoto": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80",
+      "statusHistory": [
+        {
+          "status": "accepted",
+          "time": "2026-11-04T06:20:19.010Z",
+          "note": "Chauffeur Rajesh Kumar Sharma accepted booking request."
+        }
+      ]
+    },
+    {
+      "id": "bk_wh_1793773218967",
+      "totalFare": 699,
+      "paymentStatus": "captured",
+      "createdAt": "2026-11-04T06:20:18.967Z",
+      "capturedAt": "2026-11-04T06:20:18.972Z"
+    },
+    {
+      "id": "bk_idor_1793773218933",
+      "bookingReference": "SRT-IDOR-TEST",
+      "customerId": "cust_alpha_001",
+      "driverId": "drv_delhi_01",
+      "status": "accepted",
+      "totalFare": 799,
+      "createdAt": "2026-11-04T06:20:18.933Z"
+    },
+    {
+      "id": "bk_st1_1793773217699",
+      "driverId": "drv_settle_test",
+      "totalFare": 1000,
+      "baseFare": 1000,
+      "status": "completed",
+      "paymentStatus": "captured",
+      "createdAt": "2026-11-04T06:20:17.699Z"
+    },
+    {
+      "id": "bk_status_test_1793772905842",
+      "customerId": "cust_status_test",
+      "driverId": "drv_assigned_01",
+      "status": "in_progress",
+      "totalFare": 599,
+      "createdAt": "2026-11-04T06:15:05.842Z"
+    },
+    {
+      "id": "bk_concurr_1793772905832",
+      "bookingReference": "SRT-CONC-ACCEPT",
+      "status": "accepted",
+      "startDate": "2026-11-10",
+      "startTime": "10:00",
+      "durationHours": 4,
+      "totalFare": 899,
+      "createdAt": "2026-11-04T06:15:05.832Z",
+      "driverId": "drv_delhi_1",
+      "driverName": "Rajesh Kumar Sharma",
+      "driverPhone": "+91 98111 22334",
+      "driverPhoto": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80",
+      "statusHistory": [
+        {
+          "status": "accepted",
+          "time": "2026-11-04T06:15:05.837Z",
+          "note": "Chauffeur Rajesh Kumar Sharma accepted booking request."
+        }
+      ]
+    },
+    {
+      "id": "bk_wh_1793772905789",
+      "totalFare": 699,
+      "paymentStatus": "captured",
+      "createdAt": "2026-11-04T06:15:05.789Z",
+      "capturedAt": "2026-11-04T06:15:05.794Z"
+    },
+    {
+      "id": "bk_idor_1793772905749",
+      "bookingReference": "SRT-IDOR-TEST",
+      "customerId": "cust_alpha_001",
+      "driverId": "drv_delhi_01",
+      "status": "accepted",
+      "totalFare": 799,
+      "createdAt": "2026-11-04T06:15:05.749Z"
+    },
+    {
+      "id": "bk_st1_1793772904394",
+      "driverId": "drv_settle_test",
+      "totalFare": 1000,
+      "baseFare": 1000,
+      "status": "completed",
+      "paymentStatus": "captured",
+      "createdAt": "2026-11-04T06:15:04.394Z"
+    },
+    {
       "id": "bk_st1_1793719965139",
       "driverId": "drv_settle_test",
       "totalFare": 1000,
@@ -801,6 +963,78 @@
   ],
   "admin_audit_logs": [
     {
+      "id": "log_rf_1793773968973",
+      "adminName": "Operations Admin",
+      "action": "PAYMENT_REFUND_PROCESSED",
+      "target": "bk_ref_dup_1793773968967",
+      "details": "Processed refund of ₹499 (Razorpay Refund ID: rfnd_1793773968971_rwcs55). Reason: Full refund",
+      "timestamp": "2026-11-04T06:32:48.973Z"
+    },
+    {
+      "id": "log_rf_1793773968962",
+      "adminName": "Operations Admin",
+      "action": "PAYMENT_REFUND_PROCESSED",
+      "target": "bk_ref_part_1793773968956",
+      "details": "Processed refund of ₹400 (Razorpay Refund ID: rfnd_1793773968959_az7z2h). Reason: Partial discount adjustment",
+      "timestamp": "2026-11-04T06:32:48.962Z"
+    },
+    {
+      "id": "log_rf_1793773968949",
+      "adminName": "Operations Admin",
+      "action": "PAYMENT_REFUND_PROCESSED",
+      "target": "bk_ref_full_1793773968941",
+      "details": "Processed refund of ₹599 (Razorpay Refund ID: rfnd_1793773968947_5zb0sk). Reason: Customer cancelled prior to driver dispatch",
+      "timestamp": "2026-11-04T06:32:48.950Z"
+    },
+    {
+      "id": "log_rf_1793773217696",
+      "adminName": "Operations Admin",
+      "action": "PAYMENT_REFUND_PROCESSED",
+      "target": "bk_ref_dup_1793773217690",
+      "details": "Processed refund of ₹499 (Razorpay Refund ID: rfnd_1793773217693_9v490j). Reason: Full refund",
+      "timestamp": "2026-11-04T06:20:17.696Z"
+    },
+    {
+      "id": "log_rf_1793773217683",
+      "adminName": "Operations Admin",
+      "action": "PAYMENT_REFUND_PROCESSED",
+      "target": "bk_ref_part_1793773217679",
+      "details": "Processed refund of ₹400 (Razorpay Refund ID: rfnd_1793773217681_2t6u2v). Reason: Partial discount adjustment",
+      "timestamp": "2026-11-04T06:20:17.683Z"
+    },
+    {
+      "id": "log_rf_1793773217674",
+      "adminName": "Operations Admin",
+      "action": "PAYMENT_REFUND_PROCESSED",
+      "target": "bk_ref_full_1793773217668",
+      "details": "Processed refund of ₹599 (Razorpay Refund ID: rfnd_1793773217671_wxjayg). Reason: Customer cancelled prior to driver dispatch",
+      "timestamp": "2026-11-04T06:20:17.674Z"
+    },
+    {
+      "id": "log_rf_1793772904389",
+      "adminName": "Operations Admin",
+      "action": "PAYMENT_REFUND_PROCESSED",
+      "target": "bk_ref_dup_1793772904383",
+      "details": "Processed refund of ₹499 (Razorpay Refund ID: rfnd_1793772904387_45jwle). Reason: Full refund",
+      "timestamp": "2026-11-04T06:15:04.390Z"
+    },
+    {
+      "id": "log_rf_1793772904374",
+      "adminName": "Operations Admin",
+      "action": "PAYMENT_REFUND_PROCESSED",
+      "target": "bk_ref_part_1793772904367",
+      "details": "Processed refund of ₹400 (Razorpay Refund ID: rfnd_1793772904371_jmdody). Reason: Partial discount adjustment",
+      "timestamp": "2026-11-04T06:15:04.374Z"
+    },
+    {
+      "id": "log_rf_1793772904364",
+      "adminName": "Operations Admin",
+      "action": "PAYMENT_REFUND_PROCESSED",
+      "target": "bk_ref_full_1793772904356",
+      "details": "Processed refund of ₹599 (Razorpay Refund ID: rfnd_1793772904361_5uystv). Reason: Customer cancelled prior to driver dispatch",
+      "timestamp": "2026-11-04T06:15:04.364Z"
+    },
+    {
       "id": "log_rf_1793719965136",
       "adminName": "Operations Admin",
       "action": "PAYMENT_REFUND_PROCESSED",
@@ -949,23 +1183,23 @@
         "id": "drv_cand_2",
         "fullName": "Chauffeur Harpreet"
       },
-      "dispatchedAt": "2026-11-03T15:32:44.278Z",
-      "expiresAt": "2026-11-03T15:33:29.278Z",
+      "dispatchedAt": "2026-11-04T06:32:47.423Z",
+      "expiresAt": "2026-11-04T06:33:32.423Z",
       "status": "accepted",
       "history": [
         {
           "driverId": "drv_cand_1",
           "driverName": "Chauffeur Rajesh",
           "action": "declined",
-          "timestamp": "2026-11-03T15:32:44.278Z"
+          "timestamp": "2026-11-04T06:32:47.423Z"
         }
       ],
       "acceptedDriver": {
         "id": "drv_cand_2",
         "fullName": "Chauffeur Harpreet"
       },
-      "respondedAt": "2026-11-03T15:32:44.281Z",
-      "updatedAt": "2026-11-03T15:32:44.281Z"
+      "respondedAt": "2026-11-04T06:32:47.430Z",
+      "updatedAt": "2026-11-04T06:32:47.430Z"
     },
     {
       "bookingId": "bk_first",
@@ -980,11 +1214,11 @@
         "id": "drv_mutex_01",
         "fullName": "Exclusive Driver"
       },
-      "dispatchedAt": "2026-11-03T15:32:44.283Z",
-      "expiresAt": "2026-11-03T15:33:29.283Z",
+      "dispatchedAt": "2026-11-04T06:32:47.438Z",
+      "expiresAt": "2026-11-04T06:33:32.438Z",
       "status": "dispatched",
       "history": [],
-      "updatedAt": "2026-11-03T15:32:44.283Z"
+      "updatedAt": "2026-11-04T06:32:47.438Z"
     },
     {
       "bookingId": "bk_cas_1793689690034",
@@ -1030,11 +1264,11 @@
         "id": "drv_atomic_busy_1",
         "fullName": "Chauffeur Exclusive"
       },
-      "dispatchedAt": "2026-11-03T15:32:44.804Z",
-      "expiresAt": "2026-11-03T15:33:29.804Z",
+      "dispatchedAt": "2026-11-04T06:32:48.362Z",
+      "expiresAt": "2026-11-04T06:33:33.362Z",
       "status": "dispatched",
       "history": [],
-      "updatedAt": "2026-11-03T15:32:44.804Z"
+      "updatedAt": "2026-11-04T06:32:48.362Z"
     },
     {
       "bookingId": "bk_idem_1793689690050",
@@ -1559,7 +1793,7 @@
       },
       "dispatchedAt": "2026-11-03T15:32:44.801Z",
       "expiresAt": "2026-11-03T15:33:29.801Z",
-      "status": "dispatched",
+      "status": "timed_out_during_restart",
       "history": [
         {
           "driverId": "drv_cand_a",
@@ -1615,7 +1849,7 @@
       },
       "dispatchedAt": "2026-11-03T15:32:44.810Z",
       "expiresAt": "2026-11-03T15:33:29.810Z",
-      "status": "dispatched",
+      "status": "timed_out_during_restart",
       "history": [
         {
           "driverId": "drv_to_1",
@@ -1625,9 +1859,738 @@
         }
       ],
       "updatedAt": "2026-11-03T15:32:44.810Z"
+    },
+    {
+      "bookingId": "bk_cas_1793772903901",
+      "bookingReference": "SRT-CAS-99",
+      "candidates": [
+        {
+          "id": "drv_cand_a",
+          "fullName": "Chauffeur Rajesh"
+        },
+        {
+          "id": "drv_cand_b",
+          "fullName": "Chauffeur Suresh"
+        }
+      ],
+      "currentIndex": 1,
+      "currentCandidate": {
+        "id": "drv_cand_b",
+        "fullName": "Chauffeur Suresh"
+      },
+      "dispatchedAt": "2026-11-04T06:15:03.906Z",
+      "expiresAt": "2026-11-04T06:15:48.906Z",
+      "status": "timed_out_during_restart",
+      "history": [
+        {
+          "driverId": "drv_cand_a",
+          "driverName": "Chauffeur Rajesh",
+          "action": "declined",
+          "timestamp": "2026-11-04T06:15:03.906Z"
+        }
+      ],
+      "updatedAt": "2026-11-04T06:15:03.906Z"
+    },
+    {
+      "bookingId": "bk_idem_1793772903913",
+      "bookingReference": "SRT-IDEM-01",
+      "candidates": [
+        {
+          "id": "drv_idempotent_1",
+          "fullName": "Vikram Singh"
+        }
+      ],
+      "currentIndex": 0,
+      "currentCandidate": {
+        "id": "drv_idempotent_1",
+        "fullName": "Vikram Singh"
+      },
+      "dispatchedAt": "2026-11-04T06:15:03.913Z",
+      "expiresAt": "2026-11-04T06:15:48.913Z",
+      "status": "accepted",
+      "history": [],
+      "acceptedDriver": {
+        "id": "drv_idempotent_1",
+        "fullName": "Vikram Singh"
+      },
+      "respondedAt": "2026-11-04T06:15:03.916Z",
+      "updatedAt": "2026-11-04T06:15:03.916Z"
+    },
+    {
+      "bookingId": "bk_timeout_1793772903919",
+      "bookingReference": "SRT-TO-01",
+      "candidates": [
+        {
+          "id": "drv_to_1",
+          "fullName": "Driver Slow"
+        },
+        {
+          "id": "drv_to_2",
+          "fullName": "Driver Next"
+        }
+      ],
+      "currentIndex": 1,
+      "currentCandidate": {
+        "id": "drv_to_2",
+        "fullName": "Driver Next"
+      },
+      "dispatchedAt": "2026-11-04T06:15:03.923Z",
+      "expiresAt": "2026-11-04T06:15:48.923Z",
+      "status": "timed_out_during_restart",
+      "history": [
+        {
+          "driverId": "drv_to_1",
+          "driverName": "Driver Slow",
+          "action": "timeout",
+          "timestamp": "2026-11-04T06:15:03.923Z"
+        }
+      ],
+      "updatedAt": "2026-11-04T06:15:03.923Z"
+    },
+    {
+      "bookingId": "bk_cas_1793773217278",
+      "bookingReference": "SRT-CAS-99",
+      "candidates": [
+        {
+          "id": "drv_cand_a",
+          "fullName": "Chauffeur Rajesh"
+        },
+        {
+          "id": "drv_cand_b",
+          "fullName": "Chauffeur Suresh"
+        }
+      ],
+      "currentIndex": 1,
+      "currentCandidate": {
+        "id": "drv_cand_b",
+        "fullName": "Chauffeur Suresh"
+      },
+      "dispatchedAt": "2026-11-04T06:20:17.281Z",
+      "expiresAt": "2026-11-04T06:21:02.281Z",
+      "status": "timed_out_during_restart",
+      "history": [
+        {
+          "driverId": "drv_cand_a",
+          "driverName": "Chauffeur Rajesh",
+          "action": "declined",
+          "timestamp": "2026-11-04T06:20:17.281Z"
+        }
+      ],
+      "updatedAt": "2026-11-04T06:20:17.281Z"
+    },
+    {
+      "bookingId": "bk_idem_1793773217288",
+      "bookingReference": "SRT-IDEM-01",
+      "candidates": [
+        {
+          "id": "drv_idempotent_1",
+          "fullName": "Vikram Singh"
+        }
+      ],
+      "currentIndex": 0,
+      "currentCandidate": {
+        "id": "drv_idempotent_1",
+        "fullName": "Vikram Singh"
+      },
+      "dispatchedAt": "2026-11-04T06:20:17.288Z",
+      "expiresAt": "2026-11-04T06:21:02.288Z",
+      "status": "accepted",
+      "history": [],
+      "acceptedDriver": {
+        "id": "drv_idempotent_1",
+        "fullName": "Vikram Singh"
+      },
+      "respondedAt": "2026-11-04T06:20:17.290Z",
+      "updatedAt": "2026-11-04T06:20:17.291Z"
+    },
+    {
+      "bookingId": "bk_timeout_1793773217294",
+      "bookingReference": "SRT-TO-01",
+      "candidates": [
+        {
+          "id": "drv_to_1",
+          "fullName": "Driver Slow"
+        },
+        {
+          "id": "drv_to_2",
+          "fullName": "Driver Next"
+        }
+      ],
+      "currentIndex": 1,
+      "currentCandidate": {
+        "id": "drv_to_2",
+        "fullName": "Driver Next"
+      },
+      "dispatchedAt": "2026-11-04T06:20:17.297Z",
+      "expiresAt": "2026-11-04T06:21:02.297Z",
+      "status": "timed_out_during_restart",
+      "history": [
+        {
+          "driverId": "drv_to_1",
+          "driverName": "Driver Slow",
+          "action": "timeout",
+          "timestamp": "2026-11-04T06:20:17.297Z"
+        }
+      ],
+      "updatedAt": "2026-11-04T06:20:17.297Z"
+    },
+    {
+      "bookingId": "bk_cas_1793773968354",
+      "bookingReference": "SRT-CAS-99",
+      "candidates": [
+        {
+          "id": "drv_cand_a",
+          "fullName": "Chauffeur Rajesh"
+        },
+        {
+          "id": "drv_cand_b",
+          "fullName": "Chauffeur Suresh"
+        }
+      ],
+      "currentIndex": 1,
+      "currentCandidate": {
+        "id": "drv_cand_b",
+        "fullName": "Chauffeur Suresh"
+      },
+      "dispatchedAt": "2026-11-04T06:32:48.357Z",
+      "expiresAt": "2026-11-04T06:33:33.357Z",
+      "status": "dispatched",
+      "history": [
+        {
+          "driverId": "drv_cand_a",
+          "driverName": "Chauffeur Rajesh",
+          "action": "declined",
+          "timestamp": "2026-11-04T06:32:48.357Z"
+        }
+      ],
+      "updatedAt": "2026-11-04T06:32:48.357Z"
+    },
+    {
+      "bookingId": "bk_idem_1793773968365",
+      "bookingReference": "SRT-IDEM-01",
+      "candidates": [
+        {
+          "id": "drv_idempotent_1",
+          "fullName": "Vikram Singh"
+        }
+      ],
+      "currentIndex": 0,
+      "currentCandidate": {
+        "id": "drv_idempotent_1",
+        "fullName": "Vikram Singh"
+      },
+      "dispatchedAt": "2026-11-04T06:32:48.365Z",
+      "expiresAt": "2026-11-04T06:33:33.365Z",
+      "status": "accepted",
+      "history": [],
+      "acceptedDriver": {
+        "id": "drv_idempotent_1",
+        "fullName": "Vikram Singh"
+      },
+      "respondedAt": "2026-11-04T06:32:48.370Z",
+      "updatedAt": "2026-11-04T06:32:48.370Z"
+    },
+    {
+      "bookingId": "bk_timeout_1793773968373",
+      "bookingReference": "SRT-TO-01",
+      "candidates": [
+        {
+          "id": "drv_to_1",
+          "fullName": "Driver Slow"
+        },
+        {
+          "id": "drv_to_2",
+          "fullName": "Driver Next"
+        }
+      ],
+      "currentIndex": 1,
+      "currentCandidate": {
+        "id": "drv_to_2",
+        "fullName": "Driver Next"
+      },
+      "dispatchedAt": "2026-11-04T06:32:48.378Z",
+      "expiresAt": "2026-11-04T06:33:33.378Z",
+      "status": "dispatched",
+      "history": [
+        {
+          "driverId": "drv_to_1",
+          "driverName": "Driver Slow",
+          "action": "timeout",
+          "timestamp": "2026-11-04T06:32:48.378Z"
+        }
+      ],
+      "updatedAt": "2026-11-04T06:32:48.378Z"
     }
   ],
   "payments": [
+    {
+      "id": "pay_concurrent_1793773970856",
+      "amountPaise": 100000,
+      "status": "captured",
+      "createdAt": "2026-11-04T06:32:50.856Z"
+    },
+    {
+      "id": "pay_overdraw_1793773970820",
+      "bookingId": "bk_rf_overdraw_1793773970820",
+      "amountPaise": 50000,
+      "status": "captured",
+      "currency": "INR",
+      "createdAt": "2026-11-04T06:32:50.820Z"
+    },
+    {
+      "id": "pay_wh_rec_1793773970813",
+      "bookingId": "bk_wh_1793773970809",
+      "razorpayOrderId": "order_wh_1793773970809",
+      "amountPaise": 69900,
+      "status": "captured",
+      "createdAt": "2026-11-04T06:32:50.813Z",
+      "razorpayPaymentId": "pay_wh_1793773970809",
+      "capturedAt": "2026-11-04T06:32:50.816Z"
+    },
+    {
+      "id": "pay_rec_f_1793773970802",
+      "bookingId": "bk_forge_1793773970802",
+      "razorpayOrderId": "order_forge_1793773970802",
+      "razorpayPaymentId": "pay_forge_1793773970802",
+      "amountPaise": 59900,
+      "status": "failed",
+      "createdAt": "2026-11-04T06:32:50.802Z",
+      "errorDescription": "Invalid payment signature",
+      "updatedAt": "2026-11-04T06:32:50.806Z"
+    },
+    {
+      "id": "pay_rf_dup_1793773968967",
+      "bookingId": "bk_ref_dup_1793773968967",
+      "razorpayPaymentId": "pay_rf_dup_1793773968967",
+      "amountPaise": 49900,
+      "status": "refunded",
+      "isTestMode": true,
+      "createdAt": "2026-11-04T06:32:48.967Z",
+      "refundAmountPaise": 49900,
+      "updatedAt": "2026-11-04T06:32:48.973Z"
+    },
+    {
+      "id": "pay_rf_e_1793773968965",
+      "bookingId": "bk_ref_exceed_1793773968965",
+      "razorpayPaymentId": "pay_rf_e_1793773968965",
+      "amountPaise": 50000,
+      "status": "captured",
+      "isTestMode": true,
+      "createdAt": "2026-11-04T06:32:48.965Z"
+    },
+    {
+      "id": "pay_rf_p_1793773968956",
+      "bookingId": "bk_ref_part_1793773968956",
+      "razorpayPaymentId": "pay_rf_p_1793773968956",
+      "amountPaise": 100000,
+      "status": "partially_refunded",
+      "isTestMode": true,
+      "createdAt": "2026-11-04T06:32:48.956Z",
+      "refundAmountPaise": 40000,
+      "updatedAt": "2026-11-04T06:32:48.962Z"
+    },
+    {
+      "id": "pay_rf_f_1793773968941",
+      "bookingId": "bk_ref_full_1793773968941",
+      "razorpayPaymentId": "pay_rf_f_1793773968941",
+      "amountPaise": 59900,
+      "status": "refunded",
+      "isTestMode": true,
+      "createdAt": "2026-11-04T06:32:48.941Z",
+      "refundAmountPaise": 59900,
+      "updatedAt": "2026-11-04T06:32:48.949Z"
+    },
+    {
+      "id": "pay_f_rec_1793773968936",
+      "razorpayOrderId": "order_f_1793773968936",
+      "amountPaise": 59900,
+      "status": "failed",
+      "createdAt": "2026-11-04T06:32:48.936Z",
+      "errorCode": "BAD_REQUEST_ERROR",
+      "errorDescription": "Payment failed due to insufficient funds"
+    },
+    {
+      "id": "pay_1793773968931",
+      "razorpayOrderId": "order_ooo_1793773968931",
+      "razorpayPaymentId": "pay_ooo_1793773968931",
+      "amountPaise": 64900,
+      "currency": "INR",
+      "status": "captured",
+      "capturedAt": "2026-11-04T06:32:48.931Z",
+      "createdAt": "2026-11-04T06:32:48.931Z"
+    },
+    {
+      "id": "pay_1793773968920",
+      "razorpayOrderId": "order_wh_1793773968918",
+      "razorpayPaymentId": "pay_wh_1793773968918",
+      "amountPaise": 89900,
+      "currency": "INR",
+      "status": "captured",
+      "capturedAt": "2026-11-04T06:32:48.920Z",
+      "createdAt": "2026-11-04T06:32:48.920Z"
+    },
+    {
+      "id": "pay_idem_1793773968910",
+      "bookingId": "bk_idem_1793773968909",
+      "razorpayOrderId": "order_idem_1793773968909",
+      "amountPaise": 59900,
+      "currency": "INR",
+      "status": "captured",
+      "createdAt": "2026-11-04T06:32:48.910Z",
+      "razorpayPaymentId": "pay_idem_1793773968909",
+      "razorpaySignature": "2939f64e035261f9c0d50d789fdf1ec6db6b9d724805a5f32be142403da7c172",
+      "capturedAt": "2026-11-04T06:32:48.914Z",
+      "updatedAt": "2026-11-04T06:32:48.914Z"
+    },
+    {
+      "id": "pay_rec_f_1793773968902",
+      "bookingId": "bk_forge_1793773968902",
+      "razorpayOrderId": "order_forge_1793773968902",
+      "amountPaise": 79900,
+      "currency": "INR",
+      "status": "failed",
+      "createdAt": "2026-11-04T06:32:48.902Z",
+      "errorDescription": "Invalid payment signature",
+      "updatedAt": "2026-11-04T06:32:48.905Z"
+    },
+    {
+      "id": "pay_rec_1793773968889",
+      "bookingId": "bk_sig_1793773968887",
+      "razorpayOrderId": "order_sig_1793773968887",
+      "amountPaise": 79900,
+      "currency": "INR",
+      "status": "captured",
+      "createdAt": "2026-11-04T06:32:48.889Z",
+      "razorpayPaymentId": "pay_sig_1793773968887",
+      "razorpaySignature": "f145ec5e6d926dbe28d3f946b19c8cc0b2e3c32e1a41897e7d91ac3aba7946fb",
+      "capturedAt": "2026-11-04T06:32:48.897Z",
+      "updatedAt": "2026-11-04T06:32:48.897Z"
+    },
+    {
+      "id": "pay_1793773968773_ur0oyz",
+      "bookingId": "bk_test_1793773968772",
+      "bookingReference": "SRT-2026-TEST01",
+      "customerId": "cust_01",
+      "razorpayOrderId": "order_1793773968773_okvb7n",
+      "amountPaise": 59900,
+      "currency": "INR",
+      "status": "created",
+      "paymentMethod": "upi",
+      "isTestMode": true,
+      "createdAt": "2026-11-04T06:32:48.773Z"
+    },
+    {
+      "id": "pay_concurrent_1793773219012",
+      "amountPaise": 100000,
+      "status": "captured",
+      "createdAt": "2026-11-04T06:20:19.012Z"
+    },
+    {
+      "id": "pay_overdraw_1793773218974",
+      "bookingId": "bk_rf_overdraw_1793773218974",
+      "amountPaise": 50000,
+      "status": "captured",
+      "currency": "INR",
+      "createdAt": "2026-11-04T06:20:18.974Z"
+    },
+    {
+      "id": "pay_wh_rec_1793773218969",
+      "bookingId": "bk_wh_1793773218967",
+      "razorpayOrderId": "order_wh_1793773218967",
+      "amountPaise": 69900,
+      "status": "captured",
+      "createdAt": "2026-11-04T06:20:18.969Z",
+      "razorpayPaymentId": "pay_wh_1793773218967",
+      "capturedAt": "2026-11-04T06:20:18.972Z"
+    },
+    {
+      "id": "pay_rec_f_1793773218963",
+      "bookingId": "bk_forge_1793773218963",
+      "razorpayOrderId": "order_forge_1793773218963",
+      "razorpayPaymentId": "pay_forge_1793773218963",
+      "amountPaise": 59900,
+      "status": "failed",
+      "createdAt": "2026-11-04T06:20:18.963Z",
+      "errorDescription": "Invalid payment signature",
+      "updatedAt": "2026-11-04T06:20:18.965Z"
+    },
+    {
+      "id": "pay_rf_dup_1793773217690",
+      "bookingId": "bk_ref_dup_1793773217690",
+      "razorpayPaymentId": "pay_rf_dup_1793773217690",
+      "amountPaise": 49900,
+      "status": "refunded",
+      "isTestMode": true,
+      "createdAt": "2026-11-04T06:20:17.690Z",
+      "refundAmountPaise": 49900,
+      "updatedAt": "2026-11-04T06:20:17.695Z"
+    },
+    {
+      "id": "pay_rf_e_1793773217687",
+      "bookingId": "bk_ref_exceed_1793773217687",
+      "razorpayPaymentId": "pay_rf_e_1793773217687",
+      "amountPaise": 50000,
+      "status": "captured",
+      "isTestMode": true,
+      "createdAt": "2026-11-04T06:20:17.687Z"
+    },
+    {
+      "id": "pay_rf_p_1793773217679",
+      "bookingId": "bk_ref_part_1793773217679",
+      "razorpayPaymentId": "pay_rf_p_1793773217679",
+      "amountPaise": 100000,
+      "status": "partially_refunded",
+      "isTestMode": true,
+      "createdAt": "2026-11-04T06:20:17.679Z",
+      "refundAmountPaise": 40000,
+      "updatedAt": "2026-11-04T06:20:17.683Z"
+    },
+    {
+      "id": "pay_rf_f_1793773217668",
+      "bookingId": "bk_ref_full_1793773217668",
+      "razorpayPaymentId": "pay_rf_f_1793773217668",
+      "amountPaise": 59900,
+      "status": "refunded",
+      "isTestMode": true,
+      "createdAt": "2026-11-04T06:20:17.668Z",
+      "refundAmountPaise": 59900,
+      "updatedAt": "2026-11-04T06:20:17.673Z"
+    },
+    {
+      "id": "pay_f_rec_1793773217663",
+      "razorpayOrderId": "order_f_1793773217663",
+      "amountPaise": 59900,
+      "status": "failed",
+      "createdAt": "2026-11-04T06:20:17.663Z",
+      "errorCode": "BAD_REQUEST_ERROR",
+      "errorDescription": "Payment failed due to insufficient funds"
+    },
+    {
+      "id": "pay_1793773217657",
+      "razorpayOrderId": "order_ooo_1793773217657",
+      "razorpayPaymentId": "pay_ooo_1793773217657",
+      "amountPaise": 64900,
+      "currency": "INR",
+      "status": "captured",
+      "capturedAt": "2026-11-04T06:20:17.657Z",
+      "createdAt": "2026-11-04T06:20:17.657Z"
+    },
+    {
+      "id": "pay_1793773217647",
+      "razorpayOrderId": "order_wh_1793773217646",
+      "razorpayPaymentId": "pay_wh_1793773217646",
+      "amountPaise": 89900,
+      "currency": "INR",
+      "status": "captured",
+      "capturedAt": "2026-11-04T06:20:17.647Z",
+      "createdAt": "2026-11-04T06:20:17.647Z"
+    },
+    {
+      "id": "pay_idem_1793773217640",
+      "bookingId": "bk_idem_1793773217640",
+      "razorpayOrderId": "order_idem_1793773217640",
+      "amountPaise": 59900,
+      "currency": "INR",
+      "status": "captured",
+      "createdAt": "2026-11-04T06:20:17.640Z",
+      "razorpayPaymentId": "pay_idem_1793773217640",
+      "razorpaySignature": "565406376da564e8ae1fa2e3abf82d589ba26489c5fc874681ff8545b661998e",
+      "capturedAt": "2026-11-04T06:20:17.642Z",
+      "updatedAt": "2026-11-04T06:20:17.643Z"
+    },
+    {
+      "id": "pay_rec_f_1793773217633",
+      "bookingId": "bk_forge_1793773217633",
+      "razorpayOrderId": "order_forge_1793773217633",
+      "amountPaise": 79900,
+      "currency": "INR",
+      "status": "failed",
+      "createdAt": "2026-11-04T06:20:17.633Z",
+      "errorDescription": "Invalid payment signature",
+      "updatedAt": "2026-11-04T06:20:17.636Z"
+    },
+    {
+      "id": "pay_rec_1793773217624",
+      "bookingId": "bk_sig_1793773217623",
+      "razorpayOrderId": "order_sig_1793773217623",
+      "amountPaise": 79900,
+      "currency": "INR",
+      "status": "captured",
+      "createdAt": "2026-11-04T06:20:17.624Z",
+      "razorpayPaymentId": "pay_sig_1793773217623",
+      "razorpaySignature": "5ec5fd9d478cecb9a15db8a27d4abcb321e602f4052e1699ca8ec7298faf436d",
+      "capturedAt": "2026-11-04T06:20:17.629Z",
+      "updatedAt": "2026-11-04T06:20:17.629Z"
+    },
+    {
+      "id": "pay_1793773217580_szg4j8",
+      "bookingId": "bk_test_1793773217579",
+      "bookingReference": "SRT-2026-TEST01",
+      "customerId": "cust_01",
+      "razorpayOrderId": "order_1793773217580_0ky5sw",
+      "amountPaise": 59900,
+      "currency": "INR",
+      "status": "created",
+      "paymentMethod": "upi",
+      "isTestMode": true,
+      "createdAt": "2026-11-04T06:20:17.580Z"
+    },
+    {
+      "id": "pay_concurrent_1793772905839",
+      "amountPaise": 100000,
+      "status": "captured",
+      "createdAt": "2026-11-04T06:15:05.839Z"
+    },
+    {
+      "id": "pay_overdraw_1793772905797",
+      "bookingId": "bk_rf_overdraw_1793772905797",
+      "amountPaise": 50000,
+      "status": "captured",
+      "currency": "INR",
+      "createdAt": "2026-11-04T06:15:05.797Z"
+    },
+    {
+      "id": "pay_wh_rec_1793772905790",
+      "bookingId": "bk_wh_1793772905789",
+      "razorpayOrderId": "order_wh_1793772905789",
+      "amountPaise": 69900,
+      "status": "captured",
+      "createdAt": "2026-11-04T06:15:05.790Z",
+      "razorpayPaymentId": "pay_wh_1793772905789",
+      "capturedAt": "2026-11-04T06:15:05.794Z"
+    },
+    {
+      "id": "pay_rec_f_1793772905782",
+      "bookingId": "bk_forge_1793772905782",
+      "razorpayOrderId": "order_forge_1793772905782",
+      "razorpayPaymentId": "pay_forge_1793772905782",
+      "amountPaise": 59900,
+      "status": "failed",
+      "createdAt": "2026-11-04T06:15:05.782Z",
+      "errorDescription": "Invalid payment signature",
+      "updatedAt": "2026-11-04T06:15:05.786Z"
+    },
+    {
+      "id": "pay_rf_dup_1793772904383",
+      "bookingId": "bk_ref_dup_1793772904383",
+      "razorpayPaymentId": "pay_rf_dup_1793772904383",
+      "amountPaise": 49900,
+      "status": "refunded",
+      "isTestMode": true,
+      "createdAt": "2026-11-04T06:15:04.383Z",
+      "refundAmountPaise": 49900,
+      "updatedAt": "2026-11-04T06:15:04.389Z"
+    },
+    {
+      "id": "pay_rf_e_1793772904380",
+      "bookingId": "bk_ref_exceed_1793772904380",
+      "razorpayPaymentId": "pay_rf_e_1793772904380",
+      "amountPaise": 50000,
+      "status": "captured",
+      "isTestMode": true,
+      "createdAt": "2026-11-04T06:15:04.380Z"
+    },
+    {
+      "id": "pay_rf_p_1793772904367",
+      "bookingId": "bk_ref_part_1793772904367",
+      "razorpayPaymentId": "pay_rf_p_1793772904367",
+      "amountPaise": 100000,
+      "status": "partially_refunded",
+      "isTestMode": true,
+      "createdAt": "2026-11-04T06:15:04.367Z",
+      "refundAmountPaise": 40000,
+      "updatedAt": "2026-11-04T06:15:04.374Z"
+    },
+    {
+      "id": "pay_rf_f_1793772904356",
+      "bookingId": "bk_ref_full_1793772904356",
+      "razorpayPaymentId": "pay_rf_f_1793772904356",
+      "amountPaise": 59900,
+      "status": "refunded",
+      "isTestMode": true,
+      "createdAt": "2026-11-04T06:15:04.356Z",
+      "refundAmountPaise": 59900,
+      "updatedAt": "2026-11-04T06:15:04.364Z"
+    },
+    {
+      "id": "pay_f_rec_1793772904348",
+      "razorpayOrderId": "order_f_1793772904348",
+      "amountPaise": 59900,
+      "status": "failed",
+      "createdAt": "2026-11-04T06:15:04.348Z",
+      "errorCode": "BAD_REQUEST_ERROR",
+      "errorDescription": "Payment failed due to insufficient funds"
+    },
+    {
+      "id": "pay_1793772904341",
+      "razorpayOrderId": "order_ooo_1793772904341",
+      "razorpayPaymentId": "pay_ooo_1793772904341",
+      "amountPaise": 64900,
+      "currency": "INR",
+      "status": "captured",
+      "capturedAt": "2026-11-04T06:15:04.341Z",
+      "createdAt": "2026-11-04T06:15:04.341Z"
+    },
+    {
+      "id": "pay_1793772904331",
+      "razorpayOrderId": "order_wh_1793772904329",
+      "razorpayPaymentId": "pay_wh_1793772904329",
+      "amountPaise": 89900,
+      "currency": "INR",
+      "status": "captured",
+      "capturedAt": "2026-11-04T06:15:04.331Z",
+      "createdAt": "2026-11-04T06:15:04.331Z"
+    },
+    {
+      "id": "pay_idem_1793772904323",
+      "bookingId": "bk_idem_1793772904323",
+      "razorpayOrderId": "order_idem_1793772904323",
+      "amountPaise": 59900,
+      "currency": "INR",
+      "status": "captured",
+      "createdAt": "2026-11-04T06:15:04.323Z",
+      "razorpayPaymentId": "pay_idem_1793772904323",
+      "razorpaySignature": "164a17ea5fe49481382338e84b18eaf0ffcacee7705745d792607ab13f8d4ec7",
+      "capturedAt": "2026-11-04T06:15:04.325Z",
+      "updatedAt": "2026-11-04T06:15:04.325Z"
+    },
+    {
+      "id": "pay_rec_f_1793772904316",
+      "bookingId": "bk_forge_1793772904316",
+      "razorpayOrderId": "order_forge_1793772904316",
+      "amountPaise": 79900,
+      "currency": "INR",
+      "status": "failed",
+      "createdAt": "2026-11-04T06:15:04.316Z",
+      "errorDescription": "Invalid payment signature",
+      "updatedAt": "2026-11-04T06:15:04.320Z"
+    },
+    {
+      "id": "pay_rec_1793772904308",
+      "bookingId": "bk_sig_1793772904307",
+      "razorpayOrderId": "order_sig_1793772904308",
+      "amountPaise": 79900,
+      "currency": "INR",
+      "status": "captured",
+      "createdAt": "2026-11-04T06:15:04.308Z",
+      "razorpayPaymentId": "pay_sig_1793772904308",
+      "razorpaySignature": "197fd2072ec605dddc9bea05f9e918804e966fb8f9e87f05fb18e471c372f536",
+      "capturedAt": "2026-11-04T06:15:04.313Z",
+      "updatedAt": "2026-11-04T06:15:04.313Z"
+    },
+    {
+      "id": "pay_1793772904214_e2e5vq",
+      "bookingId": "bk_test_1793772904213",
+      "bookingReference": "SRT-2026-TEST01",
+      "customerId": "cust_01",
+      "razorpayOrderId": "order_1793772904214_195myn",
+      "amountPaise": 59900,
+      "currency": "INR",
+      "status": "created",
+      "paymentMethod": "upi",
+      "isTestMode": true,
+      "createdAt": "2026-11-04T06:15:04.214Z"
+    },
     {
       "id": "pay_rf_dup_1793719965133",
       "bookingId": "bk_ref_dup_1793719965133",
@@ -2149,7 +3112,7 @@
       "amountPaise": 59900,
       "currency": "INR",
       "status": "captured",
-      "capturedAt": "2026-11-03T15:32:45.112Z",
+      "capturedAt": "2026-11-04T06:32:48.928Z",
       "createdAt": "2026-11-03T08:03:54.783Z"
     },
     {
@@ -2366,9 +3329,240 @@
       "source": "razorpay",
       "notes": "Payment pay_f_1793719965118 marked failed: Payment failed due to insufficient funds",
       "processedAt": "2026-11-03T15:32:45.119Z"
+    },
+    {
+      "eventId": "evt_test_1793772904329",
+      "eventType": "payment.captured",
+      "source": "razorpay",
+      "notes": "Payment pay_wh_1793772904329 captured (89900 paise)",
+      "processedAt": "2026-11-04T06:15:04.333Z"
+    },
+    {
+      "eventId": "evt_dedup_1793772904336",
+      "eventType": "payment.captured",
+      "source": "razorpay",
+      "notes": "Payment pay_d1 captured (59900 paise)",
+      "processedAt": "2026-11-04T06:15:04.337Z"
+    },
+    {
+      "eventId": "evt_ooo_1793772904341",
+      "eventType": "payment.captured",
+      "source": "razorpay",
+      "notes": "Payment pay_ooo_1793772904341 captured (64900 paise)",
+      "processedAt": "2026-11-04T06:15:04.343Z"
+    },
+    {
+      "eventId": "evt_fail_1793772904348",
+      "eventType": "payment.failed",
+      "source": "razorpay",
+      "notes": "Payment pay_f_1793772904348 marked failed: Payment failed due to insufficient funds",
+      "processedAt": "2026-11-04T06:15:04.351Z"
+    },
+    {
+      "eventId": "evt_sec_dup_1793772905789",
+      "eventType": "payment.captured",
+      "source": "razorpay",
+      "notes": "Payment pay_wh_1793772905789 captured (69900 paise)",
+      "processedAt": "2026-11-04T06:15:05.794Z"
+    },
+    {
+      "eventId": "evt_test_1793773217646",
+      "eventType": "payment.captured",
+      "source": "razorpay",
+      "notes": "Payment pay_wh_1793773217646 captured (89900 paise)",
+      "processedAt": "2026-11-04T06:20:17.650Z"
+    },
+    {
+      "eventId": "evt_dedup_1793773217654",
+      "eventType": "payment.captured",
+      "source": "razorpay",
+      "notes": "Payment pay_d1 captured (59900 paise)",
+      "processedAt": "2026-11-04T06:20:17.655Z"
+    },
+    {
+      "eventId": "evt_ooo_1793773217657",
+      "eventType": "payment.captured",
+      "source": "razorpay",
+      "notes": "Payment pay_ooo_1793773217657 captured (64900 paise)",
+      "processedAt": "2026-11-04T06:20:17.660Z"
+    },
+    {
+      "eventId": "evt_fail_1793773217663",
+      "eventType": "payment.failed",
+      "source": "razorpay",
+      "notes": "Payment pay_f_1793773217663 marked failed: Payment failed due to insufficient funds",
+      "processedAt": "2026-11-04T06:20:17.665Z"
+    },
+    {
+      "eventId": "evt_sec_dup_1793773218967",
+      "eventType": "payment.captured",
+      "source": "razorpay",
+      "notes": "Payment pay_wh_1793773218967 captured (69900 paise)",
+      "processedAt": "2026-11-04T06:20:18.972Z"
+    },
+    {
+      "eventId": "evt_test_1793773968918",
+      "eventType": "payment.captured",
+      "source": "razorpay",
+      "notes": "Payment pay_wh_1793773968918 captured (89900 paise)",
+      "processedAt": "2026-11-04T06:32:48.924Z"
+    },
+    {
+      "eventId": "evt_dedup_1793773968927",
+      "eventType": "payment.captured",
+      "source": "razorpay",
+      "notes": "Payment pay_d1 captured (59900 paise)",
+      "processedAt": "2026-11-04T06:32:48.928Z"
+    },
+    {
+      "eventId": "evt_ooo_1793773968931",
+      "eventType": "payment.captured",
+      "source": "razorpay",
+      "notes": "Payment pay_ooo_1793773968931 captured (64900 paise)",
+      "processedAt": "2026-11-04T06:32:48.933Z"
+    },
+    {
+      "eventId": "evt_fail_1793773968936",
+      "eventType": "payment.failed",
+      "source": "razorpay",
+      "notes": "Payment pay_f_1793773968936 marked failed: Payment failed due to insufficient funds",
+      "processedAt": "2026-11-04T06:32:48.939Z"
+    },
+    {
+      "eventId": "evt_sec_dup_1793773970809",
+      "eventType": "payment.captured",
+      "source": "razorpay",
+      "notes": "Payment pay_wh_1793773970809 captured (69900 paise)",
+      "processedAt": "2026-11-04T06:32:50.816Z"
     }
   ],
   "payment_refunds": [
+    {
+      "id": "rf_1793773968971_geahnd",
+      "paymentId": "pay_rf_dup_1793773968967",
+      "bookingId": "bk_ref_dup_1793773968967",
+      "razorpayRefundId": "rfnd_1793773968971_rwcs55",
+      "amountPaise": 49900,
+      "currency": "INR",
+      "status": "processed",
+      "reason": "Full refund",
+      "initiatedBy": "Operations Admin",
+      "isTestMode": true,
+      "processedAt": "2026-11-04T06:32:48.971Z",
+      "createdAt": "2026-11-04T06:32:48.971Z"
+    },
+    {
+      "id": "rf_1793773968959_pm5wm2",
+      "paymentId": "pay_rf_p_1793773968956",
+      "bookingId": "bk_ref_part_1793773968956",
+      "razorpayRefundId": "rfnd_1793773968959_az7z2h",
+      "amountPaise": 40000,
+      "currency": "INR",
+      "status": "processed",
+      "reason": "Partial discount adjustment",
+      "initiatedBy": "Operations Admin",
+      "isTestMode": true,
+      "processedAt": "2026-11-04T06:32:48.959Z",
+      "createdAt": "2026-11-04T06:32:48.959Z"
+    },
+    {
+      "id": "rf_1793773968947_pg1r9n",
+      "paymentId": "pay_rf_f_1793773968941",
+      "bookingId": "bk_ref_full_1793773968941",
+      "razorpayRefundId": "rfnd_1793773968947_5zb0sk",
+      "amountPaise": 59900,
+      "currency": "INR",
+      "status": "processed",
+      "reason": "Customer cancelled prior to driver dispatch",
+      "initiatedBy": "Operations Admin",
+      "isTestMode": true,
+      "processedAt": "2026-11-04T06:32:48.947Z",
+      "createdAt": "2026-11-04T06:32:48.947Z"
+    },
+    {
+      "id": "rf_1793773217693_25y4a6",
+      "paymentId": "pay_rf_dup_1793773217690",
+      "bookingId": "bk_ref_dup_1793773217690",
+      "razorpayRefundId": "rfnd_1793773217693_9v490j",
+      "amountPaise": 49900,
+      "currency": "INR",
+      "status": "processed",
+      "reason": "Full refund",
+      "initiatedBy": "Operations Admin",
+      "isTestMode": true,
+      "processedAt": "2026-11-04T06:20:17.693Z",
+      "createdAt": "2026-11-04T06:20:17.693Z"
+    },
+    {
+      "id": "rf_1793773217681_xwrb6e",
+      "paymentId": "pay_rf_p_1793773217679",
+      "bookingId": "bk_ref_part_1793773217679",
+      "razorpayRefundId": "rfnd_1793773217681_2t6u2v",
+      "amountPaise": 40000,
+      "currency": "INR",
+      "status": "processed",
+      "reason": "Partial discount adjustment",
+      "initiatedBy": "Operations Admin",
+      "isTestMode": true,
+      "processedAt": "2026-11-04T06:20:17.681Z",
+      "createdAt": "2026-11-04T06:20:17.681Z"
+    },
+    {
+      "id": "rf_1793773217671_6neyyx",
+      "paymentId": "pay_rf_f_1793773217668",
+      "bookingId": "bk_ref_full_1793773217668",
+      "razorpayRefundId": "rfnd_1793773217671_wxjayg",
+      "amountPaise": 59900,
+      "currency": "INR",
+      "status": "processed",
+      "reason": "Customer cancelled prior to driver dispatch",
+      "initiatedBy": "Operations Admin",
+      "isTestMode": true,
+      "processedAt": "2026-11-04T06:20:17.672Z",
+      "createdAt": "2026-11-04T06:20:17.672Z"
+    },
+    {
+      "id": "rf_1793772904387_kgk314",
+      "paymentId": "pay_rf_dup_1793772904383",
+      "bookingId": "bk_ref_dup_1793772904383",
+      "razorpayRefundId": "rfnd_1793772904387_45jwle",
+      "amountPaise": 49900,
+      "currency": "INR",
+      "status": "processed",
+      "reason": "Full refund",
+      "initiatedBy": "Operations Admin",
+      "isTestMode": true,
+      "processedAt": "2026-11-04T06:15:04.387Z",
+      "createdAt": "2026-11-04T06:15:04.387Z"
+    },
+    {
+      "id": "rf_1793772904371_em8l0z",
+      "paymentId": "pay_rf_p_1793772904367",
+      "bookingId": "bk_ref_part_1793772904367",
+      "razorpayRefundId": "rfnd_1793772904371_jmdody",
+      "amountPaise": 40000,
+      "currency": "INR",
+      "status": "processed",
+      "reason": "Partial discount adjustment",
+      "initiatedBy": "Operations Admin",
+      "isTestMode": true,
+      "processedAt": "2026-11-04T06:15:04.371Z",
+      "createdAt": "2026-11-04T06:15:04.371Z"
+    },
+    {
+      "id": "rf_1793772904361_vkawpa",
+      "paymentId": "pay_rf_f_1793772904356",
+      "bookingId": "bk_ref_full_1793772904356",
+      "razorpayRefundId": "rfnd_1793772904361_5uystv",
+      "amountPaise": 59900,
+      "currency": "INR",
+      "status": "processed",
+      "reason": "Customer cancelled prior to driver dispatch",
+      "initiatedBy": "Operations Admin",
+      "isTestMode": true,
+      "processedAt": "2026-11-04T06:15:04.361Z",
+      "createdAt": "2026-11-04T06:15:04.361Z"
+    },
     {
       "id": "rf_1793719965134_s4jrat",
       "paymentId": "pay_rf_dup_1793719965133",
@@ -2554,6 +3748,24 @@
   ],
   "driver_settlements": [
     {
+      "id": "stl_1793772905824_6lp3s2",
+      "driverId": "drv_stl_dup_test",
+      "driverName": "Chauffeur",
+      "periodStart": "2026-10-19",
+      "periodEnd": "2026-10-25",
+      "totalTrips": 0,
+      "grossFaresPaise": 0,
+      "platformCommissionPaise": 0,
+      "outstationDAPaise": 0,
+      "nightAllowancePaise": 0,
+      "netPayoutPaise": 0,
+      "netPayoutFormatted": "₹0",
+      "payoutStatus": "settled",
+      "payoutMethod": "upi",
+      "payoutUpiId": "driver@okaxis",
+      "createdAt": "2026-11-04T06:15:05.824Z"
+    },
+    {
       "id": "stl_1793719965143_uefucy",
       "driverId": "drv_route_test",
       "driverName": "Chauffeur",
@@ -2570,8 +3782,8 @@
       "payoutMethod": "upi",
       "payoutUpiId": "driver@okaxis",
       "createdAt": "2026-11-03T15:32:45.143Z",
-      "razorpayTransferId": "trf_mock_1793719965145",
-      "settledAt": "2026-11-03T15:32:45.145Z",
+      "razorpayTransferId": "trf_mock_1793773968981",
+      "settledAt": "2026-11-04T06:32:48.981Z",
       "routeMode": "internal_ledger_settlement"
     },
     {
@@ -2712,6 +3924,267 @@
   ],
   "otp_verifications": [
     {
+      "id": "otp_1793773970787_ytufao",
+      "phone": "9988776655",
+      "hashedOtp": "281d36565a64775a9aefaa8f99812e51c3e439b19b63b65bf98c785b0e1d2706",
+      "purpose": "sec_test_1793773970786",
+      "bookingId": null,
+      "attempts": 3,
+      "maxAttempts": 3,
+      "isVerified": false,
+      "expiresAt": "2026-11-04T06:37:50.786Z",
+      "createdAt": "2026-11-04T06:32:50.787Z",
+      "isExpired": true
+    },
+    {
+      "id": "otp_exp_1793773969025",
+      "phone": "9876543215",
+      "hashedOtp": "e09cab9652515219fec9bbd1de77e81f45375122f547dfb69b5b244a44ce126c",
+      "purpose": "expiry_test",
+      "attempts": 0,
+      "maxAttempts": 3,
+      "isVerified": false,
+      "expiresAt": "2026-11-04T06:32:48.025Z",
+      "createdAt": "2026-11-04T06:27:48.025Z",
+      "isExpired": true
+    },
+    {
+      "id": "otp_1793773969021_lle0l5",
+      "phone": "9876543214",
+      "hashedOtp": "ffc205c1030130117b8a9cd5271b46a260f8b83cd603365a964380291a6ac7b2",
+      "purpose": "cooldown_test",
+      "bookingId": null,
+      "attempts": 0,
+      "maxAttempts": 3,
+      "isVerified": false,
+      "expiresAt": "2026-11-04T06:37:49.021Z",
+      "createdAt": "2026-11-04T06:32:49.021Z"
+    },
+    {
+      "id": "otp_lock_1793773969000",
+      "phone": "9876543213",
+      "hashedOtp": "9532931af31d465a5f68e4bdaa3d7f0afe8ae5932aeda32709d23390b919d2d5",
+      "purpose": "brute_force_test",
+      "attempts": 3,
+      "maxAttempts": 3,
+      "isVerified": false,
+      "expiresAt": "2026-11-04T06:37:49.000Z",
+      "createdAt": "2026-11-04T06:32:49.000Z",
+      "isExpired": true
+    },
+    {
+      "id": "otp_test_1793773968992",
+      "phone": "9876543212",
+      "hashedOtp": "4aad06b70d7e62c22c8cc4b353e22333c500bfe0bbd28397b173cdd351e43146",
+      "purpose": "verification_test",
+      "attempts": 0,
+      "maxAttempts": 3,
+      "isVerified": true,
+      "expiresAt": "2026-11-04T06:37:48.992Z",
+      "createdAt": "2026-11-04T06:32:48.992Z",
+      "verifiedAt": "2026-11-04T06:32:48.997Z"
+    },
+    {
+      "id": "otp_1793773968990_8pk72n",
+      "phone": "9876543211",
+      "hashedOtp": "230fa23027a49659b6bfac741c39230a5d5f4378177725e3d105d9655ac6b950",
+      "purpose": "prod_auth",
+      "bookingId": null,
+      "attempts": 0,
+      "maxAttempts": 3,
+      "isVerified": false,
+      "expiresAt": "2026-11-04T06:37:48.990Z",
+      "createdAt": "2026-11-04T06:32:48.990Z"
+    },
+    {
+      "id": "otp_1793773968987_vyhqyz",
+      "phone": "9876543210",
+      "hashedOtp": "177cfef2937dfee0f5cf3c9d152a559377ab8f74947cfeac7a06209135b87db6",
+      "purpose": "test_login",
+      "bookingId": null,
+      "attempts": 0,
+      "maxAttempts": 3,
+      "isVerified": false,
+      "expiresAt": "2026-11-04T06:37:48.985Z",
+      "createdAt": "2026-11-04T06:32:48.987Z"
+    },
+    {
+      "id": "otp_1793773218953_a8jtjv",
+      "phone": "9988776655",
+      "hashedOtp": "dbab2b5b61e4cb9a56446dbeffb0eaf7c021de39cd7e17f3ab2c306bee5e7a22",
+      "purpose": "sec_test_1793773218953",
+      "bookingId": null,
+      "attempts": 3,
+      "maxAttempts": 3,
+      "isVerified": false,
+      "expiresAt": "2026-11-04T06:25:18.953Z",
+      "createdAt": "2026-11-04T06:20:18.953Z",
+      "isExpired": true
+    },
+    {
+      "id": "otp_exp_1793773217748",
+      "phone": "9876543215",
+      "hashedOtp": "e09cab9652515219fec9bbd1de77e81f45375122f547dfb69b5b244a44ce126c",
+      "purpose": "expiry_test",
+      "attempts": 0,
+      "maxAttempts": 3,
+      "isVerified": false,
+      "expiresAt": "2026-11-04T06:20:16.748Z",
+      "createdAt": "2026-11-04T06:15:16.748Z",
+      "isExpired": true
+    },
+    {
+      "id": "otp_1793773217746_9ecdt3",
+      "phone": "9876543214",
+      "hashedOtp": "df5adf2ec1a0d38984c63529ffe77fee51d2ef8acdac372fd2006135050662a0",
+      "purpose": "cooldown_test",
+      "bookingId": null,
+      "attempts": 0,
+      "maxAttempts": 3,
+      "isVerified": false,
+      "expiresAt": "2026-11-04T06:25:17.746Z",
+      "createdAt": "2026-11-04T06:20:17.746Z",
+      "isExpired": true
+    },
+    {
+      "id": "otp_lock_1793773217728",
+      "phone": "9876543213",
+      "hashedOtp": "9532931af31d465a5f68e4bdaa3d7f0afe8ae5932aeda32709d23390b919d2d5",
+      "purpose": "brute_force_test",
+      "attempts": 3,
+      "maxAttempts": 3,
+      "isVerified": false,
+      "expiresAt": "2026-11-04T06:25:17.729Z",
+      "createdAt": "2026-11-04T06:20:17.729Z",
+      "isExpired": true
+    },
+    {
+      "id": "otp_test_1793773217720",
+      "phone": "9876543212",
+      "hashedOtp": "4aad06b70d7e62c22c8cc4b353e22333c500bfe0bbd28397b173cdd351e43146",
+      "purpose": "verification_test",
+      "attempts": 0,
+      "maxAttempts": 3,
+      "isVerified": true,
+      "expiresAt": "2026-11-04T06:25:17.720Z",
+      "createdAt": "2026-11-04T06:20:17.720Z",
+      "verifiedAt": "2026-11-04T06:20:17.724Z"
+    },
+    {
+      "id": "otp_1793773217715_ca0mlq",
+      "phone": "9876543211",
+      "hashedOtp": "7505b6fd01f3564358727b103b9049587f9073003f6bfe70f465b579e80514bf",
+      "purpose": "prod_auth",
+      "bookingId": null,
+      "attempts": 0,
+      "maxAttempts": 3,
+      "isVerified": false,
+      "expiresAt": "2026-11-04T06:25:17.715Z",
+      "createdAt": "2026-11-04T06:20:17.715Z",
+      "isExpired": true
+    },
+    {
+      "id": "otp_1793773217711_4ndmjk",
+      "phone": "9876543210",
+      "hashedOtp": "9372fc79fc675acc27c89e1dc021844037f597adbb3c8c780dd3375fdcc86a0b",
+      "purpose": "test_login",
+      "bookingId": null,
+      "attempts": 0,
+      "maxAttempts": 3,
+      "isVerified": false,
+      "expiresAt": "2026-11-04T06:25:17.709Z",
+      "createdAt": "2026-11-04T06:20:17.711Z",
+      "isExpired": true
+    },
+    {
+      "id": "otp_1793772905770_xbqvi1",
+      "phone": "9988776655",
+      "hashedOtp": "294e5e7a3ddc8b6613c05b9cca66f2001d566cf2ad82d4fd1c7268875cbb29e4",
+      "purpose": "sec_test_1793772905768",
+      "bookingId": null,
+      "attempts": 3,
+      "maxAttempts": 3,
+      "isVerified": false,
+      "expiresAt": "2026-11-04T06:20:05.769Z",
+      "createdAt": "2026-11-04T06:15:05.770Z",
+      "isExpired": true
+    },
+    {
+      "id": "otp_exp_1793772904433",
+      "phone": "9876543215",
+      "hashedOtp": "e09cab9652515219fec9bbd1de77e81f45375122f547dfb69b5b244a44ce126c",
+      "purpose": "expiry_test",
+      "attempts": 0,
+      "maxAttempts": 3,
+      "isVerified": false,
+      "expiresAt": "2026-11-04T06:15:03.433Z",
+      "createdAt": "2026-11-04T06:10:03.433Z",
+      "isExpired": true
+    },
+    {
+      "id": "otp_1793772904431_a7y6i0",
+      "phone": "9876543214",
+      "hashedOtp": "99acfb8463eeb9b835a7da870b65105fdfaea7157fc24dcbbb1af01a8afc5857",
+      "purpose": "cooldown_test",
+      "bookingId": null,
+      "attempts": 0,
+      "maxAttempts": 3,
+      "isVerified": false,
+      "expiresAt": "2026-11-04T06:20:04.431Z",
+      "createdAt": "2026-11-04T06:15:04.431Z",
+      "isExpired": true
+    },
+    {
+      "id": "otp_lock_1793772904415",
+      "phone": "9876543213",
+      "hashedOtp": "9532931af31d465a5f68e4bdaa3d7f0afe8ae5932aeda32709d23390b919d2d5",
+      "purpose": "brute_force_test",
+      "attempts": 3,
+      "maxAttempts": 3,
+      "isVerified": false,
+      "expiresAt": "2026-11-04T06:20:04.415Z",
+      "createdAt": "2026-11-04T06:15:04.415Z",
+      "isExpired": true
+    },
+    {
+      "id": "otp_test_1793772904407",
+      "phone": "9876543212",
+      "hashedOtp": "4aad06b70d7e62c22c8cc4b353e22333c500bfe0bbd28397b173cdd351e43146",
+      "purpose": "verification_test",
+      "attempts": 0,
+      "maxAttempts": 3,
+      "isVerified": true,
+      "expiresAt": "2026-11-04T06:20:04.407Z",
+      "createdAt": "2026-11-04T06:15:04.407Z",
+      "verifiedAt": "2026-11-04T06:15:04.412Z"
+    },
+    {
+      "id": "otp_1793772904406_3jrmvk",
+      "phone": "9876543211",
+      "hashedOtp": "2fd11cc2c94a47a5a10b735747ae4cfd8aeceda20f6d313e6fa8ed352c8e8e77",
+      "purpose": "prod_auth",
+      "bookingId": null,
+      "attempts": 0,
+      "maxAttempts": 3,
+      "isVerified": false,
+      "expiresAt": "2026-11-04T06:20:04.405Z",
+      "createdAt": "2026-11-04T06:15:04.406Z",
+      "isExpired": true
+    },
+    {
+      "id": "otp_1793772904402_3t2122",
+      "phone": "9876543210",
+      "hashedOtp": "8f9f74800eeb854b7bcd1f224a7a773132c97ccb7b2406a1d2f563cbee447a40",
+      "purpose": "test_login",
+      "bookingId": null,
+      "attempts": 0,
+      "maxAttempts": 3,
+      "isVerified": false,
+      "expiresAt": "2026-11-04T06:20:04.400Z",
+      "createdAt": "2026-11-04T06:15:04.402Z",
+      "isExpired": true
+    },
+    {
       "id": "otp_exp_1793719965169",
       "phone": "9876543215",
       "hashedOtp": "e09cab9652515219fec9bbd1de77e81f45375122f547dfb69b5b244a44ce126c",
@@ -2733,7 +4206,8 @@
       "maxAttempts": 3,
       "isVerified": false,
       "expiresAt": "2026-11-03T15:37:45.166Z",
-      "createdAt": "2026-11-03T15:32:45.166Z"
+      "createdAt": "2026-11-03T15:32:45.166Z",
+      "isExpired": true
     },
     {
       "id": "otp_lock_1793719965157",
@@ -2769,7 +4243,8 @@
       "maxAttempts": 3,
       "isVerified": false,
       "expiresAt": "2026-11-03T15:37:45.150Z",
-      "createdAt": "2026-11-03T15:32:45.150Z"
+      "createdAt": "2026-11-03T15:32:45.150Z",
+      "isExpired": true
     },
     {
       "id": "otp_1793719965148_qs0xv6",
@@ -2781,7 +4256,8 @@
       "maxAttempts": 3,
       "isVerified": false,
       "expiresAt": "2026-11-03T15:37:45.147Z",
-      "createdAt": "2026-11-03T15:32:45.148Z"
+      "createdAt": "2026-11-03T15:32:45.148Z",
+      "isExpired": true
     },
     {
       "id": "otp_exp_1793719597897",

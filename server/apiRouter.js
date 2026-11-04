@@ -43,6 +43,8 @@ import { globalNotificationService } from './communications/notificationService.
 import { globalRoutingEngine } from './maps/routingEngine.js';
 import { globalGeocodingService } from './maps/geocodingService.js';
 import { MAPS_CONFIG, getCurrentTrafficMultiplier } from './maps/mapsConfig.js';
+import { globalRedisClient } from './infrastructure/redisClient.js';
+import { globalStagingAuditor } from './infrastructure/stagingIntegrationAuditor.js';
 import {
   USERS,
   DRIVERS,
@@ -112,6 +114,25 @@ apiRouter.get('/health/db', async (req, res) => {
     success: true,
     platform: 'Personal Driver Marketplace Backend',
     database: health
+  });
+});
+
+// Staging Multi-Service Integration Audit (Phase 8F)
+apiRouter.get('/staging/audit', async (req, res) => {
+  const audit = await globalStagingAuditor.runAudit();
+  return res.json({
+    success: true,
+    platform: 'Personal Driver Marketplace Staging Gateway',
+    audit
+  });
+});
+
+// Distributed Redis State & Concurrency Health
+apiRouter.get('/infrastructure/redis/ping', async (req, res) => {
+  const ping = await globalRedisClient.ping();
+  return res.json({
+    success: true,
+    redis: ping
   });
 });
 
