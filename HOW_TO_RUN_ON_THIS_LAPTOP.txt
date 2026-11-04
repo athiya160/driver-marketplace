@@ -1,0 +1,74 @@
+==============================================================================
+   SARATHI: PERSONAL DRIVER MARKETPLACE — USB LAPTOP RUNNER GUIDE
+   "Your Car. Your Journey. Your Driver."
+==============================================================================
+
+Welcome! You can run and test the complete Sarathi Driver platform locally
+on any Windows or Mac laptop right from this folder.
+
+------------------------------------------------------------------------------
+PREREQUISITES:
+------------------------------------------------------------------------------
+You only need 1 thing installed on this laptop:
+  - Node.js (LTS version)
+
+If you don't have Node.js installed yet:
+  1. Go to https://nodejs.org/
+  2. Download and run the LTS installer (takes 1-2 minutes).
+  3. Once installed, you are ready!
+
+------------------------------------------------------------------------------
+HOW TO RUN:
+------------------------------------------------------------------------------
+METHOD 1 (Easiest - 1 Click for Windows):
+  - Just DOUBLE-CLICK:  START_APP.bat
+  - That's it! It will start the server and automatically open your browser.
+
+METHOD 2 (Using Terminal / Command Prompt):
+  1. Open Command Prompt or PowerShell in this folder.
+  2. Type:
+       node server/index.js
+  3. Open your web browser and go to:
+       http://localhost:5000/
+
+------------------------------------------------------------------------------
+PAGES YOU CAN TEST:
+------------------------------------------------------------------------------
+1. Customer Booking Website & Mobile View:
+   http://localhost:5000/
+   - Try booking a driver for 4 hours, One-Way, or Outstation.
+   - Select Manual or Automatic car.
+   - See the ₹0 Founding Platform Fee badge!
+   - Get the 4-digit secret trip OTP.
+
+2. Chauffeur / Driver Mobile App:
+   http://localhost:5000/driver
+   - Toggle switch to "Online".
+   - Accept bookings dispatched in real-time.
+   - Enter the customer's 4-digit OTP to start trip.
+   - View 100% direct driver earnings.
+
+3. Operations SuperAdmin Dashboard:
+   http://localhost:5000/admin
+   - View live drivers, active bookings, and fleet radar.
+   - Approve synthetic driver KYC documents.
+   - Toggle cities (Bengaluru, Mumbai, Delhi, etc.).
+
+------------------------------------------------------------------------------
+HOW TO OPEN ON YOUR MOBILE PHONE (SAME WI-FI):
+------------------------------------------------------------------------------
+If your mobile phone and this laptop are on the same Wi-Fi:
+  1. Find your laptop's local IP address (in Command Prompt, type `ipconfig`).
+     Example: 192.168.1.15
+  2. On your mobile phone browser, open:
+     http://192.168.1.15:5000/
+  3. You will see the mobile app interface on your phone!
+  4. (Optional) Tap "Add to Home Screen" in Safari / Chrome to install it as an app icon.
+
+------------------------------------------------------------------------------
+SAFETY NOTE:
+------------------------------------------------------------------------------
+- The platform is running in Sandbox / Demo mode.
+- No real bank accounts, real credit cards, or external charges occur.
+- All data is safely stored in local persistent memory.
+==============================================================================

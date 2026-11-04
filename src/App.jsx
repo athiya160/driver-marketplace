@@ -29,6 +29,9 @@ import {
 export default function App() {
   const getInitialRole = () => {
     if (typeof window !== 'undefined') {
+      const pathname = window.location.pathname.toLowerCase();
+      if (pathname.includes('/driver')) return 'driver';
+      if (pathname.includes('/admin')) return 'admin';
       const params = new URLSearchParams(window.location.search);
       const role = params.get('role');
       if (['customer', 'driver', 'admin'].includes(role)) return role;
@@ -38,6 +41,9 @@ export default function App() {
 
   const getInitialScreen = () => {
     if (typeof window !== 'undefined') {
+      const pathname = window.location.pathname.toLowerCase();
+      if (pathname.includes('/driver')) return 'driver_dash';
+      if (pathname.includes('/admin')) return 'admin_dash';
       const params = new URLSearchParams(window.location.search);
       const screen = params.get('screen');
       if (screen) return screen;
