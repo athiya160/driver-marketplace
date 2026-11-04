@@ -1,0 +1,318 @@
+=======================================================
+🚀 RUNNING ALL 15 TEST SUITES (PHASES 1 - 9B FOUNDER TESTING)
+=======================================================
+🧪 Starting Sarathi Automated Test Suite...
+
+--- 1. Pricing Engine & Indian Fare Tests ---
+  ✅ PASS: Hourly booking for 2 hours (minimum duration) calculates correctly
+  ✅ PASS: Hourly booking for 4 hours calculates extra hours accurately
+  ✅ PASS: Night time window detection (10:00 PM to 06:00 AM)
+  ✅ PASS: Night allowance ₹250 applied when trip is scheduled at 23:00
+  ✅ PASS: Outstation Driver Daily Allowance (DA) of ₹350 is added for outstation trips
+  ✅ PASS: Coupon FIRST50 applies flat ₹50 discount
+
+--- 2. Booking Conflict Prevention Engine Tests ---
+  ✅ PASS: Detects conflict when booking overlaps during the same time window
+  ✅ PASS: Detects conflict during the 30-minute buffer window
+  ✅ PASS: Allows booking when time is completely clear after buffer window
+  ✅ PASS: Allows booking for a different driver on the same time slot
+
+--- 3. Booking State Machine & OTP / QR Verification ---
+  ✅ PASS: Booking transitions through full lifecycle
+  ✅ PASS: Trip Start requires matching OTP or QR Payload
+
+--- 4. Role Permissions & KYC Document Approval ---
+  ✅ PASS: Only approved drivers are visible in public search
+  ✅ PASS: Admin can approve pending driver KYC
+
+=======================================================
+🏆 Test Suite Complete: 14/14 Tests Passed
+=======================================================
+
+🧪 Starting Phase 4 Customer Journey Integration Tests...
+  ✅ PASS: No unverified corporate claims or unregistered domain emails in mock store
+  ✅ PASS: Never shows unverified or pending drivers in customer search
+  ✅ PASS: Filters drivers correctly by transmission (Automatic vs Manual)
+  ✅ PASS: Calculates complete fare breakdown with 5% GST and ₹49 convenience fee
+  ✅ PASS: Prevents double-booking driver within same slot or 30-min transit window
+  ✅ PASS: Generates 4-digit numeric OTP and encrypted QR payload for trip verification
+
+=======================================================
+🏆 Phase 4 Customer Integration Tests: 6/6 Passed
+=======================================================
+
+🧪 Starting Phase 5 Driver Application & KYC Integration Tests...
+  ✅ PASS: Customer account does not possess driver role or chauffeur capabilities
+  ✅ PASS: Driver profile requires transmission skills and verified DL number
+  ✅ PASS: Aadhaar numbers are masked and never exposed publicly
+  ✅ PASS: KYC documents track submission lifecycle and verification stamps
+  ✅ PASS: Driver rates adhere to platform fair pricing rules (₹120 - ₹350/hr)
+  ✅ PASS: Driver can toggle online and offline availability
+  ✅ PASS: Conflict engine enforces mandatory 30-min transit buffer for driver
+  ✅ PASS: Calculates driver net payout as 85% of gross fare plus 100% of outstation DA
+  ✅ PASS: Rejects invalid OTP and accepts matching 4-digit code to start trip
+
+=======================================================
+🏆 Phase 5 Driver Tests: 9/9 Passed
+=======================================================
+
+🧪 Starting Phase 6 Admin Operations Center Integration Tests...
+  ✅ PASS: Restricted SuperAdmin profile exists with verified credentials
+  ✅ PASS: Validates 4-digit PIN 1234 for administrative console session
+  ✅ PASS: Calculates platform commission (15%) and driver payout split (85%) accurately
+  ✅ PASS: Aggregates total GMV and active meter trips from state store
+  ✅ PASS: Pending driver is hidden from customer search, then immediately visible upon approval
+  ✅ PASS: Rejection records mandatory compliance reason and marks document rejected
+  ✅ PASS: Searches bookings by reference SRT-2026-8821 and retrieves trip details
+  ✅ PASS: Processes full Razorpay refund for customer booking and updates payment status
+  ✅ PASS: Supports 10 Indian operational cities with toggleable status and base rates
+  ✅ PASS: Maintains national allowances: Outstation DA ₹350 and Night Allowance ₹250
+  ✅ PASS: Manages active promo coupons (FIRST50, WEEKEND100, SARATHI15)
+  ✅ PASS: Accesses operational audit log trail with sanitized details
+  ✅ PASS: Resolves customer support ticket and updates status
+  ✅ PASS: Admin session token generated successfully
+
+=======================================================
+🏆 Phase 6 Admin Operations Tests: 14/14 Passed
+=======================================================
+
+🧪 Starting Phase 7 Marketplace Dispatch & Proximity Integration Tests...
+  ✅ PASS: Filters drivers strictly by city, approval, and online duty status
+  ✅ PASS: Enforces vehicle transmission mastery match
+  ✅ PASS: Calculates Haversine spherical surface distance with high precision
+  ✅ PASS: Estimates travel ETA in Indian city traffic (20 km/h baseline)
+  ✅ PASS: Ranks drivers using multi-factor weighted scoring
+  ✅ PASS: Creates dispatch session with ordered candidates
+  ✅ PASS: Dispatches offer to highest-ranked chauffeur candidate
+  ✅ PASS: Auto-escalates dispatch offer to next candidate upon 45s offer timeout
+  ✅ PASS: Transitions session to accepted when driver claims trip
+  ✅ PASS: Enforces 30-minute transit buffer window between bookings
+  ✅ PASS: Tracks driver dynamic telemetry coordinates
+  ✅ PASS: Rejects synthetic coordinates outside valid Indian territory bounds
+
+=======================================================
+🏆 Phase 7 Marketplace Dispatch Tests: 12/12 Passed
+=======================================================
+
+🧪 Starting Phase 7.5 Demo Simulation Engine Tests...
+  ✅ PASS: 1. Initializes realistic Indian demo scenario with 5 drivers and 3 customers
+  ✅ PASS: 2. Seeds Bengaluru pilot city with 3 active drivers
+  ✅ PASS: 3. Instant persona switcher toggles customer, chauffeur, and admin roles
+  ✅ PASS: 4. Chauffeur profile contains full Indian verification artifacts
+  ✅ PASS: 5. Calculates realistic Bangalore-to-Airport ETA with 25 km/h urban speed
+  ✅ PASS: 6. Fast-forwards booking state machine without waiting for real time
+  ✅ PASS: 7. GPS route simulator steps driver coordinates toward customer pickup
+  ✅ PASS: 8. Generates realistic simulated telemetry with small jitter
+  ✅ PASS: 9. Demo reset completely restores initial sample data state
+  ✅ PASS: 10. Prevents double-booking driver during active demo reservation
+  ✅ PASS: 11. Calculates complete Indian fare breakdown with 5% GST and ₹49 platform fee
+  ✅ PASS: 12. Simulates Razorpay UPI payment authorization with sandbox transaction ID
+  ✅ PASS: 13. Rejects invalid OTP and accepts matching 4-digit code to start trip
+  ✅ PASS: 14. Demo status probe returns structured diagnostics
+  ✅ PASS: 15. Masks sensitive driver PII (Aadhaar & DL) in customer views
+  ✅ PASS: 16. Demo environment operates 100% offline with zero cloud credentials
+
+=======================================================
+🏆 Phase 7.5 Demo Mode Tests: 16/16 Passed
+=======================================================
+
+🧪 Starting Phase 8A Cloud Database, Storage & Authentication Tests...
+  ✅ PASS: 1. Computes cryptographic salted SHA-256 password hash
+  ✅ PASS: 2. Signs and verifies production HS256 JWT tokens with expiry
+  ✅ PASS: 3. Rejects tampered JWT tokens with invalid signatures
+  ✅ PASS: 4. Generates and validates long-lived 7-day refresh tokens
+  ✅ PASS: 5. Password verification rejects incorrect passwords
+  ✅ PASS: 6. Role Authorization: Customer token cannot access Admin routes
+  ✅ PASS: 7. Role Authorization: Chauffeur token cannot access SuperAdmin routes
+  ✅ PASS: 8. IDOR Prevention: Customer cannot access other customers' records
+  ✅ PASS: 9. RLS Contract: Customers can only select approved public drivers
+  ✅ PASS: 10. RLS Contract: Drivers can only view and update their own profile
+  ✅ PASS: 11. Transactional Lock: Prevents race condition during booking confirmation
+  ✅ PASS: 12. Private Document Storage: Generates signed time-limited URL for KYC
+  ✅ PASS: 13. Private Document Storage: Rejects expired signed URLs
+  ✅ PASS: 14. In-Memory Fallback Client: Performs CRUD matching Supabase PostgREST
+  ✅ PASS: 15. In-Memory Fallback Client: Filters records using eq, gte, lte, and in
+  ✅ PASS: 16. In-Memory Fallback Client: Enforces unique constraint violation
+  ✅ PASS: 17. Supabase client health probe returns structured diagnostics
+  ✅ PASS: 18. Document upload rejects files exceeding 5MB size limit
+
+=======================================================
+🏆 Phase 8A Cloud Database Tests: 18/18 Passed
+=======================================================
+
+🧪 Starting Phase 8B Real-Time Mobility & Cascade Dispatch Tests...
+  ✅ PASS: 1. Authorizes customer subscription strictly to their own booking channel
+  ✅ PASS: 2. Authorizes designated chauffeur subscription to their private dispatch channel
+  ✅ PASS: 3. Denies unauthorized customer from subscribing to another user's channel
+  ✅ PASS: 4. Allows SuperAdmin unrestricted access to all operational channels
+  ✅ PASS: 5. Publishes real-time event to authorized channel subscribers
+  ✅ PASS: 6. Demonstrates zero cross-channel message leakage
+  ✅ PASS: 7. Circular event buffer captures history and replays with Last-Event-ID
+  ✅ PASS: 8. Strictly isolates synthetic demo events from live production channels
+  ✅ PASS: 9. Cascades timed-out offer from primary candidate to secondary candidate
+  ✅ PASS: 10. Automatically clears dispatch offer when a candidate rejects
+  ✅ PASS: 11. Terminates session with exhausted status when all candidates reject
+  ✅ PASS: 12. Dead reckoning projects vehicle position during brief GPS outage
+  ✅ PASS: 13. Rejects dead-reckoning projection exceeding 5 minutes threshold
+  ✅ PASS: 14. Ingests driver GPS telemetry coordinate and updates tracker state
+  ✅ PASS: 15. Rejects GPS coordinate with accuracy uncertainty exceeding 50 meters
+  ✅ PASS: 16. Rejects GPS coordinate indicating speed exceeding 160 km/h threshold
+
+=======================================================
+🏆 Phase 8B Real-Time Mobility Tests: 16/16 Passed
+=======================================================
+
+🧪 Starting Phase 8C Payment, Refund, OTP & Driver Settlement Tests...
+  ✅ PASS: 1. Converts INR Rupees to integer Paise accurately
+  ✅ PASS: 2. Converts integer Paise to INR Rupees accurately
+  ✅ PASS: 3. Formats Paise into standard Indian Rupee notation (₹599)
+  ✅ PASS: 4. Verifies Razorpay HMAC SHA-256 order signature
+  ✅ PASS: 5. Rejects forged Razorpay payment signature
+  ✅ PASS: 6. Verifies Razorpay Webhook HMAC SHA-256 signature
+  ✅ PASS: 7. Idempotent webhook processor rejects duplicate payment event
+  ✅ PASS: 8. Creates Razorpay Sandbox payment order with integer paise
+  ✅ PASS: 9. Verifies sandbox payment and updates booking status to captured
+  ✅ PASS: 10. Processes full refund and updates booking payment status to refunded
+  ✅ PASS: 11. Processes partial refund and recalculates remaining balance
+  ✅ PASS: 12. Prevents refund exceeding originally captured payment amount
+  ✅ PASS: 13. Generates 6-digit cryptographic SMS OTP with SHA-256 salt
+  ✅ PASS: 14. Rejects incorrect OTP and accepts matching OTP within expiry
+  ✅ PASS: 15. Enforces 3-minute OTP expiry window
+  ✅ PASS: 16. Calculates 85/15 split: 85% Chauffeur / 15% Platform take
+  ✅ PASS: 17. Generates weekly driver payout settlement ledger
+  ✅ PASS: 18. Prevents duplicate weekly settlement generation for same period
+
+=======================================================
+🏆 Phase 8C Payment & Communication Tests: 18/18 Passed
+=======================================================
+
+🧪 Starting Phase 8D Maps & Routing Tests...
+  ✅ PASS: 1. Resolves driving route between Bangalore MG Road and BLR Airport
+  ✅ PASS: 2. Incorporates dynamic traffic multipliers for morning and evening rush
+  ✅ PASS: 3. Computes Haversine great-circle distance with < 1% error
+  ✅ PASS: 4. Caches identical route queries to control external API costs
+  ✅ PASS: 5. Detects driver on-route when within 100m threshold
+  ✅ PASS: 6. Detects off-route deviation (> 100m) and dynamically recalculates route
+  ✅ PASS: 7. Detects when driver enters 150m pickup arrival geofence
+  ✅ PASS: 8. Searches Indian places with address autocomplete
+  ✅ PASS: 9. Reverse geocodes pin-drop coordinates to nearest Indian address
+  ✅ PASS: 10. Rejects pin drops placed outside Indian national territory
+  ✅ PASS: 11. Projects vehicle coordinates via dead reckoning during GPS loss
+  ✅ PASS: 12. Maintains dynamic pricing configuration with statutory disclaimer
+
+=======================================================
+🏆 Phase 8D Maps & Routing: 16/16 Passed
+=======================================================
+
+🧪 Starting Phase 8E Security & Reliability Tests...
+  ✅ PASS: 1. Rejects unsigned requests to SuperAdmin audit log endpoints
+  ✅ PASS: 2. Rejects customer token from viewing another customer's booking (IDOR)
+  ✅ PASS: 3. Rejects driver token from viewing unassigned customer bookings (IDOR)
+  ✅ PASS: 4. Allows SuperAdmin token to inspect any customer booking
+  ✅ PASS: 5. Rejects unauthorized token from initiating customer refunds
+  ✅ PASS: 6. In-memory sliding-window rate limiter blocks bursts
+  ✅ PASS: 7. SMS OTP rate limiter restricts rapid requests to same phone
+  ✅ PASS: 8. Sanitizes sensitive Aadhaar and DL numbers in log messages
+  ✅ PASS: 9. Sanitizes API keys, secrets, and authorization bearer tokens in logs
+  ✅ PASS: 10. Rejects executable and dangerous MIME types (.exe, .sh, .html)
+  ✅ PASS: 11. Rejects files exceeding 5MB size limit
+  ✅ PASS: 12. Security middleware sets X-Content-Type-Options: nosniff
+  ✅ PASS: 13. Security middleware sets X-Frame-Options: SAMEORIGIN
+  ✅ PASS: 14. CORS validator allows whitelisted staging origins
+  ✅ PASS: 15. Prevents double-booking driver within same slot or transit buffer
+  ✅ PASS: 16. In-memory mutex lock prevents simultaneous booking confirmations
+  ✅ PASS: 17. Rejects booking creation when pickup address is missing
+  ✅ PASS: 18. Rejects booking creation when start time is missing
+  ✅ PASS: 19. Rejects invalid trip start OTP and accepts matching OTP
+  ✅ PASS: 20. Revokes JWT token on logout and blocks subsequent calls
+  ✅ PASS: 21. Production demo isolation: rejects demo tokens on live endpoints
+
+=======================================================
+🏆 Phase 8E Security & Reliability Tests: 21/21 Passed
+=======================================================
+
+🧪 Starting Phase 8F Staging Integration Tests...
+  ✅ PASS: 1. Supabase health probe returns structured diagnostics with safe fallback
+  ✅ PASS: 2. Schema migrations enforce RLS data access boundaries
+  ✅ PASS: 3. Redis ping diagnostics operates in dual-mode
+  ✅ PASS: 4. Distributed lock acquisition creates atomic lease with token
+  ✅ PASS: 5. Mutual exclusion blocks simultaneous second acquisition attempt
+  ✅ PASS: 6. Lock release enforces atomic token validation
+  ✅ PASS: 7. Lock lease extension succeeds only for token holder
+  ✅ PASS: 8. Saves and retrieves active dispatch sessions across distributed nodes
+  ✅ PASS: 9. Durable dispatch worker automatically escalates timed-out offers
+  ✅ PASS: 10. Durable dispatch worker marks session exhausted when all candidates time out
+  ✅ PASS: 11. Startup recovery seeds active persistent sessions into distributed state
+  ✅ PASS: 12. Enforces sliding window rate limit and calculates correct reset headers
+  ✅ PASS: 13. Google Maps client operates with valid error handling and road fallback
+  ✅ PASS: 14. MSG91 client audits DLT template prerequisites
+  ✅ PASS: 15. Razorpay Sandbox payments verify HMAC SHA-256 signatures with paise
+  ✅ PASS: 16. Razorpay Route operates safely in internal ledger mode
+  ✅ PASS: 17. Mobile manifest specifies required Android and iOS location permissions
+  ✅ PASS: 18. Battery conservation profile defines dynamic 10m filter and 60s sleep mode
+  ✅ PASS: 19. Staging auditor compiles multi-point integration status
+  ✅ PASS: 20. Staging auditor accurately flags live production prerequisites
+
+=======================================================
+🏆 Phase 8F Staging Integration Tests: 20/20 Passed
+=======================================================
+
+🧪 Starting Phase 8G Deployment Readiness Tests...
+  ✅ PASS: 1. Root /health probe returns UP status and platform telemetry
+  ✅ PASS: 2. API /api/health probe returns database and redis component diagnostics
+  ✅ PASS: 3. Staging system info endpoint returns statutory disclaimer
+  ✅ PASS: 4. Secret Protection: Supabase service-role key is never exposed with VITE_
+  ✅ PASS: 5. Production Admin Guard: Rejects default PIN 1234 in production mode
+  ✅ PASS: 6. Production Role Guard: Rejects x-demo-role admin escalation in production
+  ✅ PASS: 7. RLS Policy: Customer token cannot access administrative audit logs
+  ✅ PASS: 8. RLS Policy: Driver token cannot access unauthorized financial refunds
+  ✅ PASS: 9. Database Backup: Creates timestamped snapshot with SHA-256 hash
+  ✅ PASS: 10. Database Backup Verification: Validates file envelope and completeness
+  ✅ PASS: 11. Database Restore: Restores database state with automatic safety pre-snapshot
+  ✅ PASS: 12. Server Boot Recovery: Reconciles persistent dispatch state and clears stale locks
+  ✅ PASS: 13. GST Engine: Supports configurable tax rate with statutory disclaimer
+  ✅ PASS: 14. Mobile Manifest: Declares required Android 14 Foreground Location service
+  ✅ PASS: 15. Mobile Manifest: Declares modern iOS Always & When In Use description strings
+  ✅ PASS: 16. Complete 11-Step End-to-End Staging User Journey
+
+=======================================================
+🏆 Phase 8G Deployment Readiness Tests: 16/16 Passed
+=======================================================
+
+🧪 Starting Phase 9A.1 Founding Launch & Security Audit...
+  ✅ PASS: 1. Founding fare calculation applies ₹0 platform convenience fee and 0% commission
+  ✅ PASS: 2. Standard fare calculation maintains ₹49 fee and 15% commission when founding flag omitted
+  ✅ PASS: 3. Chauffeur retains 100% of Outstation DA (₹350) and Night Allowance (₹250)
+  ✅ PASS: 4. Founding settlement split produces 100% driver take and 0% platform take
+  ✅ PASS: 5. Policy manager tracks 90-day validity window and trip quotas
+  ✅ PASS: 6. Policy deactivates gracefully when trip quota of 1,000 is reached
+  ✅ PASS: 7. Direct settlement recording updates booking payment status to paid_to_chauffeur
+  ✅ PASS: 8. Signs and verifies cryptographic HS256 JWT tokens with expiry
+  ✅ PASS: 9. Rejects expired JWT tokens
+  ✅ PASS: 10. Token revocation blocklist immediately invalidates active tokens on logout
+  ✅ PASS: 11. Password hashing uses PBKDF2/SHA-256 with salt and timing-safe verification
+  ✅ PASS: 12. Refresh token rotation generates distinct refresh tokens with 7-day TTL
+  ✅ PASS: 13. Resource ownership verification protects customer data from other customers
+  ✅ PASS: 14. Production mode rejects synthetic demo tokens on live endpoints
+  ✅ PASS: 15. Persistent storage provides file-backed durability across restarts
+  ✅ PASS: 16. Supabase PostgreSQL is documented as PARTIAL / BLOCKED_ON_CREDENTIALS
+
+=======================================================
+🏆 Phase 9A.1 Audit Tests: 16/16 Passed
+=======================================================
+
+🧪 Starting Salman Driver - Phase 9B Founder Test Suite...
+  ✅ PASS: 1. Customer Registration Policy: ₹0 registration fee & immediate active account
+  ✅ PASS: 2. Driver Passport: Retrieves verified license, safe KMs, zero-accident streak & luxury certifications
+  ✅ PASS: 3. Vehicle Handover: Pre-trip inspection records odometer, fuel level, scratch checklist & digital signature
+  ✅ PASS: 4. Family Circle: Adds trusted contact, broadcasts live trip updates and emergency SOS
+  ✅ PASS: 5. Preferred Chauffeur: Customer saves driver, retrieves list and enables priority rehire
+  ✅ PASS: 6. Multi-Device Real-Time Sync & State Persistence
+
+=======================================================
+🏆 Phase 9B Founder Testing Suite: 6/6 Passed
+=======================================================
+
+=======================================================
+🌟 ALL 15 TEST SUITES PASSED CLEANLY (218/218 TESTS)
+=======================================================

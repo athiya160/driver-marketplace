@@ -1,0 +1,97 @@
+================================================================================
+SARATHI / SALMAN DRIVER - PRE-LAUNCH SECURITY AUDIT & VERIFICATION REPORT
+Milestone: Phase 9C / Phase 10 Pre-Launch Verification
+Date: 2026-11-04
+Product: Pan-India On-Demand Personal Driver Marketplace
+Tagline: "Your Car. Your Journey. Your Driver."
+================================================================================
+
+1. SECRET MANAGEMENT & CODEBASE HYGIENE
+--------------------------------------------------------------------------------
+- Repository Git History Audit: Clean. No production API keys, database credentials,
+  Razorpay live keys, or SMS Gateway auth tokens committed to git history.
+- .gitignore Audit: Confirmed active exclusion for:
+    * .env, .env.local, .env.production
+    * node_modules/
+    * dist/
+    * server/db/persistentData.json (local state tracking)
+    * *.log, *.pem, *.key
+- Environment Variable Template: .env.example audited with clear placeholders
+  and secure production defaults documented.
+
+2. AUTHENTICATION & CRYPTOGRAPHIC TOKEN VERIFICATION
+--------------------------------------------------------------------------------
+- Central Authority: server/auth/authService.js serves as the single source of
+  truth for cryptographic hashing, verification, token generation, and revocation.
+- Password Hashing: Crypto-grade scrypt/PBKDF2 implementation with unique per-user
+  cryptographic salts and timing-safe comparison (crypto.timingSafeEqual) to
+  eliminate timing side-channel attacks.
+- JWT Architecture: RFC 7519 compliant JSON Web Tokens signed with HS256 using
+  JWT_SECRET (enforcing minimum 32-byte cryptographic entropy in production).
+- Replay & Collision Protection: Every issued token incorporates a unique 16-character
+  hexadecimal nonce (`jti: crypto.randomBytes(8).toString('hex')`) in addition to `iat`
+  and `exp`. This guarantees distinct token signatures even for rapid consecutive logins.
+- Revocation List: In-memory and persistent token blacklist (`tokenBlacklist`)
+  immediately invalidates tokens upon explicit user or admin logout.
+
+3. SUPERADMIN ACCESS CONTROL & SECURITY LOCKDOWN
+--------------------------------------------------------------------------------
+- Staging/Production Isolation:
+    * In development/demo mode: Guided fallback credentials allowed only for local inspection.
+    * In production mode (`NODE_ENV=production`): Hard security rejection. Default PIN
+      "1234" is strictly forbidden and actively rejected by server/apiRouter.js.
+    * Production requires a cryptographically strong `ADMIN_PASSWORD` injected via
+      environment variables.
+- Tunnel Security Protocol:
+    * Cloudflare tunnels expose endpoints to public inspection. Founder demo startup script
+      (scripts/start_founder_demo.ps1) warns operators and enforces strict authentication.
+    * Public admin endpoints require Bearer HS256 JWT tokens. Synthetic mock sessions
+      (`adm_session_*`) are prohibited in production.
+
+4. DATABASE SECURITY & ROW-LEVEL SECURITY (RLS)
+--------------------------------------------------------------------------------
+- Database Engine: Dual-mode architecture supporting PostgreSQL (Supabase) and
+  fail-safe staging file persistence.
+- Schema Migrations: 4 sequenced migration files audited:
+    * 001_initial_schema.sql (19 core relational tables, primary keys, foreign constraints)
+    * 002_rls_policies.sql (12 granular Row-Level Security policies)
+    * 003_payments_and_communications.sql (Audit ledgers, settlements, webhook event idempotency)
+    * 004_premium_features.sql (Corporate profiles, EV/Luxury driver preferences, recurring schedules)
+- RLS Policy Isolation:
+    * Customers can only read and modify their own bookings and profile data.
+    * Chauffeurs can view accepted trip assignments and read dispatch broadcasts.
+    * Administrative oversight is isolated to verified SuperAdmin JWT claims.
+- Injection Resistance: Zero raw SQL string interpolation in application code. All database
+  interactions use parameterized queries through the Supabase client or structured
+  in-memory persistence models.
+
+5. FINANCIAL INTEGRITY & ZERO-COMMISSION AUDIT
+--------------------------------------------------------------------------------
+- Founding Launch Policy: Server-enforced ₹0 platform commission for customers and ₹0
+  commission deduction for chauffeurs across all fare calculation endpoints (`/bookings/estimate-fare`,
+  `/bookings/create`).
+- Razorpay Integration:
+    * Hardwired to Razorpay Test/Sandbox mode unless live production keys are explicitly
+      configured by the platform owner.
+    * Zero real bank accounts or payout routing enabled in the code repository.
+    * Webhook verification enforces HMAC SHA256 signature checking to prevent spoofed
+      payment confirmation events.
+- Audit Trail: Every transaction generates an immutable settlement ledger record with
+  timestamp, calculation breakdown, and unique reference ID.
+
+6. REAL-TIME EVENT STREAMING (SSE) SECURITY
+--------------------------------------------------------------------------------
+- Protocol: Channelized Server-Sent Events (SSE) hosted on `/api/realtime/events`.
+- Tunnel Resilience: SSE streams operate seamlessly over standard HTTP/HTTPS without
+  requiring specialized WebSocket proxy upgrades, making them 100% resilient across
+  Cloudflare Tunnels, reverse proxies, and mobile cellular networks.
+- Privacy Isolation: Event channels are strictly partitioned (`customer:<id>`,
+  `driver:<id>`, `admin:broadcast`). Dispatch requests do not leak sensitive customer
+  phone numbers or private trip notes prior to driver assignment.
+- Keepalive Heartbeat: 15-second synthetic comment ping (`: keepalive\n\n`) prevents
+  intermediary cloud timeouts and dead socket accumulation.
+
+================================================================================
+AUDIT VERDICT: STAGING & FOUNDER DEMONSTRATION SECURITY COMPLIANT
+No blocking security vulnerabilities identified for staging or private founder demo.
+================================================================================

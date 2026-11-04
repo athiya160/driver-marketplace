@@ -735,8 +735,16 @@ apiRouter.get('/pricing/categories', (req, res) => {
 });
 
 apiRouter.post('/bookings/estimate-fare', (req, res) => {
-  const { serviceType, durationHours, startTime, couponCode, luxuryCar } = req.body;
-  const fare = calculateFare({ serviceType, durationHours, startTime, couponCode, luxuryCar });
+  const { serviceType, durationHours, startTime, couponCode, luxuryCar, applyFoundingLaunch } = req.body || {};
+  const isFounding = applyFoundingLaunch !== undefined ? Boolean(applyFoundingLaunch) : false;
+  const fare = calculateFare({
+    serviceType,
+    durationHours,
+    startTime,
+    couponCode,
+    luxuryCar,
+    applyFoundingLaunch: isFounding
+  });
   return res.json({ success: true, fare });
 });
 
@@ -1856,9 +1864,12 @@ apiRouter.post('/admin/login', authRateLimiter, (req, res) => {
   currentUser = adminUser;
   recordAuditLog('ADMIN_LOGIN', 'Admin Operations Center', `Admin ${adminUser.fullName} logged into console session.`);
 
-  const token = isProd
-    ? signJwt({ id: adminUser.id, role: 'admin', email: adminUser.email }, 28800)
-    : `adm_session_${Date.now()}`;
+  const token = signJwt({
+    id: adminUser.id,
+    role: 'admin',
+    email: adminUser.email,
+    isDemo: !isProd
+  }, 28800);
 
   return res.json({
     success: true,

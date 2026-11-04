@@ -63,7 +63,8 @@ function base64UrlDecode(str) {
 export function signJwt(payload, expiresInSeconds = 86400, secret = JWT_SECRET) {
   const header = { alg: 'HS256', typ: 'JWT' };
   const exp = Math.floor(Date.now() / 1000) + expiresInSeconds;
-  const tokenPayload = { ...payload, exp, iat: Math.floor(Date.now() / 1000) };
+  const jti = payload.jti || crypto.randomBytes(8).toString('hex');
+  const tokenPayload = { ...payload, exp, iat: Math.floor(Date.now() / 1000), jti };
 
   const encodedHeader = base64UrlEncode(JSON.stringify(header));
   const encodedPayload = base64UrlEncode(JSON.stringify(tokenPayload));
