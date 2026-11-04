@@ -20,6 +20,7 @@
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "Personal Driver Marketplace requires your location to find nearby verified drivers for your vehicle.",
         "NSLocationAlwaysUsageDescription": "Personal Driver Marketplace needs background location during active trips to track driver arrival and route.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "Personal Driver Marketplace needs continuous location during an active trip to provide live navigation and passenger safety.",
         "NSCameraUsageDescription": "Personal Driver Marketplace uses camera access to scan booking QR codes and upload driver documents."
       }
     },
@@ -34,6 +35,7 @@
         "ACCESS_FINE_LOCATION",
         "ACCESS_BACKGROUND_LOCATION",
         "FOREGROUND_SERVICE",
+        "FOREGROUND_SERVICE_LOCATION",
         "CAMERA",
         "READ_EXTERNAL_STORAGE",
         "WRITE_EXTERNAL_STORAGE"

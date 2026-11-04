@@ -1,0 +1,68 @@
+# ==============================================================================
+# PERSONAL DRIVER MARKETPLACE - CLOUD STAGING DOCKER COMPOSE SPECIFICATION
+# "Your Car. Your Journey. Your Driver."
+# ==============================================================================
+
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: driver-marketplace-staging-app
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      - NODE_ENV=staging
+      - PORT=5000
+      - CORS_ORIGIN=http://localhost:5000,http://localhost:5173
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=staging_jwt_secret_personal_driver_marketplace_2026
+      - REFRESH_TOKEN_SECRET=staging_refresh_token_secret_driver_marketplace_2026
+      # External Integrations (Set in .env.staging or CI/CD secrets)
+      - SUPABASE_URL=${SUPABASE_URL:-}
+      - SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY:-}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY:-}
+      - RAZORPAY_KEY_ID=${RAZORPAY_KEY_ID:-rzp_test_mock_staging_2026}
+      - RAZORPAY_KEY_SECRET=${RAZORPAY_KEY_SECRET:-mock_secret_staging_2026}
+      - RAZORPAY_WEBHOOK_SECRET=${RAZORPAY_WEBHOOK_SECRET:-mock_wh_secret_staging_2026}
+      - GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY:-}
+      - MSG91_AUTH_KEY=${MSG91_AUTH_KEY:-}
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:5000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    networks:
+      - staging-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: driver-marketplace-staging-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_staging_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    networks:
+      - staging-network
+
+volumes:
+  redis_staging_data:
+    driver: local
+
+networks:
+  staging-network:
+    driver: bridge

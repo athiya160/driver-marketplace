@@ -136,7 +136,8 @@ export function calculateFare({
   durationHours = 2,
   startTime = '10:00',
   couponCode = null,
-  luxuryCar = false
+  luxuryCar = false,
+  gstRatePercent = null
 }) {
   const config = SERVICE_CATEGORIES[serviceType] || SERVICE_CATEGORIES.hourly;
   const hours = Math.max(Number(durationHours) || config.minHours, config.minHours);
@@ -182,8 +183,11 @@ export function calculateFare({
 
   const taxableAmount = Math.max(0, subTotal - discountAmount);
 
-  // 8. GST (5% Road Transport Aggregator Rate)
-  const gstTax = Math.round(taxableAmount * 0.05);
+  // 8. GST (Configurable Road Transport / Chauffeur Aggregator Rate, default 5%)
+  const gstRate = (typeof gstRatePercent === 'number' && !isNaN(gstRatePercent))
+    ? (gstRatePercent / 100)
+    : (parseFloat(process.env.STATUTORY_GST_PERCENT) || 5) / 100;
+  const gstTax = Math.round(taxableAmount * gstRate);
 
   // Total Final Fare
   const totalFare = taxableAmount + gstTax;
@@ -212,6 +216,8 @@ export function calculateFare({
     subTotal,
     taxableAmount,
     gstTax,
+    gstRatePercent: Math.round(gstRate * 100),
+    gstStatutoryDisclaimer: 'GST rate calculation is an estimate and must be reviewed with a qualified tax professional.',
     totalFare,
     driverEarnings,
     platformEarnings,

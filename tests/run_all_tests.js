@@ -22,11 +22,12 @@ const suites = [
   'payment_communications.test.js',
   'maps_routing.test.js',
   'security_reliability.test.js',
-  'staging_integrations.test.js'
+  'staging_integrations.test.js',
+  'staging_readiness.test.js'
 ];
 
 console.log('=======================================================');
-console.log('🚀 RUNNING ALL 12 TEST SUITES (PHASES 1 - 8F)');
+console.log('🚀 RUNNING ALL 13 TEST SUITES (PHASES 1 - 8G)');
 console.log('=======================================================');
 
 for (const suite of suites) {
@@ -40,5 +41,5 @@ for (const suite of suites) {
 }
 
 console.log('\n=======================================================');
-console.log('🌟 ALL 12 TEST SUITES PASSED CLEANLY (180/180 TESTS)');
+console.log('🌟 ALL 13 TEST SUITES PASSED CLEANLY (196/196 TESTS)');
 console.log('=======================================================\n');

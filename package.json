@@ -11,7 +11,9 @@
     "start": "node server/index.js",
     "server": "node server/index.js",
     "test": "node tests/run_all_tests.js",
-    "generate-qr": "node scripts/generate_app_qr.js"
+    "generate-qr": "node scripts/generate_app_qr.js",
+    "backup": "node scripts/backup_database.js backup",
+    "migrate": "node scripts/run_migrations.js"
   },
   "keywords": [
     "driver-rental",

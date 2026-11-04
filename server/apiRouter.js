@@ -94,7 +94,18 @@ function recordAuditLog(action, target, details, adminName = 'Operations Admin')
 
 // Enterprise Role Guard: Restricts Administrative Operations to Verified Admins
 function requireAdmin(req, res, next) {
-  const caller = req.user || (req.headers['x-demo-role'] === 'admin' ? { id: 'adm_001', role: 'admin' } : null) || (currentUser?.role === 'admin' ? currentUser : null);
+  const isProd = process.env.NODE_ENV === 'production';
+  let caller = req.user;
+
+  // In non-production environments (test/demo), allow demo role headers and active demo user
+  if (!isProd && !caller) {
+    if (req.headers['x-demo-role'] === 'admin') {
+      caller = { id: 'adm_001', role: 'admin' };
+    } else if (currentUser?.role === 'admin') {
+      caller = currentUser;
+    }
+  }
+
   if (!caller) {
     return res.status(401).json({ success: false, message: 'Authentication required for administrative operations.' });
   }
@@ -105,8 +116,34 @@ function requireAdmin(req, res, next) {
 }
 
 // -----------------------------------------------------------------------------
-// 0. CLOUD DATABASE & DATA ACCESS HEALTHCHECK (PHASE 8A)
+// 0. HEALTHCHECKS & TELEMETRY (PHASE 8A, 8F, 8G)
 // -----------------------------------------------------------------------------
+
+// Comprehensive Staging / Production API Health Probe
+apiRouter.get('/health', async (req, res) => {
+  const [dbHealth, redisHealth] = await Promise.all([
+    supabase.healthCheck(),
+    globalRedisClient.ping()
+  ]);
+
+  const memory = process.memoryUsage();
+  return res.json({
+    status: 'UP',
+    service: 'Personal Driver Marketplace Backend API',
+    tagline: 'Your Car. Your Journey. Your Driver.',
+    environment: process.env.NODE_ENV || 'staging',
+    uptimeSeconds: Math.floor(process.uptime()),
+    timestamp: new Date().toISOString(),
+    components: {
+      database: dbHealth,
+      redis: redisHealth,
+      memory: {
+        rssMb: Math.round(memory.rss / 1024 / 1024),
+        heapUsedMb: Math.round(memory.heapUsed / 1024 / 1024)
+      }
+    }
+  });
+});
 
 apiRouter.get('/health/db', async (req, res) => {
   const health = await supabase.healthCheck();
@@ -114,6 +151,19 @@ apiRouter.get('/health/db', async (req, res) => {
     success: true,
     platform: 'Personal Driver Marketplace Backend',
     database: health
+  });
+});
+
+// Staging System Telemetry & Readiness Probe (Phase 8G)
+apiRouter.get('/staging/system-info', async (req, res) => {
+  return res.json({
+    platform: 'Salman Driver Marketplace Staging Platform',
+    version: '1.0.0',
+    nodeVersion: process.version,
+    operatingMode: process.env.NODE_ENV || 'staging',
+    pilotCity: 'Bengaluru (Karnataka, India)',
+    statutoryDisclaimer: 'GST calculation (5%) is an operational estimate and must be validated with a chartered accountant before commercial invoicing.',
+    timestamp: new Date().toISOString()
   });
 });
 
@@ -1514,8 +1564,25 @@ apiRouter.post('/admin/login', authRateLimiter, (req, res) => {
     isPhoneVerified: true
   };
 
-  // Allow admin login with correct password/pin or quick demo passkey
-  const isMatch = (pin === '1234' || password === 'admin123' || password === 'DEMO_ADMIN_2026' || password === 'SALMAN_ADMIN_2026' || !password);
+  const isProd = process.env.NODE_ENV === 'production';
+  let isMatch = false;
+
+  if (isProd) {
+    // In production, reject default PINs and require verified password against environment or stored hash
+    const prodAdminSecret = process.env.ADMIN_PASSWORD || process.env.ADMIN_SECRET_KEY;
+    if (prodAdminSecret) {
+      isMatch = Boolean(password && (password === prodAdminSecret || (adminUser.passwordHash && verifyPassword(password, adminUser.passwordHash))));
+    } else {
+      return res.status(500).json({
+        success: false,
+        message: 'Security Guard: Production ADMIN_PASSWORD not configured in environment. Default login disabled.'
+      });
+    }
+  } else {
+    // In dev / test / demo mode, allow dev PIN and demo passkeys
+    isMatch = (pin === '1234' || password === 'admin123' || password === 'DEMO_ADMIN_2026' || password === 'SALMAN_ADMIN_2026' || !password);
+  }
+
   if (!isMatch) {
     return res.status(401).json({ success: false, message: 'Invalid Admin PIN or credentials' });
   }
@@ -1523,10 +1590,14 @@ apiRouter.post('/admin/login', authRateLimiter, (req, res) => {
   currentUser = adminUser;
   recordAuditLog('ADMIN_LOGIN', 'Admin Operations Center', `Admin ${adminUser.fullName} logged into console session.`);
 
+  const token = isProd
+    ? signJwt({ id: adminUser.id, role: 'admin', email: adminUser.email }, 28800)
+    : `adm_session_${Date.now()}`;
+
   return res.json({
     success: true,
     message: 'Welcome to Marketplace Operations Center',
-    token: `adm_session_${Date.now()}`,
+    token,
     user: adminUser
   });
 });
