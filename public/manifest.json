@@ -1,23 +1,53 @@
 {
+  "id": "/?source=pwa",
   "name": "Salman Driver - Personal Chauffeur Marketplace",
   "short_name": "Salman Driver",
-  "description": "Hire verified professional chauffeurs for your own car on-demand across India.",
+  "description": "Sarathi Global Rentals: Next-generation personal driver marketplace across India. Hire verified professional chauffeurs on-demand for your own car (Hatchback, Sedan, SUV, Luxury) for hourly, daily, airport and outstation journeys.",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#0B1329",
   "theme_color": "#0B1329",
+  "lang": "en",
+  "dir": "ltr",
+  "categories": [
+    "travel",
+    "navigation",
+    "business",
+    "transportation"
+  ],
+  "prefer_related_applications": false,
   "icons": [
     {
-      "src": "/sarathi-badge.png",
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/sarathi-badge.png",
+      "sizes": "635x635",
+      "type": "image/png",
+      "purpose": "any"
     },
     {
       "src": "/favicon.png",
-      "sizes": "192x192",
-      "type": "image/png"
+      "sizes": "64x64",
+      "type": "image/png",
+      "purpose": "any"
     }
   ]
 }
