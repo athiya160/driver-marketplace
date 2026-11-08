@@ -3,9 +3,18 @@
  * Connects directly to Vite-mounted Express API endpoints
  */
 
-const BASE_URL = (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_API_BASE_URL)
-  ? `${import.meta.env.VITE_API_BASE_URL.replace(/\/$/, '')}/api`
-  : '/api';
+const getBaseUrl = () => {
+  if (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_API_BASE_URL) {
+    return `${import.meta.env.VITE_API_BASE_URL.replace(/\/$/, '')}/api`;
+  }
+  // When running inside Android/iOS Capacitor native wrapper, route API calls to live Render cloud backend
+  if (typeof window !== 'undefined' && (window.location.protocol === 'capacitor:' || (window.location.hostname === 'localhost' && window.location.port === ''))) {
+    return 'https://driver-marketplace.onrender.com/api';
+  }
+  return '/api';
+};
+
+const BASE_URL = getBaseUrl();
 
 export async function fetchCurrentUser() {
   const res = await fetch(`${BASE_URL}/auth/me`);

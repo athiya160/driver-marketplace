@@ -1,0 +1,8 @@
+{
+  "appId": "in.sarathidriver.app",
+  "appName": "Salman Driver",
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "https"
+  }
+}
