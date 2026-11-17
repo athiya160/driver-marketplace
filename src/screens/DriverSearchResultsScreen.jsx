@@ -273,7 +273,7 @@ export default function DriverSearchResultsScreen({
                     <div className="flex items-center justify-between py-2 px-3 rounded-xl bg-slate-50 border border-slate-200 text-[10px]">
                       <div className="flex items-center gap-1.5 text-emerald-700 font-semibold">
                         <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                        <span>PCC & DL Verified</span>
+                        <span>DL & KYC Verified</span>
                       </div>
                       <button
                         onClick={() => onViewDriverDetails(driver)}

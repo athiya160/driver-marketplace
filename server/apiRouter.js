@@ -46,6 +46,8 @@ import { MAPS_CONFIG, getCurrentTrafficMultiplier } from './maps/mapsConfig.js';
 import { globalRedisClient } from './infrastructure/redisClient.js';
 import { globalStagingAuditor } from './infrastructure/stagingIntegrationAuditor.js';
 import { globalFoundingLaunchPolicy } from './payments/foundingLaunchPolicy.js';
+import { storageService, ALLOWED_BUCKETS } from './storage/storageService.js';
+import { uploadMiddleware } from './storage/multerConfig.js';
 import {
   USERS,
   DRIVERS,
@@ -1341,8 +1343,8 @@ apiRouter.post('/driver/register', (req, res) => {
   const initialDocs = [
     { id: `doc_${Date.now()}_dl_front`, driverId: newDriverProfile.id, docType: 'driving_licence_front', title: 'Commercial Driving Licence (Front)', status: 'NOT_SUBMITTED', uploadedAt: null },
     { id: `doc_${Date.now()}_dl_back`, driverId: newDriverProfile.id, docType: 'driving_licence_back', title: 'Commercial Driving Licence (Back)', status: 'NOT_SUBMITTED', uploadedAt: null },
-    { id: `doc_${Date.now()}_aadhaar`, driverId: newDriverProfile.id, docType: 'aadhaar_card', title: 'Aadhaar Card (UIDAI)', status: 'NOT_SUBMITTED', uploadedAt: null },
-    { id: `doc_${Date.now()}_pcc`, driverId: newDriverProfile.id, docType: 'police_clearance', title: 'Police Clearance Certificate (PCC)', status: 'NOT_SUBMITTED', uploadedAt: null }
+    { id: `doc_${Date.now()}_profile`, driverId: newDriverProfile.id, docType: 'profile_photo', title: 'Chauffeur Profile Photograph', status: 'NOT_SUBMITTED', uploadedAt: null },
+    { id: `doc_${Date.now()}_aadhaar`, driverId: newDriverProfile.id, docType: 'aadhaar_card', title: 'Aadhaar Card (UIDAI)', status: 'NOT_SUBMITTED', uploadedAt: null }
   ];
   driverDocuments.push(...initialDocs);
 
@@ -1357,8 +1359,19 @@ apiRouter.post('/driver/register', (req, res) => {
 
 // Driver KYC Status & Documents Check
 apiRouter.get('/driver/kyc-status', (req, res) => {
-  const driver = drivers.find(d => d.userId === currentUser.id) || drivers[0];
-  const docs = driverDocuments.filter(doc => doc.driverId === driver.id);
+  const callerDriverId = req.user?.driverId || req.user?.id || (currentUser.role === 'driver' ? currentUser.id : null);
+  const driver = drivers.find(d => d.userId === callerDriverId || d.id === callerDriverId) || (req.user ? null : drivers[0]);
+  if (!driver) {
+    return res.status(404).json({ success: false, message: 'Driver profile not found' });
+  }
+
+  const docs = driverDocuments.filter(doc => doc.driverId === driver.id).map(doc => {
+    if (doc.storagePath) {
+      const signed = storageService.createSignedUrl('driver-documents', doc.storagePath, 3600);
+      return { ...doc, fileUrl: signed.signedUrl };
+    }
+    return doc;
+  });
 
   return res.json({
     success: true,
@@ -1372,7 +1385,7 @@ apiRouter.get('/driver/kyc-status', (req, res) => {
 
 // Driver KYC Document Upload & Submission
 apiRouter.post('/driver/submit-kyc', (req, res) => {
-  const { docType, docNumber, fileUrl, mimeType, fileName, sizeBytes } = req.body;
+  const { docType, docNumber, fileUrl, storagePath, filePath, mimeType, fileName, sizeBytes } = req.body;
 
   // File Upload Security & MIME Validation Guard
   const uploadValidation = validateDocumentUpload({ mimeType, fileName, sizeBytes });
@@ -1398,10 +1411,21 @@ apiRouter.post('/driver/submit-kyc', (req, res) => {
   // Safe Masking: Aadhaar numbers must never be stored in raw plaintext
   const cleanDocNumber = docType === 'aadhaar_card' ? `XXXX-XXXX-${String(docNumber).slice(-4)}` : docNumber;
 
+  const actualStoragePath = storagePath || filePath || null;
+  let resolvedFileUrl = fileUrl;
+  if (!resolvedFileUrl && actualStoragePath) {
+    const signed = storageService.createSignedUrl('driver-documents', actualStoragePath, 3600);
+    resolvedFileUrl = signed.signedUrl;
+  }
+  if (!resolvedFileUrl) {
+    resolvedFileUrl = 'https://images.unsplash.com/photo-1628155930542-3c7a64e2c833?auto=format&fit=crop&w=400&q=80';
+  }
+
   let doc = driverDocuments.find(d => d.driverId === driver.id && d.docType === docType);
   if (doc) {
     doc.docNumber = cleanDocNumber;
-    doc.fileUrl = fileUrl || 'https://images.unsplash.com/photo-1628155930542-3c7a64e2c833?auto=format&fit=crop&w=400&q=80';
+    doc.fileUrl = resolvedFileUrl;
+    doc.storagePath = actualStoragePath || doc.storagePath;
     doc.status = 'UNDER_REVIEW';
     doc.uploadedAt = new Date().toISOString();
     doc.rejectionReason = null;
@@ -1411,11 +1435,20 @@ apiRouter.post('/driver/submit-kyc', (req, res) => {
       driverId: driver.id,
       docType,
       docNumber: cleanDocNumber,
-      fileUrl: fileUrl || 'https://images.unsplash.com/photo-1628155930542-3c7a64e2c833?auto=format&fit=crop&w=400&q=80',
+      fileUrl: resolvedFileUrl,
+      storagePath: actualStoragePath,
       status: 'UNDER_REVIEW',
       uploadedAt: new Date().toISOString()
     };
     driverDocuments.push(doc);
+  }
+
+  // Persist into database store
+  const existingPersistentDoc = persistentStorage.findOne('driver_documents', d => d.driverId === driver.id && d.docType === docType);
+  if (existingPersistentDoc) {
+    persistentStorage.update('driver_documents', d => d.id === existingPersistentDoc.id, doc);
+  } else {
+    persistentStorage.insert('driver_documents', doc);
   }
 
   // If this is driving licence, update drivingLicenceNo
@@ -1424,6 +1457,9 @@ apiRouter.post('/driver/submit-kyc', (req, res) => {
   }
   if (docType === 'aadhaar_card') {
     driver.aadhaarLast4 = String(docNumber).slice(-4) || '8842';
+  }
+  if (docType === 'profile_photo') {
+    driver.photoUrl = resolvedFileUrl;
   }
 
   return res.json({
@@ -1967,9 +2003,16 @@ apiRouter.get('/admin/drivers', (req, res) => {
 
 // KYC Queue
 apiRouter.get('/admin/drivers/kyc', (req, res) => {
+  const docs = driverDocuments.map(doc => {
+    if (doc.storagePath) {
+      const signed = storageService.createSignedUrl('driver-documents', doc.storagePath, 3600);
+      return { ...doc, fileUrl: signed.signedUrl };
+    }
+    return doc;
+  });
   return res.json({
     success: true,
-    documents: driverDocuments,
+    documents: docs,
     drivers: drivers
   });
 });
@@ -1989,7 +2032,7 @@ apiRouter.post('/admin/drivers/:id/verify', (req, res) => {
     driverDocuments.forEach(doc => {
       if (doc.driverId === driver.id) doc.status = 'approved';
     });
-    recordAuditLog('DRIVER_KYC_APPROVED', `${driver.id} (${driver.fullName})`, `Chauffeur approved. DL & PCC marked verified.`);
+    recordAuditLog('DRIVER_KYC_APPROVED', `${driver.id} (${driver.fullName})`, `Chauffeur approved. Commercial DL & identity documents verified.`);
   } else if (action === 'reject') {
     driver.verificationStatus = 'rejected';
     driverDocuments.forEach(doc => {
@@ -2833,7 +2876,168 @@ apiRouter.get('/demo/analytics', (req, res) => {
 // 9. PHASE 8A SECURE STORAGE & CUSTOMER VEHICLE APIS
 // -----------------------------------------------------------------------------
 
-// Generate Time-Limited Signed URL for KYC Documents (DL, Aadhaar, PCC)
+// Multipart File Upload Endpoint (KYC, Handover Photos, Profile Photos)
+apiRouter.post('/storage/upload', (req, res) => {
+  uploadMiddleware.single('file')(req, res, async (err) => {
+    if (err) {
+      if (err.code === 'LIMIT_FILE_SIZE') {
+        return res.status(400).json({
+          success: false,
+          error: 'FILE_TOO_LARGE',
+          message: 'File size exceeds 10MB limit. Please upload a smaller document or photo.'
+        });
+      }
+      return res.status(400).json({
+        success: false,
+        error: 'INVALID_FILE',
+        message: err.message || 'File upload validation failed'
+      });
+    }
+
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        error: 'NO_FILE_PROVIDED',
+        message: 'No file found in the request. Ensure field name is "file".'
+      });
+    }
+
+    const bucket = req.body.bucket || 'general-attachments';
+    const docType = req.body.docType || 'general';
+
+    if (!ALLOWED_BUCKETS.includes(bucket)) {
+      return res.status(400).json({
+        success: false,
+        error: 'INVALID_STORAGE_BUCKET',
+        message: `Bucket '${bucket}' is not permitted. Allowed: ${ALLOWED_BUCKETS.join(', ')}`
+      });
+    }
+
+    const caller = req.user || (currentUser?.id ? currentUser : null);
+    if (!caller) {
+      return res.status(401).json({
+        success: false,
+        error: 'UNAUTHORIZED',
+        message: 'Authentication required to upload documents to the platform.'
+      });
+    }
+
+    // Security Authorization Guard:
+    // If uploading to 'driver-documents' (KYC), caller must be driver or admin
+    if (bucket === 'driver-documents' && caller.role !== 'driver' && caller.role !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        error: 'FORBIDDEN',
+        message: 'Forbidden: Only chauffeurs and administrators can upload KYC compliance documents.'
+      });
+    }
+
+    try {
+      const uploadResult = await storageService.uploadFile({
+        bucket,
+        fileBuffer: req.file.buffer,
+        originalName: req.file.originalname,
+        mimeType: req.file.mimetype,
+        uploadedBy: caller.id || caller.driverId || 'user',
+        uploadedRole: caller.role || 'user',
+        docType
+      });
+
+      return res.status(201).json({
+        success: true,
+        message: 'File uploaded and persisted successfully.',
+        file: uploadResult.file,
+        accessUrl: uploadResult.accessUrl,
+        isPrivate: uploadResult.isPrivate
+      });
+    } catch (uploadErr) {
+      console.error('File storage upload error:', uploadErr);
+      return res.status(500).json({
+        success: false,
+        error: 'STORAGE_PERSISTENCE_FAILED',
+        message: uploadErr.message || 'Failed to persist file in storage'
+      });
+    }
+  });
+});
+
+// Stream Public or Protected File by Path
+apiRouter.get('/storage/file/:bucket/:filePath', async (req, res) => {
+  const { bucket, filePath } = req.params;
+
+  if (!ALLOWED_BUCKETS.includes(bucket)) {
+    return res.status(400).json({
+      success: false,
+      error: 'INVALID_STORAGE_BUCKET',
+      message: `Invalid bucket '${bucket}'. Allowed: ${ALLOWED_BUCKETS.join(', ')}`
+    });
+  }
+
+  let cleanFile;
+  try {
+    cleanFile = storageService.validateFilePath(filePath);
+  } catch (err) {
+    return res.status(400).json({
+      success: false,
+      error: 'PATH_TRAVERSAL_DETECTED',
+      message: err.message
+    });
+  }
+
+  const isPrivate = storageService.isPrivateBucket(bucket);
+
+  if (isPrivate) {
+    const authHeader = req.headers.authorization;
+    let caller = null;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      const token = authHeader.split(' ')[1];
+      const verified = verifyJwt(token);
+      if (verified && verified.valid) {
+        caller = verified.payload;
+      }
+    }
+
+    if (!caller) {
+      return res.status(401).json({
+        success: false,
+        error: 'UNAUTHORIZED_PRIVATE_BUCKET',
+        message: `Authentication required: Direct access to private bucket '${bucket}' requires a valid Bearer token or signed URL.`
+      });
+    }
+
+    // Strict Anti-IDOR Authorization: verify caller ownership
+    const hasAccess = storageService.canUserAccessFile(caller, bucket, cleanFile, persistentStorage);
+    if (!hasAccess) {
+      return res.status(403).json({
+        success: false,
+        error: 'FORBIDDEN_FILE_ACCESS',
+        message: 'Forbidden: You do not have permission to access this private document.'
+      });
+    }
+  }
+
+  const fileResult = await storageService.getFile({ bucket, filePath: cleanFile });
+  if (!fileResult.found) {
+    return res.status(404).json({
+      success: false,
+      error: 'FILE_NOT_FOUND',
+      message: `File '${cleanFile}' not found in bucket '${bucket}'.`
+    });
+  }
+
+  res.setHeader('Content-Type', fileResult.mimeType);
+  res.setHeader('Content-Length', fileResult.sizeBytes);
+  res.setHeader('Content-Disposition', `inline; filename="${encodeURIComponent(fileResult.originalName)}"`);
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  if (isPrivate) {
+    res.setHeader('Cache-Control', 'private, no-cache, no-store, must-revalidate');
+  } else {
+    res.setHeader('Cache-Control', 'public, max-age=86400');
+  }
+  return res.send(fileResult.buffer);
+});
+
+// Generate Time-Limited Signed URL for KYC Documents & Private Vehicle Handovers
 apiRouter.post('/documents/signed-url', authenticateToken, async (req, res) => {
   const { bucket = 'driver-documents', filePath, expiresIn = 900 } = req.body;
 
@@ -2841,15 +3045,36 @@ apiRouter.post('/documents/signed-url', authenticateToken, async (req, res) => {
     return res.status(400).json({ success: false, message: 'Missing filePath for signed document request' });
   }
 
-  // Authorization: Only the owner driver or admin can generate signed URL
-  if (req.user && req.user.role !== 'admin') {
-    const isDocOwner = filePath.includes(req.user.id) || filePath.includes(req.user.driverId);
-    if (!isDocOwner && req.user.role !== 'driver') {
-      return res.status(403).json({ success: false, message: 'Access denied: You can only view your own compliance documents' });
-    }
+  if (!ALLOWED_BUCKETS.includes(bucket)) {
+    return res.status(400).json({
+      success: false,
+      error: 'INVALID_STORAGE_BUCKET',
+      message: `Invalid bucket '${bucket}'. Allowed: ${ALLOWED_BUCKETS.join(', ')}`
+    });
   }
 
-  const result = await supabase.storage.from(bucket).createSignedUrl(filePath, expiresIn);
+  let cleanFile;
+  try {
+    cleanFile = storageService.validateFilePath(filePath);
+  } catch (err) {
+    return res.status(400).json({
+      success: false,
+      error: 'PATH_TRAVERSAL_DETECTED',
+      message: err.message
+    });
+  }
+
+  // Anti-IDOR Authorization: Caller must have ownership rights over the requested file
+  const hasAccess = storageService.canUserAccessFile(req.user, bucket, cleanFile, persistentStorage);
+  if (!hasAccess) {
+    return res.status(403).json({
+      success: false,
+      error: 'FORBIDDEN_SIGNED_URL_REQUEST',
+      message: 'Access denied: You do not have permission to generate signed URLs for this document.'
+    });
+  }
+
+  const result = await supabase.storage.from(bucket).createSignedUrl(cleanFile, expiresIn);
   return res.json({
     success: true,
     ...result
@@ -2857,25 +3082,72 @@ apiRouter.post('/documents/signed-url', authenticateToken, async (req, res) => {
 });
 
 // Access/Stream Secure File via Signed Token
-apiRouter.get('/storage/signed/:bucket/:filePath', (req, res) => {
+apiRouter.get('/storage/signed/:bucket/:filePath', async (req, res) => {
   const { bucket, filePath } = req.params;
   const { token, expires } = req.query;
 
-  const verification = supabase.storage.from(bucket).verifySignedUrlToken(filePath, token, expires);
+  if (!ALLOWED_BUCKETS.includes(bucket)) {
+    return res.status(400).json({
+      success: false,
+      error: 'INVALID_STORAGE_BUCKET',
+      message: `Invalid bucket '${bucket}'. Allowed: ${ALLOWED_BUCKETS.join(', ')}`
+    });
+  }
+
+  let cleanFile;
+  try {
+    cleanFile = storageService.validateFilePath(filePath);
+  } catch (err) {
+    return res.status(400).json({
+      success: false,
+      error: 'PATH_TRAVERSAL_DETECTED',
+      message: err.message
+    });
+  }
+
+  const verification = supabase.storage.from(bucket).verifySignedUrlToken(cleanFile, token, expires);
   if (!verification.valid) {
     return res.status(403).json({
       success: false,
+      error: 'FORBIDDEN_SIGNED_TOKEN',
       message: `Document access prohibited: ${verification.reason}`
     });
   }
 
+  // Stream actual binary file if it exists in storage
+  const fileResult = await storageService.getFile({ bucket, filePath: cleanFile });
+  if (fileResult.found) {
+    res.setHeader('Content-Type', fileResult.mimeType);
+    res.setHeader('Content-Length', fileResult.sizeBytes);
+    res.setHeader('Content-Disposition', `inline; filename="${encodeURIComponent(fileResult.originalName)}"`);
+    res.setHeader('Cache-Control', 'private, no-cache, no-store, must-revalidate');
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    return res.send(fileResult.buffer);
+  }
+
+  // If file binary not yet on disk (e.g. metadata reference/test stub), return verified JSON envelope
   return res.json({
     success: true,
     message: 'Authorized signed document view',
     bucket,
-    filePath,
+    filePath: cleanFile,
     contentType: 'image/jpeg',
     expiresAt: verification.expiresAt
+  });
+});
+
+// Storage System Health & Metadata Diagnostics
+apiRouter.get('/storage/health', (req, res) => {
+  return res.json({
+    success: true,
+    ...storageService.getHealth()
+  });
+});
+
+apiRouter.get('/storage/status', (req, res) => {
+  return res.json({
+    success: true,
+    ...storageService.getHealth()
   });
 });
 

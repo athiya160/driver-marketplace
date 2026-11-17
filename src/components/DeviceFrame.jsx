@@ -261,7 +261,7 @@ export default function DeviceFrame({
                 <div className="p-3 bg-slate-50 border border-slate-200 rounded-2xl space-y-1">
                   <span className="font-bold text-[#0F1E36] block">3. Operations Desk</span>
                   <p className="text-slate-500 text-[10px]">
-                    Real-time GMV analytics, 15% platform take, KYC verification queue (Commercial DL & PCC), instant refund simulator.
+                    Real-time GMV analytics, 15% platform take, KYC verification queue (Commercial DL & Aadhaar), instant refund simulator.
                   </p>
                 </div>
               </div>

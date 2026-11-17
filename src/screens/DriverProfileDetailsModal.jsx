@@ -244,8 +244,8 @@ export default function DriverProfileDetailsModal({
                   <span className="font-mono text-slate-800 font-bold">XXXX-XXXX-{driver.aadhaarLast4 || '8842'}</span>
                 </div>
                 <div>
-                  <span className="text-slate-500 block">PCC Clearance:</span>
-                  <span className="text-emerald-700 font-bold">Clean Record Certified</span>
+                  <span className="text-slate-500 block">KYC Verification:</span>
+                  <span className="text-emerald-700 font-bold">Government ID Verified</span>
                 </div>
                 <div>
                   <span className="text-slate-500 block">Operating Base:</span>
@@ -297,12 +297,12 @@ export default function DriverProfileDetailsModal({
 
               <div className="space-y-1 text-[11px] text-slate-200 bg-slate-900/60 p-2.5 rounded-xl border border-slate-700 font-mono">
                 <div className="flex justify-between">
-                  <span className="text-slate-400">Police Verification:</span>
+                  <span className="text-slate-400">KYC Status:</span>
                   <span className="text-emerald-400 font-bold uppercase">{passportData?.policeVerificationStatus || 'Verified'} ✓</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-400">PCC Certificate:</span>
-                  <span className="text-slate-300 truncate">{passportData?.policeClearanceNumber || 'PCC-DL-NORTH-2026-44910'}</span>
+                  <span className="text-slate-400">Verification Ref:</span>
+                  <span className="text-slate-300 truncate">{passportData?.policeClearanceNumber || 'KYC-DL-NORTH-2026-44910'}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-400">License Category:</span>

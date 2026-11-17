@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { uploadFileToStorage } from '../api.js';
 import {
   X,
   Upload,
@@ -41,8 +42,10 @@ export default function PhotoUploadModal({
     }
   ]);
   const [previewUrl, setPreviewUrl] = useState(null);
+  const [selectedFile, setSelectedFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
+  const [uploadError, setUploadError] = useState('');
   const fileInputRef = useRef(null);
 
   if (!isOpen) return null;
@@ -52,25 +55,46 @@ export default function PhotoUploadModal({
     const file = e.target.files[0];
     if (!file) return;
 
+    setSelectedFile(file);
+    setUploadError('');
     const objectUrl = URL.createObjectURL(file);
     setPreviewUrl(objectUrl);
   };
 
-  // Simulate upload to Supabase / Cloudinary / AWS S3
-  const handleSaveUpload = () => {
-    if (!previewUrl) return;
+  // Upload to Supabase Storage or persistent backend store
+  const handleSaveUpload = async () => {
+    if (!selectedFile) return;
 
     setIsUploading(true);
-    setTimeout(() => {
+    setUploadError('');
+
+    try {
+      const bucket = activeTab === 'vehicle' 
+        ? 'vehicle-handovers' 
+        : (selectedCategory === 'profile_photo' ? 'profile-photos' : 'driver-documents');
+
+      const res = await uploadFileToStorage(selectedFile, {
+        bucket,
+        docType: selectedCategory
+      });
+
+      if (!res.success) {
+        throw new Error(res.message || 'Upload failed');
+      }
+
+      const persistentUrl = res.accessUrl || res.file?.filePath;
+      const sizeMb = (selectedFile.size / (1024 * 1024)).toFixed(1) + ' MB';
+
       const newImg = {
-        id: `img_${Date.now()}`,
+        id: res.file?.id || `img_${Date.now()}`,
         type: activeTab,
         category: selectedCategory,
         title: activeTab === 'vehicle' 
           ? `Luxury Vehicle (${selectedCategory.replace('_', ' ').toUpperCase()})` 
-          : 'Verified Chauffeur Document',
-        url: previewUrl,
-        size: '2.4 MB',
+          : (selectedCategory === 'profile_photo' ? 'Chauffeur Profile Photo' : `Chauffeur ${selectedCategory === 'driving_licence' ? 'Driving Licence' : 'Aadhaar Card'}`),
+        url: persistentUrl,
+        storagePath: res.file?.filePath,
+        size: sizeMb,
         verified: true
       };
 
@@ -78,11 +102,16 @@ export default function PhotoUploadModal({
       setIsUploading(false);
       setUploadSuccess(true);
       setPreviewUrl(null);
+      setSelectedFile(null);
 
       if (onUploadComplete) onUploadComplete(newImg);
 
       setTimeout(() => setUploadSuccess(false), 2500);
-    }, 1000);
+    } catch (err) {
+      console.error('Storage upload failed:', err);
+      setIsUploading(false);
+      setUploadError(err.message || 'Failed to persist upload');
+    }
   };
 
   const handleRemoveImage = (id) => {
@@ -115,7 +144,7 @@ export default function PhotoUploadModal({
         {/* Tab Switcher */}
         <div className="flex rounded-xl bg-emerald-950/90 p-1 border border-emerald-800/50 mb-4 text-xs font-bold">
           <button
-            onClick={() => { setActiveTab('vehicle'); setPreviewUrl(null); }}
+            onClick={() => { setActiveTab('vehicle'); setSelectedCategory('exterior'); setPreviewUrl(null); }}
             className={`flex-1 py-2 rounded-lg flex items-center justify-center gap-1.5 transition ${
               activeTab === 'vehicle'
                 ? 'bg-[#0F4C3A] text-white shadow-md'
@@ -126,7 +155,7 @@ export default function PhotoUploadModal({
             <span>Vehicle & 360° Photos</span>
           </button>
           <button
-            onClick={() => { setActiveTab('driver_kyc'); setPreviewUrl(null); }}
+            onClick={() => { setActiveTab('driver_kyc'); setSelectedCategory('driving_licence'); setPreviewUrl(null); }}
             className={`flex-1 py-2 rounded-lg flex items-center justify-center gap-1.5 transition ${
               activeTab === 'driver_kyc'
                 ? 'bg-[#0F4C3A] text-white shadow-md'
@@ -138,8 +167,8 @@ export default function PhotoUploadModal({
           </button>
         </div>
 
-        {/* Category Pill for Vehicle */}
-        {activeTab === 'vehicle' && (
+        {/* Category Pill for Vehicle or KYC */}
+        {activeTab === 'vehicle' ? (
           <div className="flex items-center gap-2 mb-3 text-[11px]">
             <span className="text-emerald-400 font-semibold">Photo Type:</span>
             {['360_view', 'exterior', 'interior'].map(cat => (
@@ -153,6 +182,27 @@ export default function PhotoUploadModal({
                 }`}
               >
                 {cat === '360_view' ? '🔄 360° Exterior' : cat === 'interior' ? '🛋️ Luxury Interior' : '🚗 Side Profile'}
+              </button>
+            ))}
+          </div>
+        ) : (
+          <div className="flex items-center gap-2 mb-3 text-[11px] flex-wrap">
+            <span className="text-emerald-400 font-semibold">Document:</span>
+            {[
+              { id: 'driving_licence', label: '🪪 Driving Licence' },
+              { id: 'profile_photo', label: '👤 Profile Photo' },
+              { id: 'aadhaar_card', label: '🇮🇳 Aadhaar Card' }
+            ].map(cat => (
+              <button
+                key={cat.id}
+                onClick={() => setSelectedCategory(cat.id)}
+                className={`px-2.5 py-1 rounded-full border transition ${
+                  selectedCategory === cat.id
+                    ? 'bg-emerald-500 text-slate-950 font-extrabold border-emerald-400'
+                    : 'bg-emerald-950/60 border-emerald-800 text-emerald-300 hover:bg-emerald-900'
+                }`}
+              >
+                {cat.label}
               </button>
             ))}
           </div>
@@ -208,6 +258,12 @@ export default function PhotoUploadModal({
                 {selectedCategory === '360_view' ? '360° Tagged' : 'High Quality'}
               </span>
             </div>
+
+            {uploadError && (
+              <div className="p-2.5 bg-rose-950/80 border border-rose-500/50 rounded-xl text-rose-300 text-xs font-semibold mb-3">
+                ⚠️ {uploadError}
+              </div>
+            )}
 
             <button
               onClick={handleSaveUpload}

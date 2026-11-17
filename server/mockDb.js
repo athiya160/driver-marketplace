@@ -601,7 +601,7 @@ export const ADMIN_AUDIT_LOGS = [
     adminName: 'Marketplace Operations Admin',
     action: 'DRIVER_KYC_APPROVED',
     target: 'drv_delhi_1 (Rajesh Kumar Sharma)',
-    details: 'Commercial DL DL-0420150089211 and Police Clearance Certificate verified and approved.',
+    details: 'Commercial DL DL-0420150089211 and government identity documents verified and approved.',
     timestamp: '2026-10-22T11:30:00Z'
   },
   {

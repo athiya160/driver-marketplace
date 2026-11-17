@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   X,
   FileCheck2,
@@ -9,9 +9,10 @@ import {
   AlertCircle,
   CheckCircle2,
   Clock,
-  Car
+  Car,
+  Upload
 } from 'lucide-react';
-import { recordVehicleHandover, fetchVehicleHandovers } from '../api.js';
+import { recordVehicleHandover, fetchVehicleHandovers, uploadFileToStorage } from '../api.js';
 
 export default function DigitalVehicleHandoverModal({
   isOpen,
@@ -28,6 +29,28 @@ export default function DigitalVehicleHandoverModal({
   const [submitting, setSubmitting] = useState(false);
   const [existingRecord, setExistingRecord] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
+  const [photoUrls, setPhotoUrls] = useState([]);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const photoInputRef = useRef(null);
+
+  const handlePhotoUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setUploadingPhoto(true);
+    try {
+      const res = await uploadFileToStorage(file, {
+        bucket: 'vehicle-handovers',
+        docType: 'handover_photo'
+      });
+      if (res.success && (res.accessUrl || res.file?.filePath)) {
+        setPhotoUrls(prev => [res.accessUrl || res.file?.filePath, ...prev]);
+      }
+    } catch (err) {
+      console.error('Handover photo upload failed:', err);
+    } finally {
+      setUploadingPhoto(false);
+    }
+  };
 
   const COMMON_INSPECTION_ITEMS = [
     'Front Bumper (Clean)',
@@ -75,7 +98,7 @@ export default function DigitalVehicleHandoverModal({
         odometerReadingKm: Number(odometer),
         fuelLevelPercent: Number(fuelPercent),
         existingDamages: selectedDamages.map(d => ({ description: d, severity: d.includes('Scratch') ? 'minor' : 'clean' })),
-        photoUrls: ['https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=600&q=80'],
+        photoUrls: photoUrls.length > 0 ? photoUrls : ['https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=600&q=80'],
         cleanlinessRating: cleanliness,
         handoverNotes: notes,
         customerSignatureToken: `sig_${booking.customerId}_${Date.now()}`
@@ -279,6 +302,46 @@ export default function DigitalVehicleHandoverModal({
               placeholder="e.g. Fastag on windshield, ignition key handed over"
               className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-[#172033] focus:outline-none focus:border-orange-500"
             />
+          </div>
+
+          {/* Inspection Photos Upload */}
+          <div>
+            <label className="block text-xs font-bold text-slate-700 mb-1 flex items-center justify-between">
+              <span className="flex items-center gap-1.5">
+                <Camera className="w-3.5 h-3.5 text-orange-500" />
+                Vehicle Inspection Photos (Damage / Cleanliness)
+              </span>
+              <span className="text-[10px] text-slate-400">{photoUrls.length} attached</span>
+            </label>
+            {!existingRecord && (
+              <div className="mb-2">
+                <input
+                  type="file"
+                  ref={photoInputRef}
+                  accept="image/jpeg,image/png,image/webp"
+                  className="hidden"
+                  onChange={handlePhotoUpload}
+                />
+                <button
+                  type="button"
+                  disabled={uploadingPhoto}
+                  onClick={() => photoInputRef.current && photoInputRef.current.click()}
+                  className="w-full py-2 bg-slate-50 hover:bg-slate-100 border border-dashed border-slate-300 rounded-xl text-xs font-bold text-slate-700 flex items-center justify-center gap-1.5 transition disabled:opacity-50"
+                >
+                  <Upload className="w-3.5 h-3.5 text-orange-500" />
+                  <span>{uploadingPhoto ? 'Uploading to Secure Storage...' : 'Snap or Upload Inspection Photo'}</span>
+                </button>
+              </div>
+            )}
+            {photoUrls.length > 0 && (
+              <div className="flex gap-2 overflow-x-auto py-1">
+                {photoUrls.map((url, idx) => (
+                  <div key={idx} className="relative w-16 h-12 rounded-lg overflow-hidden border border-slate-200 shrink-0">
+                    <img src={url} alt={`Inspection ${idx + 1}`} className="w-full h-full object-cover" />
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Action Button */}

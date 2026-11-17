@@ -15,6 +15,7 @@
 
 import crypto from 'crypto';
 import { persistentStorage } from './persistentStorage.js';
+import { storageService } from '../storage/storageService.js';
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
@@ -253,9 +254,24 @@ export class SupabaseClient {
   initStorage() {
     return {
       from: (bucketName) => {
-        const isPrivateBucket = bucketName === 'driver-documents' || bucketName === 'private';
+        const isPrivateBucket = storageService.isPrivateBucket(bucketName);
 
         return {
+          /**
+           * Upload file buffer to bucket
+           */
+          upload: async (filePath, fileBuffer, options = {}) => {
+            return await storageService.uploadFile({
+              bucket: bucketName,
+              fileBuffer,
+              originalName: filePath,
+              mimeType: options.contentType,
+              uploadedBy: options.uploadedBy,
+              uploadedRole: options.uploadedRole,
+              docType: options.docType
+            });
+          },
+
           /**
            * Public URLs are blocked for private KYC buckets
            */
@@ -270,7 +286,7 @@ export class SupabaseClient {
               data: {
                 publicUrl: this.isLiveSupabase
                   ? `${this.url}/storage/v1/object/public/${bucketName}/${filePath}`
-                  : `/storage/mock/${bucketName}/${filePath}`
+                  : `/api/storage/file/${bucketName}/${encodeURIComponent(filePath)}`
               },
               error: null
             };
@@ -280,42 +296,9 @@ export class SupabaseClient {
            * Creates time-limited signed URL (default 900 seconds / 15 minutes)
            */
           createSignedUrl: async (filePath, expiresInSeconds = 900) => {
-            const exp = Math.floor(Date.now() / 1000) + expiresInSeconds;
-
-            if (this.isLiveSupabase) {
-              try {
-                const res = await fetch(`${this.url}/storage/v1/object/sign/${bucketName}/${filePath}`, {
-                  method: 'POST',
-                  headers: {
-                    'apikey': this.key,
-                    'Authorization': `Bearer ${this.key}`,
-                    'Content-Type': 'application/json'
-                  },
-                  body: JSON.stringify({ expiresIn: expiresInSeconds })
-                });
-                if (res.ok) {
-                  const data = await res.json();
-                  return { data: { signedUrl: `${this.url}${data.signedURL}` }, error: null };
-                }
-              } catch (err) {
-                console.warn('Supabase remote sign URL failed, generating cryptographic fallback URL:', err.message);
-              }
-            }
-
-            // Cryptographically signed fallback URL with HMAC SHA-256 signature
-            const payload = `${bucketName}:${filePath}:${exp}`;
-            const signature = crypto
-              .createHmac('sha256', STORAGE_SIGNING_SECRET)
-              .update(payload)
-              .digest('hex');
-
-            const signedUrl = `/api/storage/signed/${bucketName}/${encodeURIComponent(filePath)}?token=${signature}&expires=${exp}`;
+            const signed = storageService.createSignedUrl(bucketName, filePath, expiresInSeconds);
             return {
-              data: {
-                signedUrl,
-                expiresAt: new Date(exp * 1000).toISOString(),
-                expiresInSeconds
-              },
+              data: signed,
               error: null
             };
           },
@@ -324,25 +307,7 @@ export class SupabaseClient {
            * Verifies whether a signed URL token is valid and unexpired
            */
           verifySignedUrlToken: (filePath, token, expires) => {
-            if (!token || !expires) return { valid: false, reason: 'Missing signature or expiry token' };
-            const expNumber = parseInt(expires, 10);
-            const now = Math.floor(Date.now() / 1000);
-
-            if (expNumber < now) {
-              return { valid: false, reason: 'Signed document URL has expired' };
-            }
-
-            const payload = `${bucketName}:${filePath}:${expNumber}`;
-            const expectedSig = crypto
-              .createHmac('sha256', STORAGE_SIGNING_SECRET)
-              .update(payload)
-              .digest('hex');
-
-            if (token !== expectedSig) {
-              return { valid: false, reason: 'Invalid document signature' };
-            }
-
-            return { valid: true, expiresAt: new Date(expNumber * 1000).toISOString() };
+            return storageService.verifySignedUrl(bucketName, filePath, token, expires);
           }
         };
       }

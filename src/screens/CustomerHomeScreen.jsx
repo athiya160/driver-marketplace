@@ -550,7 +550,7 @@ export default function CustomerHomeScreen({
                     </span>
                   ))}
                   <span className="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700">
-                    PCC Verified
+                    KYC Verified
                   </span>
                 </div>
 
@@ -617,9 +617,9 @@ export default function CustomerHomeScreen({
             <div className="w-10 h-10 rounded-xl bg-[#0B1329] text-[#D4AF37] flex items-center justify-center font-bold">
               2
             </div>
-            <h4 className="font-extrabold text-sm text-[#0B1329]">Police Criminal Clearance</h4>
+            <h4 className="font-extrabold text-sm text-[#0B1329]">Professional Chauffeur Verification</h4>
             <p className="text-xs text-slate-500 leading-relaxed">
-              Mandatory Police Clearance Certificate (PCC) verification ensuring clean criminal records and zero reckless driving offenses.
+              Comprehensive government identity and commercial driving licence verification ensuring qualified and trusted personal drivers.
             </p>
           </div>
 

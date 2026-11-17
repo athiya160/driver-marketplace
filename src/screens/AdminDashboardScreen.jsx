@@ -745,7 +745,7 @@ export default function AdminDashboardScreen({ onSwitchRole }) {
                   Chauffeur KYC Verification Queue
                 </h2>
                 <p className="text-xs text-slate-500">
-                  Review Commercial Driving Licenses, Masked Aadhaar and Police Clearance Certificates (PCC)
+                  Review Commercial Driving Licenses, Masked Aadhaar and Driver Profile Photos
                 </p>
               </div>
               <span className="px-3 py-1 bg-amber-100 text-amber-800 border border-amber-200 rounded-full text-xs font-bold font-mono">
@@ -810,12 +810,23 @@ export default function AdminDashboardScreen({ onSwitchRole }) {
                       </div>
 
                       {/* Document Scan Preview */}
-                      <div className="rounded-xl overflow-hidden border border-slate-200 h-40 relative bg-slate-900 group">
-                        <img
-                          src={doc.fileUrl}
-                          alt="Government Document Scan Preview"
-                          className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
-                        />
+                      <div className="rounded-xl overflow-hidden border border-slate-200 h-40 relative bg-slate-900 group flex items-center justify-center">
+                        {doc.fileUrl?.toLowerCase().includes('.pdf') ? (
+                          <div className="flex flex-col items-center justify-center text-slate-300">
+                            <FileText className="w-10 h-10 text-orange-400 mb-1" />
+                            <span className="text-xs font-mono font-bold">PDF Document Scan</span>
+                          </div>
+                        ) : (
+                          <img
+                            src={doc.fileUrl}
+                            alt="Government Document Scan Preview"
+                            className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                              e.target.parentElement.classList.add('bg-slate-800');
+                            }}
+                          />
+                        )}
                         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent flex items-end p-2.5 justify-between">
                           <span className="px-2 py-0.5 bg-black/60 backdrop-blur-xs text-white rounded text-[10px] font-mono">
                             Encrypted ID Proof

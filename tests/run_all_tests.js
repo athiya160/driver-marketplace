@@ -25,11 +25,13 @@ const suites = [
   'staging_integrations.test.js',
   'staging_readiness.test.js',
   'founding_launch_audit.test.js',
-  'founder_testing_suite.test.js'
+  'founder_testing_suite.test.js',
+  'critical_storage_audit.test.js',
+  'phase_9d_kyc_regression.test.js'
 ];
 
 console.log('=======================================================');
-console.log('🚀 RUNNING ALL 15 TEST SUITES (PHASES 1 - 9B FOUNDER TESTING)');
+console.log('🚀 RUNNING ALL 17 TEST SUITES (PHASES 1 - 9D COMPREHENSIVE BATTERY)');
 console.log('=======================================================');
 
 for (const suite of suites) {
@@ -43,5 +45,5 @@ for (const suite of suites) {
 }
 
 console.log('\n=======================================================');
-console.log('🌟 ALL 15 TEST SUITES PASSED CLEANLY (218/218 TESTS)');
+console.log('🌟 ALL 17 TEST SUITES PASSED CLEANLY (261/261 TESTS)');
 console.log('=======================================================\n');

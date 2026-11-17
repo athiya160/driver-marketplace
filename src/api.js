@@ -629,4 +629,46 @@ export async function recordDirectSettlement(bookingId, settlementData = {}) {
   return res.json();
 }
 
+export async function uploadFileToStorage(file, { bucket = 'general-attachments', docType = 'general' } = {}) {
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('bucket', bucket);
+  formData.append('docType', docType);
+
+  const token = typeof localStorage !== 'undefined' ? localStorage.getItem('token') : null;
+  const headers = {};
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
+  const res = await fetch(`${BASE_URL}/storage/upload`, {
+    method: 'POST',
+    headers,
+    body: formData
+  });
+
+  return res.json();
+}
+
+export async function fetchStorageHealth() {
+  const res = await fetch(`${BASE_URL}/storage/health`);
+  return res.json();
+}
+
+export async function generateDocumentSignedUrl(filePath, bucket = 'driver-documents', expiresIn = 900) {
+  const token = typeof localStorage !== 'undefined' ? localStorage.getItem('token') : null;
+  const headers = { 'Content-Type': 'application/json' };
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
+  const res = await fetch(`${BASE_URL}/documents/signed-url`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({ filePath, bucket, expiresIn })
+  });
+  return res.json();
+}
+
+
 

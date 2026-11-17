@@ -110,7 +110,7 @@ export default function App() {
     },
     {
       id: 'notif_4',
-      title: 'PCC Police Clearance Verified',
+      title: 'Chauffeur KYC Identity Verified',
       message: 'Your assigned drivers undergo 100% Aadhaar & Commercial DL verification.',
       time: '1 day ago',
       read: true,

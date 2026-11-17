@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Car,
   Power,
@@ -29,6 +29,7 @@ import {
   toggleDriverOnline,
   fetchDriverKycStatus,
   submitDriverKyc,
+  uploadFileToStorage,
   fetchDriverPricing,
   updateDriverPricing,
   fetchDriverAvailability,
@@ -61,7 +62,12 @@ export default function DriverDashboardScreen({
   const [selectedDocType, setSelectedDocType] = useState('driving_licence_front');
   const [docNumberInput, setDocNumberInput] = useState('');
   const [docFileUrl, setDocFileUrl] = useState('');
+  const [kycFile, setKycFile] = useState(null);
+  const [kycFilePreview, setKycFilePreview] = useState(null);
+  const [kycUploading, setKycUploading] = useState(false);
+  const [kycError, setKycError] = useState('');
   const [kycUploadSuccess, setKycUploadSuccess] = useState('');
+  const kycFileInputRef = useRef(null);
 
   // Rates State
   const [rates, setRates] = useState({
@@ -225,23 +231,54 @@ export default function DriverDashboardScreen({
   const handleSubmitKycDoc = async (e) => {
     e.preventDefault();
     if (!docNumberInput) return;
+    setKycUploading(true);
+    setKycError('');
+
     try {
+      let storagePath = null;
+      let persistentUrl = docFileUrl;
+
+      if (kycFile) {
+        const bucket = selectedDocType === 'profile_photo' ? 'profile-photos' : 'driver-documents';
+        const uploadRes = await uploadFileToStorage(kycFile, {
+          bucket,
+          docType: selectedDocType
+        });
+        if (!uploadRes.success) {
+          throw new Error(uploadRes.message || 'File upload failed');
+        }
+        storagePath = uploadRes.file?.filePath;
+        persistentUrl = uploadRes.accessUrl || uploadRes.file?.filePath;
+      }
+
       const res = await submitDriverKyc({
         docType: selectedDocType,
         docNumber: docNumberInput,
-        fileUrl: docFileUrl || 'https://images.unsplash.com/photo-1628155930542-3c7a64e2c833?auto=format&fit=crop&w=500&q=80'
+        storagePath,
+        fileUrl: persistentUrl,
+        fileName: kycFile ? kycFile.name : undefined,
+        mimeType: kycFile ? kycFile.type : undefined,
+        sizeBytes: kycFile ? kycFile.size : undefined
       });
+
       if (res.success) {
-        setKycUploadSuccess('Document submitted for admin verification.');
+        setKycUploadSuccess('Document securely submitted for compliance verification.');
         setDocNumberInput('');
+        setKycFile(null);
+        setKycFilePreview(null);
         setTimeout(() => {
           setKycUploadSuccess('');
           setShowKycModal(false);
           loadDashboard();
         }, 1500);
+      } else {
+        setKycError(res.message || 'Submission failed');
       }
     } catch (err) {
       console.error(err);
+      setKycError(err.message || 'Failed to submit document');
+    } finally {
+      setKycUploading(false);
     }
   };
 
@@ -583,7 +620,7 @@ export default function DriverDashboardScreen({
                   <p className="text-[11px] text-slate-500">Government identity & commercial driving licence verification.</p>
                 </div>
                 <span className="px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                  100% Police Verified
+                  100% KYC Verified
                 </span>
               </div>
 
@@ -592,8 +629,8 @@ export default function DriverDashboardScreen({
                 {[
                   { key: 'driving_licence_front', title: 'Commercial Driving Licence (Front)', number: driver?.drivingLicenceNo, status: 'APPROVED' },
                   { key: 'driving_licence_back', title: 'Commercial Driving Licence (Back)', number: 'Valid LMV Commercial Endorsement', status: 'APPROVED' },
-                  { key: 'aadhaar_card', title: 'Aadhaar Card (UIDAI)', number: `XXXX-XXXX-${driver?.aadhaarLast4 || '8842'}`, status: 'APPROVED' },
-                  { key: 'police_clearance', title: 'Police Clearance Certificate (PCC)', number: 'PCC-DL-2025-99812', status: 'APPROVED' }
+                  { key: 'profile_photo', title: 'Chauffeur Profile Photograph', number: 'Verified Headshot Photo', status: 'APPROVED' },
+                  { key: 'aadhaar_card', title: 'Aadhaar Card (UIDAI)', number: `XXXX-XXXX-${driver?.aadhaarLast4 || '8842'}`, status: 'APPROVED' }
                 ].map((doc) => (
                   <div
                     key={doc.key}
@@ -898,43 +935,105 @@ export default function DriverDashboardScreen({
               </div>
             )}
 
+            {kycError && (
+              <div className="p-2.5 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-xs font-bold mb-3">
+                ⚠️ {kycError}
+              </div>
+            )}
+
             <form onSubmit={handleSubmitKycDoc} className="space-y-3 text-left text-xs">
               <div>
                 <label className="block text-slate-600 mb-1 font-semibold">Document Type</label>
                 <select
                   value={selectedDocType}
-                  onChange={(e) => setSelectedDocType(e.target.value)}
+                  onChange={(e) => {
+                    setSelectedDocType(e.target.value);
+                    if (e.target.value === 'profile_photo' && !docNumberInput) {
+                      setDocNumberInput('Official Driver Profile Photo');
+                    }
+                  }}
                   className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-[#172033]"
                 >
                   <option value="driving_licence_front">Commercial Driving Licence (Front)</option>
                   <option value="driving_licence_back">Commercial Driving Licence (Back)</option>
+                  <option value="profile_photo">Chauffeur Profile Photograph</option>
                   <option value="aadhaar_card">Aadhaar Card (UIDAI)</option>
-                  <option value="police_clearance">Police Clearance Certificate (PCC)</option>
                 </select>
               </div>
 
               <div>
-                <label className="block text-slate-600 mb-1 font-semibold">Document / Registration Number</label>
+                <label className="block text-slate-600 mb-1 font-semibold">
+                  {selectedDocType === 'profile_photo' ? 'Photo Description / Note' : 'Document / Registration Number'}
+                </label>
                 <input
                   type="text"
-                  placeholder="e.g. DL-0420180091223"
+                  placeholder={
+                    selectedDocType === 'profile_photo'
+                      ? 'e.g. Official Chauffeur Headshot'
+                      : selectedDocType === 'aadhaar_card'
+                      ? 'e.g. 5432-8871-9982'
+                      : 'e.g. DL-0420180091223'
+                  }
                   value={docNumberInput}
                   onChange={(e) => setDocNumberInput(e.target.value)}
                   className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-mono text-[#172033]"
+                  required
                 />
               </div>
 
-              <div className="border border-dashed border-slate-300 rounded-xl p-4 text-center bg-slate-50">
-                <Camera className="w-6 h-6 text-orange-500 mx-auto mb-1" />
-                <p className="font-bold text-xs text-[#0F1E36]">Take Photo or Browse Gallery</p>
-                <p className="text-[10px] text-slate-400">Clear photo under good lighting</p>
+              <input
+                type="file"
+                ref={kycFileInputRef}
+                accept="image/jpeg,image/png,image/webp,application/pdf"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files[0];
+                  if (file) {
+                    setKycFile(file);
+                    if (file.type.startsWith('image/')) {
+                      setKycFilePreview(URL.createObjectURL(file));
+                    } else {
+                      setKycFilePreview(null);
+                    }
+                  }
+                }}
+              />
+
+              <div
+                onClick={() => kycFileInputRef.current && kycFileInputRef.current.click()}
+                className="border-2 border-dashed border-orange-300 hover:border-orange-500 rounded-xl p-4 text-center bg-orange-50/50 cursor-pointer transition group"
+              >
+                {kycFilePreview ? (
+                  <div className="flex flex-col items-center">
+                    <img src={kycFilePreview} alt="Doc preview" className="w-20 h-14 object-cover rounded-lg border border-orange-200 mb-1" />
+                    <p className="font-bold text-xs text-slate-800">{kycFile?.name}</p>
+                    <p className="text-[10px] text-emerald-600 font-semibold">✓ File ready to upload ({(kycFile.size / 1024).toFixed(0)} KB)</p>
+                  </div>
+                ) : kycFile ? (
+                  <div className="flex flex-col items-center">
+                    <FileText className="w-8 h-8 text-orange-500 mb-1" />
+                    <p className="font-bold text-xs text-slate-800">{kycFile.name}</p>
+                    <p className="text-[10px] text-emerald-600 font-semibold">✓ PDF Document attached ({(kycFile.size / 1024).toFixed(0)} KB)</p>
+                  </div>
+                ) : (
+                  <div>
+                    <Camera className="w-6 h-6 text-orange-500 mx-auto mb-1 group-hover:scale-110 transition" />
+                    <p className="font-bold text-xs text-[#0F1E36]">Tap to Take Photo or Browse Document</p>
+                    <p className="text-[10px] text-slate-400">JPG, PNG, WebP or PDF (Max 10 MB)</p>
+                  </div>
+                )}
               </div>
 
               <button
                 type="submit"
-                className="w-full py-3 bg-orange-500 hover:bg-orange-600 text-white font-extrabold text-xs rounded-xl shadow-sm transition"
+                disabled={kycUploading}
+                className="w-full py-3 bg-orange-500 hover:bg-orange-600 disabled:opacity-50 text-white font-extrabold text-xs rounded-xl shadow-sm transition flex items-center justify-center gap-2"
               >
-                Upload for Admin Verification
+                {kycUploading ? (
+                  <span>Encrypting & Saving to Vault...</span>
+                ) : (
+                  <span>Upload for Compliance Verification</span>
+                )}
               </button>
             </form>
           </div>
