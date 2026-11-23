@@ -27,7 +27,10 @@ import {
   ChevronRight,
   Shield,
   HelpCircle,
-  KeyRound
+  KeyRound,
+  ShieldAlert,
+  Send,
+  Wrench
 } from 'lucide-react';
 import { INDIAN_CITIES, SERVICE_CATEGORIES, VEHICLE_TYPES, TRANSMISSION_TYPES } from '../constants.js';
 import { BRAND, THEME } from '../config/branding.js';
@@ -42,7 +45,11 @@ export default function CustomerHomeScreen({
   bookingForm,
   setBookingForm,
   topDrivers = [],
-  onOpenPhotoUpload
+  onOpenPhotoUpload,
+  onOpenGarage,
+  onOpenSOS,
+  onOpenHandover,
+  selectedVehicle
 }) {
   const [locating, setLocating] = useState(false);
   const [showInteractiveMap, setShowInteractiveMap] = useState(false);
@@ -123,7 +130,7 @@ export default function CustomerHomeScreen({
                   <ShieldCheck className="w-5 h-5" />
                 </div>
                 <div>
-                  <h4 className="font-extrabold text-xs text-[#0B1329]">100% Police Verified</h4>
+                  <h4 className="font-extrabold text-xs text-[#0B1329]">100% Identity & DL Verified</h4>
                   <p className="text-[11px] text-slate-500">Commercial DL & Aadhaar checked</p>
                 </div>
               </div>
@@ -330,6 +337,36 @@ export default function CustomerHomeScreen({
                 </div>
               </div>
 
+              {/* Personal Vehicle Vault Selector */}
+              <div className="bg-gradient-to-r from-slate-900 to-[#0B1329] text-white p-3.5 rounded-2xl border border-amber-400/30 shadow-sm space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5 text-[10px] font-extrabold uppercase tracking-wider text-amber-300">
+                    <Car className="w-3.5 h-3.5 text-amber-400" />
+                    <span>Your Personal Vehicle</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={onOpenGarage}
+                    className="text-[11px] font-bold text-amber-300 hover:text-white underline decoration-amber-400/50 underline-offset-2 transition"
+                  >
+                    Switch Car
+                  </button>
+                </div>
+                <div className="flex items-center justify-between gap-2">
+                  <div>
+                    <h4 className="font-extrabold text-xs text-white">
+                      {bookingForm.carModel || selectedVehicle?.makeModel || 'Hyundai Creta SX(O)'}
+                    </h4>
+                    <p className="text-[10px] text-slate-300 font-mono mt-0.5">
+                      {selectedVehicle?.regNumber || 'KA-01-MJ-4821'} • {bookingForm.transmissionType} {bookingForm.vehicleType}
+                    </p>
+                  </div>
+                  <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-[10px] font-bold">
+                    ✓ Verified Match
+                  </span>
+                </div>
+              </div>
+
               {/* Transmission & Duration Grid */}
               <div className="grid grid-cols-2 gap-3">
                 {/* Transmission (Manual vs Automatic) */}
@@ -421,6 +458,67 @@ export default function CustomerHomeScreen({
             </div>
           </div>
 
+        </div>
+      </section>
+
+      {/* =========================================================================
+          STARTUP MOBILITY ASSURANCE: CAR CARE HANDOVER SHIELD & SAFETRIP™ SOS HUB
+         ========================================================================= */}
+      <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Card 1: Digital Vehicle Handover Shield */}
+        <div className="p-5 rounded-3xl bg-gradient-to-br from-white to-slate-50 border border-slate-200/90 shadow-sm flex flex-col justify-between space-y-3">
+          <div className="flex items-start gap-3.5">
+            <div className="w-11 h-11 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-[#D4AF37] flex items-center justify-center shrink-0">
+              <Wrench className="w-5 h-5 text-amber-600" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="font-extrabold text-sm text-[#0B1329] font-display">Car Care & Handover Shield</h3>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800">
+                  Pre-Trip Protection
+                </span>
+              </div>
+              <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                Log odometer km, fuel gauge %, and pre-existing scratches before handing your car keys to the chauffeur.
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={onOpenHandover}
+            className="w-full py-2.5 px-4 rounded-xl bg-slate-900 hover:bg-black text-white text-xs font-bold transition flex items-center justify-center gap-2"
+          >
+            <span>Open Vehicle Handover Checklist</span>
+            <ChevronRight className="w-3.5 h-3.5 text-amber-400" />
+          </button>
+        </div>
+
+        {/* Card 2: SafeTrip™ Live Share & SOS Desk */}
+        <div className="p-5 rounded-3xl bg-gradient-to-br from-white to-rose-50/30 border border-rose-200/60 shadow-sm flex flex-col justify-between space-y-3">
+          <div className="flex items-start gap-3.5">
+            <div className="w-11 h-11 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-600 flex items-center justify-center shrink-0">
+              <ShieldAlert className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="font-extrabold text-sm text-[#0B1329] font-display">SafeTrip™ 24x7 Safety Hub</h3>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-100 text-red-800">
+                  Live WhatsApp Share
+                </span>
+              </div>
+              <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                Share live tracking with family on WhatsApp, verify 4-digit security OTPs, and access 112 emergency speed dials.
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={onOpenSOS}
+            className="w-full py-2.5 px-4 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold transition flex items-center justify-center gap-2 shadow-sm"
+          >
+            <Send className="w-3.5 h-3.5" />
+            <span>Open SafeTrip™ Safety Hub</span>
+          </button>
         </div>
       </section>
 
@@ -535,7 +633,7 @@ export default function CustomerHomeScreen({
                 <div>
                   <h4 className="font-extrabold text-sm text-[#0B1329] flex items-center gap-1.5">
                     <span>{drv.fullName}</span>
-                    <span className="w-4 h-4 rounded-full bg-blue-600 text-white flex items-center justify-center text-[9px] font-bold" title="Police & DL Verified">✓</span>
+                    <span className="w-4 h-4 rounded-full bg-blue-600 text-white flex items-center justify-center text-[9px] font-bold" title="Commercial DL & Aadhaar Verified">✓</span>
                   </h4>
                   <p className="text-xs text-slate-500 mt-0.5">
                     {drv.experienceYears} Years Experience • {drv.primaryCity}
@@ -549,8 +647,23 @@ export default function CustomerHomeScreen({
                       {skill}
                     </span>
                   ))}
+                  {(drv.bio?.toLowerCase().includes('ev') || drv.bio?.toLowerCase().includes('electric')) && (
+                    <span className="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 font-bold">
+                      ⚡ EV Certified
+                    </span>
+                  )}
+                  {(drv.bio?.toLowerCase().includes('german') || drv.bio?.toLowerCase().includes('bmw') || drv.bio?.toLowerCase().includes('audi') || drv.vehicleTypes?.includes('Luxury')) && (
+                    <span className="px-2 py-0.5 rounded-md bg-amber-50 text-amber-800 font-bold">
+                      🏎️ Luxury Pro
+                    </span>
+                  )}
+                  {(drv.bio?.toLowerCase().includes('highway') || drv.bio?.toLowerCase().includes('outstation')) && (
+                    <span className="px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 font-bold">
+                      🛣️ Highway Pro
+                    </span>
+                  )}
                   <span className="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700">
-                    KYC Verified
+                    DL Verified
                   </span>
                 </div>
 

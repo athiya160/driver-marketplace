@@ -5,6 +5,9 @@ import InvoiceModal from './components/InvoiceModal.jsx';
 import ReviewModal from './components/ReviewModal.jsx';
 import NotificationDrawer from './components/NotificationDrawer.jsx';
 import PhotoUploadModal from './components/PhotoUploadModal.jsx';
+import MyGarageModal from './components/MyGarageModal.jsx';
+import SafeTripSOSModal from './components/SafeTripSOSModal.jsx';
+import DigitalVehicleHandoverModal from './components/DigitalVehicleHandoverModal.jsx';
 
 import CustomerHomeScreen from './screens/CustomerHomeScreen.jsx';
 import DriverSearchResultsScreen from './screens/DriverSearchResultsScreen.jsx';
@@ -81,6 +84,20 @@ export default function App() {
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authInitialView, setAuthInitialView] = useState('login');
 
+  // Startup Mobility Features: Garage, SafeTrip SOS, Handover
+  const [garageModalOpen, setGarageModalOpen] = useState(false);
+  const [sosModalOpen, setSosModalOpen] = useState(false);
+  const [handoverModalOpen, setHandoverModalOpen] = useState(false);
+  const [selectedVehicle, setSelectedVehicle] = useState({
+    id: 'veh_creta',
+    makeModel: 'Hyundai Creta SX(O)',
+    bodyType: 'SUV',
+    transmission: 'Automatic',
+    fuelType: 'Diesel',
+    regNumber: 'KA-01-MJ-4821',
+    tag: 'Primary Commuter'
+  });
+
   // Notifications state
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [notifications, setNotifications] = useState([
@@ -128,9 +145,22 @@ export default function App() {
     durationHours: 4,
     serviceType: 'hourly',
     transmissionType: 'Automatic',
-    vehicleType: 'Sedan',
+    vehicleType: 'SUV',
+    carModel: 'Hyundai Creta SX(O)',
+    regNumber: 'KA-01-MJ-4821',
     couponCode: 'FIRST50'
   });
+
+  const handleSelectVehicle = (veh) => {
+    setSelectedVehicle(veh);
+    setBookingForm(prev => ({
+      ...prev,
+      vehicleType: veh.bodyType,
+      transmissionType: veh.transmission,
+      carModel: veh.makeModel,
+      regNumber: veh.regNumber
+    }));
+  };
 
   // Load initial data
   useEffect(() => {
@@ -275,6 +305,8 @@ export default function App() {
       currentUser={currentUser}
       activeBooking={activeBooking}
       onResetDemo={handleReloadAll}
+      onOpenGarage={() => setGarageModalOpen(true)}
+      onOpenSOS={() => setSosModalOpen(true)}
     >
       <div className="w-full">
         
@@ -286,6 +318,10 @@ export default function App() {
             bookingForm={bookingForm}
             setBookingForm={setBookingForm}
             topDrivers={allDrivers}
+            selectedVehicle={selectedVehicle}
+            onOpenGarage={() => setGarageModalOpen(true)}
+            onOpenSOS={() => setSosModalOpen(true)}
+            onOpenHandover={() => setHandoverModalOpen(true)}
             onSelectCategory={(catId) => {
               setBookingForm(prev => ({ ...prev, serviceType: catId }));
               setActiveScreen('drivers');
@@ -465,6 +501,42 @@ export default function App() {
         onClose={() => setPhotoUploadModalOpen(false)}
         onUploadComplete={(newImg) => {
           console.log('Uploaded image synced:', newImg);
+        }}
+      />
+
+      {/* Startup Mobility Feature Modals */}
+      <MyGarageModal
+        isOpen={garageModalOpen}
+        onClose={() => setGarageModalOpen(false)}
+        selectedVehicleId={selectedVehicle?.id}
+        onSelectVehicle={handleSelectVehicle}
+      />
+
+      <SafeTripSOSModal
+        isOpen={sosModalOpen}
+        onClose={() => setSosModalOpen(false)}
+        booking={activeBooking || {
+          driverName: selectedDriver?.fullName || 'Assigned Chauffeur',
+          vehicleModel: bookingForm.carModel || selectedVehicle?.makeModel,
+          vehicleType: bookingForm.vehicleType,
+          bookingReference: activeBooking?.bookingReference || 'SRT-PENDING-SAFE',
+          pickupCity: selectedCity
+        }}
+      />
+
+      <DigitalVehicleHandoverModal
+        isOpen={handoverModalOpen}
+        onClose={() => setHandoverModalOpen(false)}
+        booking={activeBooking || {
+          id: 'temp_handover_preview',
+          bookingReference: 'SRT-INSPECT-PREVIEW',
+          driverName: selectedDriver?.fullName || 'Assigned Chauffeur',
+          customerName: currentUser?.fullName || 'Car Owner',
+          vehicleModel: bookingForm.carModel || selectedVehicle?.makeModel || 'Personal Car'
+        }}
+        onSaveHandover={(handoverData) => {
+          alert('Pre-trip vehicle condition, odometer, and scratch inspection logged successfully!');
+          setHandoverModalOpen(false);
         }}
       />
 

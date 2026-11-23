@@ -164,7 +164,7 @@ export default function BookingFlowScreen({
                 </p>
                 <div className="flex items-center gap-2 mt-1 text-[11px] font-semibold text-emerald-700">
                   <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>Commercial DL & Police Cleared</span>
+                  <span>Commercial DL & Aadhaar Verified</span>
                 </div>
               </div>
             </div>
@@ -202,9 +202,13 @@ export default function BookingFlowScreen({
               <div className="flex items-start gap-3 p-3 bg-slate-50 border border-slate-200 rounded-2xl">
                 <Car className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
                 <div>
-                  <span className="text-[10px] uppercase font-bold text-slate-400 block">Vehicle Specification</span>
-                  <p className="font-bold text-xs text-[#0B1329] mt-0.5">{bookingForm.transmissionType} Transmission</p>
-                  <p className="text-[11px] text-slate-500">{bookingForm.vehicleType} Category</p>
+                  <span className="text-[10px] uppercase font-bold text-slate-400 block">Personal Vehicle</span>
+                  <p className="font-bold text-xs text-[#0B1329] mt-0.5">
+                    {bookingForm.carModel || 'Hyundai Creta SX(O)'}
+                  </p>
+                  <p className="text-[11px] text-slate-500 font-mono">
+                    {bookingForm.regNumber || 'KA-01-MJ-4821'} • {bookingForm.transmissionType} ({bookingForm.vehicleType})
+                  </p>
                 </div>
               </div>
             </div>
@@ -229,6 +233,20 @@ export default function BookingFlowScreen({
                   <p className="font-semibold text-xs text-[#0B1329]">{bookingForm.dropAddress || 'Local City Travel'}</p>
                 </div>
               </div>
+            </div>
+
+            {/* Handover Protection Shield Info */}
+            <div className="p-3 bg-amber-50/80 border border-amber-200/90 rounded-2xl flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <ShieldCheck className="w-4 h-4 text-amber-600 shrink-0" />
+                <div>
+                  <h5 className="font-extrabold text-[11px] text-[#0B1329]">Pre-Trip Vehicle Handover Shield</h5>
+                  <p className="text-[10px] text-slate-500">Odometer, fuel level & scratch inspection logged at trip start</p>
+                </div>
+              </div>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
+                Included Free
+              </span>
             </div>
           </div>
 

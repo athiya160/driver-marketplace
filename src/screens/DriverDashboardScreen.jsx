@@ -361,7 +361,7 @@ export default function DriverDashboardScreen({
           <div>
             <div className="flex items-center gap-1.5">
               <h1 className="font-extrabold text-sm text-[#0F1E36]">{driver?.fullName}</h1>
-              <span className="w-3.5 h-3.5 rounded-full bg-emerald-600 text-white flex items-center justify-center text-[8px] font-black" title="Police & DL Verified">✓</span>
+              <span className="w-3.5 h-3.5 rounded-full bg-emerald-600 text-white flex items-center justify-center text-[8px] font-black" title="Commercial DL & Aadhaar Verified">✓</span>
             </div>
             <div className="flex items-center gap-1 text-[11px] text-amber-500 font-bold">
               <Star className="w-3 h-3 fill-current" />

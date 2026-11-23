@@ -14,7 +14,8 @@ import {
   Users,
   Clock,
   MapPin,
-  Car
+  Car,
+  Send
 } from 'lucide-react';
 import { BRAND } from '../config/branding.js';
 import { updateBookingStatus } from '../api.js';
@@ -246,28 +247,38 @@ export default function LiveTripStatusScreen({
                   </p>
                   <div className="flex items-center gap-1 text-[11px] text-emerald-700 font-semibold mt-1">
                     <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>Police Verified • DL On Record</span>
+                    <span>Commercial DL & Aadhaar Verified • On Record</span>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Quick Contact & Safety Actions */}
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-3 gap-2">
               <a
                 href={`tel:${booking.driverPhone || '+918001234567'}`}
-                className="py-3 px-4 rounded-2xl bg-[#0B1329] hover:bg-slate-900 text-white text-xs font-bold flex items-center justify-center gap-2 transition min-h-[44px]"
+                className="py-3 px-2 rounded-2xl bg-[#0B1329] hover:bg-slate-900 text-white text-xs font-bold flex flex-col items-center justify-center gap-1 transition min-h-[44px]"
               >
                 <Phone className="w-4 h-4 text-emerald-400" />
-                <span>Call Chauffeur</span>
+                <span>Call</span>
+              </a>
+
+              <a
+                href={`https://api.whatsapp.com/send?text=${encodeURIComponent(`🛡️ *Sarathi SafeTrip Alert*\nI am traveling in my ${booking.transmissionType || 'personal'} car with verified chauffeur *${booking.driverName}*.\nBooking: ${booking.bookingReference}\nLive trip active.`)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="py-3 px-2 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex flex-col items-center justify-center gap-1 transition min-h-[44px]"
+              >
+                <Send className="w-4 h-4" />
+                <span>WhatsApp</span>
               </a>
 
               <button
                 onClick={() => setShowFamilyCircleModal(true)}
-                className="py-3 px-4 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold flex items-center justify-center gap-2 transition min-h-[44px]"
+                className="py-3 px-2 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold flex flex-col items-center justify-center gap-1 transition min-h-[44px]"
               >
                 <Share2 className="w-4 h-4 text-amber-600" />
-                <span>Share Ride</span>
+                <span>Circle</span>
               </button>
             </div>
 

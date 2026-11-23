@@ -231,7 +231,7 @@ export default function DriverProfileDetailsModal({
               <div className="flex items-center justify-between pb-1 border-b border-emerald-200">
                 <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-800">Legal Verification</span>
                 <span className="text-[10px] text-emerald-700 font-bold bg-emerald-100 px-2 py-0.5 rounded-full">
-                  100% Police Verified ✓
+                  Commercial DL & Aadhaar Verified ✓
                 </span>
               </div>
               <div className="grid grid-cols-2 gap-2 text-[11px] pt-1">
@@ -298,11 +298,11 @@ export default function DriverProfileDetailsModal({
               <div className="space-y-1 text-[11px] text-slate-200 bg-slate-900/60 p-2.5 rounded-xl border border-slate-700 font-mono">
                 <div className="flex justify-between">
                   <span className="text-slate-400">KYC Status:</span>
-                  <span className="text-emerald-400 font-bold uppercase">{passportData?.policeVerificationStatus || 'Verified'} ✓</span>
+                  <span className="text-emerald-400 font-bold uppercase">{passportData?.kycStatus || 'Verified'} ✓</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-400">Verification Ref:</span>
-                  <span className="text-slate-300 truncate">{passportData?.policeClearanceNumber || 'KYC-DL-NORTH-2026-44910'}</span>
+                  <span className="text-slate-300 truncate">{passportData?.verificationRefNumber || 'KYC-DL-NORTH-2026-44910'}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-400">License Category:</span>

@@ -43,7 +43,7 @@ export default function AuthModal({
   const ONBOARDING_SLIDES = [
     {
       title: 'Verified Drivers Across India',
-      subtitle: 'Rent trusted chauffeurs for your personal car in 14+ major cities with 100% police clearance and commercial license verification.',
+      subtitle: 'Rent trusted chauffeurs for your personal car in 14+ major cities with 100% Aadhaar identity and commercial license verification.',
       icon: '🛡️',
       color: 'from-blue-600 to-cyan-600'
     },

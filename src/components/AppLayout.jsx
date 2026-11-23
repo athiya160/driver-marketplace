@@ -22,7 +22,8 @@ import {
   ExternalLink,
   SlidersHorizontal,
   Home,
-  Users
+  Users,
+  ShieldAlert
 } from 'lucide-react';
 import { BRAND, THEME } from '../config/branding.js';
 import { INDIAN_CITIES } from '../constants.js';
@@ -42,7 +43,9 @@ export default function AppLayout({
   onOpenAuth,
   currentUser,
   activeBooking,
-  onResetDemo
+  onResetDemo,
+  onOpenGarage,
+  onOpenSOS
 }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [cityDropdownOpen, setCityDropdownOpen] = useState(false);
@@ -282,6 +285,28 @@ export default function AppLayout({
                 <span className="hidden xl:inline">Phone QR</span>
               </button>
 
+              {/* My Personal Garage (Customer Only) */}
+              {currentRole === 'customer' && (
+                <button
+                  onClick={onOpenGarage}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800/80 border border-slate-700 text-slate-200 hover:text-white hover:border-amber-400/50 transition text-xs font-semibold"
+                  title="My Vehicle Vault / Garage"
+                >
+                  <Car className="w-3.5 h-3.5 text-amber-400" />
+                  <span className="hidden xl:inline">My Garage</span>
+                </button>
+              )}
+
+              {/* SafeTrip 24x7 SOS Hub */}
+              <button
+                onClick={onOpenSOS}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-red-950/80 border border-red-500/40 text-red-200 hover:bg-red-900 transition text-xs font-bold"
+                title="24x7 Safety Desk & SafeTrip SOS"
+              >
+                <ShieldAlert className="w-3.5 h-3.5 text-red-400" />
+                <span className="hidden sm:inline">SOS</span>
+              </button>
+
               {/* Notifications Bell */}
               <button
                 onClick={onOpenNotifications}
@@ -382,6 +407,18 @@ export default function AppLayout({
                     className="w-full text-left px-3 py-2 rounded-xl text-xs font-bold text-white hover:bg-slate-800 flex items-center gap-2"
                   >
                     <User className="w-4 h-4 text-[#D4AF37]" /> Customer Profile & History
+                  </button>
+                  <button
+                    onClick={() => { if (onOpenGarage) onOpenGarage(); setMobileMenuOpen(false); }}
+                    className="w-full text-left px-3 py-2 rounded-xl text-xs font-bold text-amber-300 hover:bg-slate-800 flex items-center gap-2"
+                  >
+                    <Car className="w-4 h-4 text-amber-400" /> My Vehicle Vault (Garage)
+                  </button>
+                  <button
+                    onClick={() => { if (onOpenSOS) onOpenSOS(); setMobileMenuOpen(false); }}
+                    className="w-full text-left px-3 py-2 rounded-xl text-xs font-bold text-red-400 hover:bg-red-950/60 flex items-center gap-2"
+                  >
+                    <ShieldAlert className="w-4 h-4 text-red-500" /> SafeTrip™ 24x7 SOS Desk
                   </button>
                 </>
               )}
@@ -547,7 +584,7 @@ export default function AppLayout({
               </p>
               <div className="flex items-center gap-3 pt-2 text-[11px] font-semibold text-[#D4AF37]">
                 <span className="flex items-center gap-1">
-                  <ShieldCheck className="w-4 h-4 text-[#10B981]" /> 100% Police Verified
+                  <ShieldCheck className="w-4 h-4 text-[#10B981]" /> Commercial DL & Identity Verified
                 </span>
                 <span>•</span>
                 <span>Manual & Automatic</span>

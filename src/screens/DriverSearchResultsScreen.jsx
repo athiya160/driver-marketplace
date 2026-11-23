@@ -74,7 +74,7 @@ export default function DriverSearchResultsScreen({
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-full border border-emerald-200">
             <ShieldCheck className="w-4 h-4 text-emerald-600" />
-            <span>100% Police & DL Verified</span>
+            <span>Commercial DL & Aadhaar Verified</span>
           </div>
         </div>
       </div>
@@ -240,7 +240,7 @@ export default function DriverSearchResultsScreen({
                     <div>
                       <h3 className="font-extrabold text-base text-[#0B1329] font-display flex items-center gap-1.5">
                         <span>{driver.fullName}</span>
-                        <span className="w-4 h-4 rounded-full bg-blue-600 text-white flex items-center justify-center text-[9px] font-bold" title="Police & DL Verified">✓</span>
+                        <span className="w-4 h-4 rounded-full bg-blue-600 text-white flex items-center justify-center text-[9px] font-bold" title="Commercial DL & Aadhaar Verified">✓</span>
                       </h3>
                       <p className="text-xs text-slate-500 mt-0.5">
                         {driver.experienceYears} Years Driving • {driver.primaryCity}
@@ -259,6 +259,21 @@ export default function DriverSearchResultsScreen({
                           {t}
                         </span>
                       ))}
+                      {(driver.bio?.toLowerCase().includes('ev') || driver.bio?.toLowerCase().includes('electric')) && (
+                        <span className="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 font-bold border border-emerald-200">
+                          ⚡ EV Certified
+                        </span>
+                      )}
+                      {(driver.bio?.toLowerCase().includes('german') || driver.bio?.toLowerCase().includes('bmw') || driver.bio?.toLowerCase().includes('audi') || driver.vehicleTypes?.includes('Luxury')) && (
+                        <span className="px-2 py-0.5 rounded-md bg-amber-50 text-amber-800 font-bold border border-amber-200">
+                          🏎️ Luxury Pro
+                        </span>
+                      )}
+                      {(driver.bio?.toLowerCase().includes('highway') || driver.bio?.toLowerCase().includes('outstation')) && (
+                        <span className="px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 font-bold border border-blue-200">
+                          🛣️ Highway Pro
+                        </span>
+                      )}
                       {driver.vehicleTypes?.slice(0, 2).map(v => (
                         <span key={v} className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 border border-slate-200">
                           {v}
