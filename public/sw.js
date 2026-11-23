@@ -1,8 +1,7 @@
 // Salman Driver PWA Service Worker
-const CACHE_NAME = 'salman-driver-v1';
+const CACHE_NAME = 'salman-driver-v2';
 const ASSETS_TO_CACHE = [
   '/',
-  '/index.html',
   '/manifest.json',
   '/favicon.png',
   '/icon-192.png',
@@ -35,13 +34,21 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // Network-First for navigation / HTML documents so users never see stale blank pages
+  if (event.request.mode === 'navigate' || event.request.destination === 'document') {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          return response;
+        })
+        .catch(() => caches.match(event.request) || caches.match('/'))
+    );
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
-      return cachedResponse || fetch(event.request).catch(() => {
-        if (event.request.mode === 'navigate') {
-          return caches.match('/');
-        }
-      });
+      return cachedResponse || fetch(event.request);
     })
   );
 });
